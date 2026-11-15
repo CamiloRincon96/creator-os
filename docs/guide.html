@@ -3,83 +3,235 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Creator OS map. Open it in a browser. docs/how-it-works.png is this page rendered with #readme (headless Chrome, 1600x1010 at 2x). -->
+<!-- Creator OS map. Open it in a browser: it plays a guided tour on its own. docs/how-it-works.png is this page rendered with #readme (headless Chrome, 1600x1180 at 2x). -->
 <title>Creator OS Map</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@500;600&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap">
 <style>
-/* Layout: a metro map. The red line is the flow; stations are commands; branches are what plugs in. */
+/* Layout: a dark player (the metro map as a screen, with the chapter panel beside it), then the timeline of what each step uses, then how to start. */
 :root {
-  --bg: #f2f3f5; --paper: #ffffff; --ink: #161a22; --muted: #687080; --faint: #c9ced7;
-  --line: #d6403a; --free: #1f8a5b; --paid: #d9730d; --glow: rgb(214 64 58 / 0.18);
+  --bg: #eef0f4; --surface: #ffffff; --ink: #12151c; --muted: #5b6372; --rule: #d6dbe3;
+  --accent: #d93e33; --free: #18784e; --paid: #a85507;
+  /* the player is a screen: the same in both themes */
+  --s-bg: #07090e; --s-panel: #0d1118; --s-raise: #151a24; --s-ink: #f2f4f8; --s-muted: #8f98a9; --s-faint: #1f2632; --s-dim: #394150;
+  --s-red: #ff4f45; --s-amber: #ffb547; --s-free: #4fd294; --s-free-bg: #0c2118; --s-paid: #ffa24f; --s-paid-bg: #29190a; --s-shade: rgb(0 0 0 / 0.62);
   --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
-  --body: "Inter", system-ui, -apple-system, sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #10131a; --paper: #191d26; --ink: #eceef2; --muted: #9aa3b2; --faint: #3a414e; --line: #ff6b5f; --free: #4cc58c; --paid: #f0974a; --glow: rgb(255 107 95 / 0.22); color-scheme: dark; } }
-:root[data-theme="dark"] { --bg: #10131a; --paper: #191d26; --ink: #eceef2; --muted: #9aa3b2; --faint: #3a414e; --line: #ff6b5f; --free: #4cc58c; --paid: #f0974a; --glow: rgb(255 107 95 / 0.22); color-scheme: dark; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0a0c11; --surface: #11151d; --ink: #eceef3; --muted: #99a1b0; --rule: #232934; --accent: #ff6155; --free: #4cc58c; --paid: #f0974a; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #0a0c11; --surface: #11151d; --ink: #eceef3; --muted: #99a1b0; --rule: #232934; --accent: #ff6155; --free: #4cc58c; --paid: #f0974a; color-scheme: dark; }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--body); }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45; }
 body[data-l="en"] [data-es-only], body[data-l="es"] [data-en-only] { display: none; }
-.page { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 22px 40px; display: grid; gap: 18px; }
-header { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
-h1 { font-family: var(--display); font-weight: 800; font-size: clamp(1.9rem, 4vw, 2.7rem); letter-spacing: -0.02em; margin: 0; line-height: 1; }
-.tag { color: var(--muted); font-size: 1rem; margin: 6px 0 0; }
-.lang { display: inline-flex; background: var(--paper); border: 1px solid var(--faint); border-radius: 999px; padding: 3px; }
-.lang button, .play { border: 0; background: transparent; color: var(--muted); font: 600 0.9rem var(--body); padding: 7px 14px; border-radius: 999px; cursor: pointer; }
+.page { max-width: 1320px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 26px 56px; display: grid; gap: 22px; }
+button { font-family: inherit; }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* header */
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px 24px; flex-wrap: wrap; }
+h1 { font: 800 clamp(2.3rem, 5vw, 3.5rem)/0.95 var(--display); letter-spacing: -0.03em; margin: 0; }
+.tag { margin: 8px 0 0; color: var(--muted); font-size: 1.06rem; }
+.lang { display: inline-flex; background: var(--surface); border: 1px solid var(--rule); border-radius: 999px; padding: 3px; }
+.lang button { border: 0; background: transparent; color: var(--muted); font-weight: 600; font-size: 0.9rem; padding: 7px 15px; border-radius: 999px; cursor: pointer; }
 .lang button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
-button:focus-visible { outline: 3px solid var(--line); outline-offset: 2px; }
-.mapbox { background: var(--paper); border: 1px solid var(--faint); border-radius: 22px; overflow-x: auto; }
-svg.map { display: block; width: 100%; min-width: 860px; height: auto; }
-.map text { font-family: var(--body); fill: var(--ink); }
-.map .lbl { font-family: var(--display); font-weight: 800; font-size: 19px; }
-.map .cmd { font-family: var(--mono); font-size: 11.5px; fill: var(--muted); }
-.map .plug { font-family: var(--mono); font-size: 11.5px; font-weight: 600; }
-.map .main { fill: none; stroke: var(--line); stroke-width: 11; stroke-linecap: round; stroke-linejoin: round; }
-.map .express { fill: none; stroke: var(--line); stroke-width: 3.5; stroke-dasharray: 2 9; stroke-linecap: round; opacity: 0.8; }
-.map .branch { stroke: var(--faint); stroke-width: 2.5; }
-.st { cursor: pointer; }
-.st .ring { fill: var(--paper); stroke: var(--ink); stroke-width: 5; transition: r .2s; }
-.st .halo { fill: var(--glow); opacity: 0; transition: opacity .25s; }
-.st .ico { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.st:hover .halo, .st.on .halo { opacity: 1; }
-.st.on .ring { stroke: var(--line); }
-.st.on .ico { stroke: var(--line); }
-.st:focus-visible { outline: none; }
-.st:focus-visible .ring { stroke: var(--line); stroke-width: 7; }
-.dot-req { fill: var(--ink); } .dot-free { fill: var(--free); } .dot-paid { fill: var(--paid); } .dot-in { fill: var(--paper); stroke: var(--ink); stroke-width: 2.5; }
-.t-free { fill: var(--free) !important; } .t-paid { fill: var(--paid) !important; }
-.train { fill: var(--line); }
-.train-glow { fill: var(--glow); }
-.bar { display: flex; justify-content: space-between; align-items: center; gap: 12px 20px; flex-wrap: wrap; }
-.play { background: var(--line); color: #fff; padding: 9px 18px; display: inline-flex; gap: 8px; align-items: center; font-size: 0.95rem; }
-.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 0.88rem; color: var(--muted); }
-.legend span { display: inline-flex; align-items: center; gap: 7px; }
-.legend i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-.card { background: var(--paper); border: 1px solid var(--faint); border-radius: 18px; padding: 16px 18px; display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 4px 16px; align-items: center; min-height: 104px; }
-.card .ic { grid-row: span 3; width: 54px; height: 54px; border-radius: 50%; border: 4px solid var(--line); display: grid; place-items: center; }
-.card .ic svg { width: 26px; height: 26px; fill: none; stroke: var(--line); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.card h2 { font-family: var(--display); font-weight: 800; font-size: 1.35rem; margin: 0; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
-.card h2 code { font-family: var(--mono); font-size: 0.82rem; font-weight: 500; color: var(--muted); }
-.card p { margin: 0; font-size: 1rem; }
-.card .ok { color: var(--free); font-weight: 600; font-size: 0.95rem; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; grid-column: 2; margin-top: 4px; }
-.chip { font-family: var(--mono); font-size: 0.78rem; font-weight: 600; padding: 3px 9px; border-radius: 7px; background: var(--bg); color: var(--ink); }
-.chip.free { color: var(--free); } .chip.paid { color: var(--paid); } .chip.in { box-shadow: inset 0 0 0 1.5px var(--ink); background: transparent; }
-.start { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; font-size: 0.9rem; color: var(--muted); }
-.start code { font-family: var(--mono); font-size: 0.82rem; background: var(--paper); border: 1px solid var(--faint); border-radius: 8px; padding: 5px 9px; color: var(--ink); }
-.start .arr { color: var(--faint); }
-/* README render: only the map, English */
-body.readme .page { max-width: none; padding: 26px 30px; }
-body.readme .lang, body.readme .play, body.readme .card, body.readme .start { display: none; }
-body.readme .mapbox { border: 0; }
-@media (prefers-reduced-motion: reduce) { .st .ring, .st .halo { transition: none; } }
+
+/* player */
+.player { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(300px, 1fr); gap: 14px; }
+.stage { position: relative; aspect-ratio: 1200 / 760; max-width: 100%; background: var(--s-bg); border: 1px solid var(--s-faint); border-radius: 22px; overflow: hidden; }
+.stage svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.stage::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(130% 95% at 50% 42%, transparent 58%, var(--s-shade)); }
+.segs { position: absolute; z-index: 2; top: 10px; left: 14px; right: 14px; display: flex; gap: 5px; }
+.seg { flex: 1; min-width: 0; border: 0; background: none; padding: 7px 0; cursor: pointer; }
+.seg i { display: block; height: 4px; border-radius: 2px; overflow: hidden; background: color-mix(in srgb, var(--s-ink) 20%, transparent); }
+.seg b { display: block; height: 100%; width: 0; border-radius: 2px; background: var(--s-ink); }
+.seg:focus-visible { outline: 2px solid var(--s-red); outline-offset: 2px; border-radius: 4px; }
+.hud { position: absolute; z-index: 2; top: 32px; left: 17px; display: flex; gap: 8px; align-items: center; font: 600 11px var(--mono); letter-spacing: 0.06em; color: var(--s-muted); font-variant-numeric: tabular-nums; }
+.rec { width: 8px; height: 8px; border-radius: 50%; background: var(--s-dim); }
+.rec.on { background: var(--s-red); animation: blink 1.2s steps(2, start) infinite; }
+@keyframes blink { to { visibility: hidden; } }
+
+/* the map */
+.map text { font-family: var(--body); }
+.base { fill: none; stroke: var(--s-faint); stroke-width: 12; stroke-linecap: round; stroke-linejoin: round; }
+.base.loop { stroke-width: 10; stroke-linecap: butt; }
+.base.exp { stroke: var(--s-dim); stroke-width: 4; stroke-dasharray: 0.1 11; }
+.lit, .glow { fill: none; stroke: url(#g-line); stroke-linecap: round; stroke-linejoin: round; }
+.lit { stroke-width: 12; }
+.glow { stroke-width: 26; opacity: 0.5; filter: url(#f-glow); }
+.lit.loop { stroke-width: 10; stroke-linecap: butt; }
+.glow.loop { stroke-width: 22; stroke-linecap: butt; }
+.lit.exp { stroke-width: 5; stroke-dasharray: 0.1 11; }
+.flow { fill: none; stroke: var(--s-ink); stroke-width: 3.2; stroke-linecap: round; stroke-dasharray: 0.1 44; opacity: 0.75; animation: flow 1.6s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -44.1; } }
+.mk { fill: none; stroke: #fff; stroke-width: 24; stroke-linecap: round; stroke-linejoin: round; }
+#arrow { fill: var(--s-faint); transition: fill 0.6s; }
+#arrow.on { fill: url(#g-line); }
+#monday rect { fill: var(--s-bg); stroke: var(--s-faint); stroke-width: 3; transition: stroke 0.6s; }
+#monday text { font: 700 13px var(--mono); fill: var(--s-muted); transition: fill 0.6s; }
+#monday.on rect { stroke: url(#g-line); }
+#monday.on text { fill: var(--s-ink); }
+.spot { opacity: 0; transition: opacity 0.8s; }
+.spot.on { opacity: 1; }
+.st { cursor: pointer; outline: none; }
+.st .ring { fill: var(--s-panel); stroke: var(--s-dim); stroke-width: 5; transition: fill 0.5s, stroke 0.5s; }
+.st.lit .ring { stroke: url(#g-line); }
+.st.cur .ring { fill: url(#g-line); stroke: var(--s-ink); stroke-width: 4; }
+.st.small .ring { stroke-dasharray: 5 5; }
+.st.small.cur .ring { stroke-dasharray: none; }
+.st:hover .ring { stroke: var(--s-ink); }
+.st:focus-visible .ring { stroke: var(--s-ink); stroke-width: 7; }
+.st .ico path { fill: none; stroke: var(--s-muted); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.5s; }
+.st.lit .ico path { stroke: var(--s-ink); }
+.st.cur .ico path { stroke: var(--s-bg); stroke-width: 2; }
+.st .pulse { fill: none; stroke: var(--s-red); stroke-width: 3; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.st.cur .pulse { animation: ping 2s ease-out infinite; }
+@keyframes ping { from { transform: scale(1); opacity: 0.85; } to { transform: scale(2); opacity: 0; } }
+.st .bdg { fill: var(--s-bg); stroke: var(--s-dim); stroke-width: 1.5; }
+.st.lit .bdg { stroke: var(--s-ink); }
+.st .bdg-t { font: 700 11px var(--mono); fill: var(--s-muted); }
+.st.lit .bdg-t { fill: var(--s-ink); }
+.st .nm { font: 800 22px var(--display); letter-spacing: -0.01em; fill: var(--s-muted); transition: fill 0.5s; }
+.st.small .nm { font-size: 17px; }
+.st.lit .nm { fill: var(--s-ink); }
+.st .cm { font: 500 12px var(--mono); fill: var(--s-muted); }
+.st .nm, .st .cm { paint-order: stroke; stroke: var(--s-bg); stroke-width: 6px; stroke-linejoin: round; }
+.stack { transition: opacity 0.6s; }
+.stack.off { opacity: 0.22; }
+.conn { fill: none; stroke: var(--s-dim); stroke-width: 2; }
+.pill { transform-box: fill-box; transform-origin: center; transition: opacity 0.45s; }
+.pill.wait { opacity: 0.16; }
+.pill.hit { animation: pop 0.75s cubic-bezier(0.2, 0.9, 0.25, 1.25); }
+@keyframes pop { 0% { transform: scale(0.72); } 60% { transform: scale(1.1); } 100% { transform: scale(1); } }
+.pill rect { stroke-width: 1.5; }
+.pill text { font: 600 12px var(--mono); }
+.pill.in rect { fill: var(--s-panel); stroke: var(--s-ink); }
+.pill.in text { fill: var(--s-ink); }
+.pill.in circle { fill: none; stroke: var(--s-ink); stroke-width: 1.6; }
+.pill.req rect { fill: var(--s-ink); stroke: var(--s-ink); }
+.pill.req text, .pill.req circle { fill: var(--s-bg); }
+.pill.free rect { fill: var(--s-free-bg); stroke: var(--s-free); }
+.pill.free text, .pill.free circle { fill: var(--s-free); }
+.pill.paid rect { fill: var(--s-paid-bg); stroke: var(--s-paid); }
+.pill.paid text, .pill.paid circle { fill: var(--s-paid); }
+.train { opacity: 0; transition: opacity 0.35s; }
+.train.on { opacity: 1; }
+.train .tg { fill: var(--s-red); opacity: 0.55; filter: url(#f-soft); }
+.train .tc { fill: var(--s-ink); }
+
+/* tool chips, shared by the panel (screen colors) and the page (theme colors) */
+.tool { display: inline-flex; align-items: center; gap: 7px; font: 600 12px var(--mono); padding: 4px 10px; border-radius: 999px; border: 1.5px solid var(--t-ink); color: var(--t-ink); white-space: nowrap; }
+.tool::before { content: ""; flex: none; width: 7px; height: 7px; border-radius: 50%; box-shadow: inset 0 0 0 1.6px currentColor; }
+.tool.req { background: var(--t-ink); color: var(--t-inv); }
+.tool.req::before { background: var(--t-inv); box-shadow: none; }
+.tool.free { border-color: var(--t-free); color: var(--t-free); background: color-mix(in srgb, var(--t-free) 11%, transparent); }
+.tool.free::before { background: var(--t-free); box-shadow: none; }
+.tool.paid { border-color: var(--t-paid); color: var(--t-paid); background: color-mix(in srgb, var(--t-paid) 11%, transparent); }
+.tool.paid::before { background: var(--t-paid); box-shadow: none; }
+
+/* chapter panel */
+.deck { --t-ink: var(--s-ink); --t-inv: var(--s-bg); --t-free: var(--s-free); --t-paid: var(--s-paid);
+  background: var(--s-panel); color: var(--s-ink); border: 1px solid var(--s-faint); border-radius: 22px; padding: 22px; display: flex; flex-direction: column; gap: 15px; min-width: 0; }
+.d-top { display: flex; justify-content: space-between; gap: 10px; font: 700 11.5px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--s-muted); font-variant-numeric: tabular-nums; }
+.d-top b { color: var(--s-ink); }
+.d-top #d-cmd { text-transform: none; letter-spacing: 0; font-weight: 500; }
+.d-title { margin: 0; display: flex; align-items: center; gap: 14px; font: 800 clamp(1.8rem, 2.6vw, 2.45rem)/1 var(--display); letter-spacing: -0.02em; text-wrap: balance; }
+.d-ic { flex: none; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(135deg, var(--s-red), var(--s-amber)); }
+.d-ic svg { width: 24px; height: 24px; fill: none; stroke: var(--s-bg); stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+.d-line { margin: 0; font-size: 1.05rem; line-height: 1.5; max-width: 46ch; }
+.d-k { margin: 2px 0 9px; font: 700 11px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--s-muted); }
+.uses { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 12px; align-items: center; }
+.uses li { display: contents; }
+.uses li > * { transition: opacity 0.5s, transform 0.5s; }
+.uses li.wait > * { opacity: 0; transform: translateX(-8px); }
+.uses span { color: var(--s-muted); font-size: 0.93rem; line-height: 1.3; }
+.d-index { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.d-index button { display: flex; align-items: center; gap: 9px; min-width: 0; text-align: left; background: var(--s-raise); border: 1px solid var(--s-faint); color: var(--s-ink); border-radius: 12px; padding: 8px 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
+.d-index button:hover { border-color: var(--s-red); }
+.d-index i { font: 700 11px var(--mono); font-style: normal; color: var(--s-muted); width: 16px; flex: none; }
+.d-index svg { width: 16px; height: 16px; flex: none; fill: none; stroke: var(--s-amber); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.d-ok { margin-top: auto; display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--s-free) 10%, transparent); border: 1px solid color-mix(in srgb, var(--s-free) 45%, transparent); transition: opacity 0.5s, transform 0.5s; }
+.d-ok.wait { opacity: 0; transform: translateY(6px); }
+.d-ok svg { flex: none; width: 20px; height: 20px; margin-top: 1px; fill: none; stroke: var(--s-free); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.d-ok b { display: block; margin-bottom: 2px; font: 700 11px var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--s-free); }
+.d-ok span { font-weight: 600; }
+.ctrl { display: flex; align-items: center; gap: 8px; padding-top: 14px; border-top: 1px solid var(--s-faint); }
+.ib { width: 42px; height: 42px; flex: none; border-radius: 50%; border: 1px solid var(--s-dim); background: transparent; color: var(--s-ink); display: grid; place-items: center; cursor: pointer; }
+.ib svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.ib.big { width: 56px; height: 56px; border: 0; color: var(--s-bg); background: linear-gradient(135deg, var(--s-red), var(--s-amber)); }
+.ib.big svg { width: 22px; height: 22px; fill: currentColor; stroke: none; }
+.ib.big.replay svg { fill: none; stroke: currentColor; stroke-width: 2.4; }
+.ib:hover { border-color: var(--s-ink); }
+.tb { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; background: transparent; border: 1px solid var(--s-dim); color: var(--s-ink); border-radius: 999px; padding: 9px 14px; font-weight: 600; font-size: 0.86rem; cursor: pointer; }
+.tb svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tb:hover { border-color: var(--s-ink); }
+
+/* under the player */
+.under { display: flex; justify-content: space-between; align-items: center; gap: 10px 20px; flex-wrap: wrap; }
+.legend { --t-ink: var(--ink); --t-inv: var(--surface); --t-free: var(--free); --t-paid: var(--paid); display: flex; flex-wrap: wrap; gap: 8px; }
+.hint { margin: 0; color: var(--muted); font-size: 0.92rem; }
+
+/* timeline */
+.tl-sec { display: grid; gap: 16px; margin-top: 18px; }
+.tl-head h2 { margin: 0; font: 800 clamp(1.6rem, 3.4vw, 2.3rem)/1.05 var(--display); letter-spacing: -0.02em; text-wrap: balance; }
+.tl-head p { margin: 6px 0 0; color: var(--muted); }
+.tl { --t-ink: var(--ink); --t-inv: var(--surface); --t-free: var(--free); --t-paid: var(--paid); list-style: none; margin: 0; padding: 0 24px; background: var(--surface); border: 1px solid var(--rule); border-radius: 22px; }
+.tl-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) minmax(0, 1.2fr); gap: 10px 28px; padding-block: 24px; border-top: 1px solid var(--rule); }
+.tl-row:first-child { border-top: 0; }
+.tl-mark { position: relative; display: flex; justify-content: center; align-items: flex-start; }
+.tl-mark::before { content: ""; position: absolute; left: 50%; translate: -50% 0; top: -24px; bottom: -24px; width: 6px; border-radius: 3px; background: var(--accent); }
+.tl-row:first-child .tl-mark::before { top: 26px; }
+.tl-row:last-child .tl-mark::before { bottom: calc(100% - 26px); }
+.tl-ic { position: relative; z-index: 1; width: 52px; height: 52px; padding: 0; border-radius: 50%; border: 4px solid var(--accent); background: var(--surface); color: var(--ink); display: grid; place-items: center; cursor: pointer; transition: background 0.2s, color 0.2s; }
+.tl-row.x .tl-ic { width: 44px; height: 44px; margin-top: 4px; border-style: dashed; }
+.tl-ic:hover { background: var(--accent); color: var(--surface); }
+.tl-ic svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tl-n { position: absolute; top: -7px; right: -9px; min-width: 21px; height: 21px; border-radius: 999px; display: grid; place-items: center; background: var(--ink); color: var(--surface); font: 700 11px var(--mono); }
+.tl-main { min-width: 0; }
+.tl-main h3 { margin: 4px 0 6px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; font: 800 1.4rem/1.1 var(--display); letter-spacing: -0.01em; }
+.tl-main h3 code { font: 500 0.8rem var(--mono); color: var(--muted); }
+.tl-main p { margin: 0; line-height: 1.5; max-width: 50ch; }
+.tl-ok { margin-top: 10px !important; display: flex; gap: 7px; align-items: flex-start; color: var(--free); font-weight: 600; font-size: 0.94rem; }
+.tl-ok svg { flex: none; width: 18px; height: 18px; margin-top: 1px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.tl-uses { list-style: none; margin: 4px 0 0; padding: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 14px; align-content: start; align-items: center; }
+.tl-uses li { display: contents; }
+.tl-uses span { color: var(--muted); font-size: 0.94rem; line-height: 1.3; }
+
+/* how to start */
+.foot { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px 30px; background: var(--surface); border: 1px solid var(--rule); border-radius: 22px; padding: 22px 24px; }
+.foot h3 { margin: 0 0 10px; font: 700 11px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.chain, .chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chain code, .chips code { font: 500 0.85rem var(--mono); background: var(--bg); border: 1px solid var(--rule); border-radius: 9px; padding: 6px 10px; overflow-wrap: anywhere; }
+.chain span { color: var(--muted); }
+.rules { grid-column: 1 / -1; list-style: none; margin: 0; padding: 16px 0 0; border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; gap: 10px 28px; }
+.rules li { display: flex; gap: 8px; align-items: center; font-weight: 600; }
+.rules svg { width: 18px; height: 18px; flex: none; fill: none; stroke: var(--accent); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+@media (max-width: 980px) { .player { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 860px) { .tl-row { grid-template-columns: 52px minmax(0, 1fr); } .tl-uses { grid-column: 2; } .foot { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 700px) { .stage { aspect-ratio: 4 / 5; } .hud .fps { display: none; } .tl { padding: 0 16px; } }
+@media (max-width: 520px) {
+  .uses, .tl-uses { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .uses li, .tl-uses li { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+  .d-index { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flow, .st.cur .pulse, .pill.hit, .rec.on { animation: none; }
+  .st .ring, .st .nm, .pill, .stack, .uses li > *, .d-ok, .spot, .train { transition: none; }
+}
+/* README render: only the map, in English */
+body.readme .page { max-width: none; padding: 28px 32px 22px; }
+body.readme .player { grid-template-columns: minmax(0, 1fr); }
+body.readme .deck, body.readme .segs, body.readme .hud, body.readme .lang, body.readme .hint, body.readme .tl-sec, body.readme .foot { display: none; }
 </style>
 </head>
 <body>
 
 <div class="page">
-  <header>
+  <header class="top">
     <div>
       <h1>Creator OS</h1>
       <p class="tag"><span data-en-only>Your AI content team. You approve every step.</span><span data-es-only>Tu equipo de contenido con IA. Tú apruebas cada paso.</span></p>
@@ -90,169 +242,514 @@ body.readme .mapbox { border: 0; }
     </div>
   </header>
 
-  <div class="mapbox">
-    <svg class="map" id="map" viewBox="0 0 1180 620" role="img" aria-labelledby="map-t">
-      <title id="map-t">Creator OS flow map: set up, brand, ideas, produce, review, publish and learn, looping back to ideas every week; express shortcut from ideas to review; each station shows what plugs in.</title>
-      <!-- branches (drawn first, under everything) -->
-      <g id="branches"></g>
-      <!-- the loop back and the express shortcut -->
-      <path class="express" d="M 466 270 C 540 330, 560 392, 612 392 M 668 392 C 720 392, 760 330, 818 270"/>
-      <path class="main" id="main" d="M 96 250 H 1060 V 470 H 450 V 262"/>
-      <path d="M 439 318 L 450 300 L 461 318" fill="none" stroke="var(--line)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-      <g transform="translate(755 470)">
-        <rect x="-74" y="-17" width="148" height="34" rx="17" fill="var(--paper)" stroke="var(--line)" stroke-width="3"/>
-        <text x="0" y="5.5" text-anchor="middle" class="plug" style="fill:var(--line);font-size:13px"><tspan data-en-only>↺ every Monday</tspan><tspan data-es-only>↺ cada lunes</tspan></text>
-      </g>
-      <!-- express station -->
-      <g class="st" id="st-express" data-k="express" tabindex="0" role="button" aria-label="Express">
-        <circle class="halo" cx="640" cy="392" r="42"/>
-        <circle class="ring" cx="640" cy="392" r="24" style="stroke-dasharray:3 5"/>
-        <g class="ico" transform="translate(628 380)"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM6 11a6 6 0 0 0 12 0M12 17v4"/></g>
-        <text x="640" y="440" text-anchor="middle" class="lbl" style="font-size:15px"><tspan data-en-only>Express</tspan><tspan data-es-only>Exprés</tspan></text>
-        <text x="640" y="457" text-anchor="middle" class="cmd"><tspan data-en-only>voice note</tspan><tspan data-es-only>nota de voz</tspan></text>
-      </g>
-      <g id="stations"></g>
-      <g id="train" opacity="0"><circle class="train-glow" r="22"/><circle class="train" r="9"/></g>
-    </svg>
-  </div>
-
-  <div class="bar">
-    <button type="button" class="play" id="play"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 2l9 5-9 5z" fill="currentColor"/></svg><span data-en-only>Play the flow</span><span data-es-only>Ver el flujo</span></button>
-    <div class="legend">
-      <span><i style="background:var(--paper);box-shadow:inset 0 0 0 2.5px var(--ink)"></i><span data-en-only>in the repo</span><span data-es-only>viene en el repo</span></span>
-      <span><i style="background:var(--ink)"></i><span data-en-only>required</span><span data-es-only>obligatorio</span></span>
-      <span><i style="background:var(--free)"></i><span data-en-only>optional · free</span><span data-es-only>opcional · gratis</span></span>
-      <span><i style="background:var(--paid)"></i><span data-en-only>optional · paid</span><span data-es-only>opcional · de pago</span></span>
+  <section class="player" id="player" aria-label="Creator OS map">
+    <div class="stage" id="stage">
+      <div class="segs" id="segs"></div>
+      <div class="hud" aria-hidden="true"><i class="rec" id="rec"></i><span id="tc">00:00:00:00</span><span class="fps">· 30 fps</span></div>
+      <svg class="map" id="map" viewBox="0 13 1200 760" preserveAspectRatio="xMidYMid meet" role="group" aria-labelledby="map-t">
+        <title id="map-t">Creator OS as a metro map: set up, brand, ideas, produce, review, publish and learn, looping back to ideas every Monday, with an express shortcut from ideas to review. Each stop shows what it uses.</title>
+        <defs>
+          <linearGradient id="g-line" gradientUnits="userSpaceOnUse" x1="110" y1="0" x2="1000" y2="0">
+            <stop offset="0" style="stop-color: var(--s-red)"/>
+            <stop offset="1" style="stop-color: var(--s-amber)"/>
+          </linearGradient>
+          <radialGradient id="g-spot">
+            <stop offset="0" style="stop-color: var(--s-red); stop-opacity: 0.26"/>
+            <stop offset="0.55" style="stop-color: var(--s-red); stop-opacity: 0.07"/>
+            <stop offset="1" style="stop-color: var(--s-red); stop-opacity: 0"/>
+          </radialGradient>
+          <pattern id="p-dots" width="26" height="26" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" style="fill: var(--s-ink)" opacity="0.09"/></pattern>
+          <filter id="f-glow" filterUnits="userSpaceOnUse" x="-100" y="-100" width="1400" height="1000"><feGaussianBlur stdDeviation="8"/></filter>
+          <filter id="f-soft" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="5"/></filter>
+          <mask id="m-main" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1400" height="1000"><path id="mk-main" class="mk" d="M 110 330 H 950 Q 990 330 990 370 V 650"/></mask>
+          <mask id="m-loop" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1400" height="1000"><path id="mk-loop" class="mk" d="M 990 650 H 495 Q 455 650 455 610 V 397"/></mask>
+          <mask id="m-exp" maskUnits="userSpaceOnUse" x="-100" y="-100" width="1400" height="1000"><path id="mk-exp" class="mk" d="M 495 330 C 530 330 550 470 640 470 C 730 470 750 330 785 330"/></mask>
+        </defs>
+        <rect x="-1400" y="-1400" width="4000" height="3600" fill="url(#p-dots)"/>
+        <circle id="spot" class="spot" cx="640" cy="330" r="320" fill="url(#g-spot)"/>
+        <g id="stacks"></g>
+        <path class="base" d="M 110 330 H 950 Q 990 330 990 370 V 650"/>
+        <path class="base loop" d="M 990 650 H 495 Q 455 650 455 610 V 397"/>
+        <path class="base exp" id="base-exp" d="M 495 330 C 530 330 550 470 640 470 C 730 470 750 330 785 330"/>
+        <!-- the loop ends exactly at the arrow's base: no line runs past the tip -->
+        <path id="arrow" d="M 441 399 L 469 399 L 455 375 Z"/>
+        <path class="glow" id="glow-main" d="M 110 330 H 950 Q 990 330 990 370 V 650"/>
+        <path class="glow loop" id="glow-loop" d="M 990 650 H 495 Q 455 650 455 610 V 397"/>
+        <path class="lit" id="lit-main" d="M 110 330 H 950 Q 990 330 990 370 V 650"/>
+        <path class="lit loop" id="lit-loop" d="M 990 650 H 495 Q 455 650 455 610 V 397"/>
+        <path class="lit exp" d="M 495 330 C 530 330 550 470 640 470 C 730 470 750 330 785 330" mask="url(#m-exp)"/>
+        <path class="flow" d="M 110 330 H 950 Q 990 330 990 370 V 650" mask="url(#m-main)"/>
+        <path class="flow" d="M 990 650 H 495 Q 455 650 455 610 V 397" mask="url(#m-loop)"/>
+        <g id="monday" transform="translate(722 650)">
+          <rect x="-86" y="-18" width="172" height="36" rx="18"/>
+          <text x="0" y="5" text-anchor="middle"><tspan data-en-only>↺ every Monday</tspan><tspan data-es-only>↺ cada lunes</tspan></text>
+        </g>
+        <g class="train" id="train"><circle class="tg" r="20"/><circle class="tc" r="8"/></g>
+        <g class="train" id="train2"><circle class="tg" r="16"/><circle class="tc" r="6"/></g>
+        <g id="stations"></g>
+      </svg>
     </div>
+
+    <aside class="deck" id="deck">
+      <div class="d-top"><span id="d-n"></span><span id="d-cmd"></span></div>
+      <h2 class="d-title"><span class="d-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path id="d-icp"/></svg></span><span id="d-tt"></span></h2>
+      <p class="d-line" id="d-line"></p>
+      <div id="d-uses-w">
+        <p class="d-k" id="d-k"></p>
+        <ul class="uses" id="d-uses"></ul>
+      </div>
+      <div class="d-index" id="d-index"></div>
+      <div class="d-ok" id="d-ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><div><b id="d-ok-k"></b><span id="d-ok-t"></span></div></div>
+      <div class="ctrl">
+        <button type="button" class="ib" id="b-prev"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <button type="button" class="ib big" id="b-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path id="i-play" d="M8 5v14l11-7z"/></svg></button>
+        <button type="button" class="ib" id="b-next"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button type="button" class="tb" id="b-all"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14"/></svg><span data-en-only>Whole map</span><span data-es-only>Mapa completo</span></button>
+      </div>
+    </aside>
+  </section>
+
+  <div class="under">
+    <div class="legend">
+      <span class="tool in"><span data-en-only>in the repo</span><span data-es-only>viene en el repo</span></span>
+      <span class="tool req"><span data-en-only>required</span><span data-es-only>obligatorio</span></span>
+      <span class="tool free"><span data-en-only>optional · free</span><span data-es-only>opcional · gratis</span></span>
+      <span class="tool paid"><span data-en-only>optional · paid</span><span data-es-only>opcional · de pago</span></span>
+    </div>
+    <p class="hint"><span data-en-only>Tap a stop to see it up close.</span><span data-es-only>Toca una parada para verla de cerca.</span></p>
   </div>
 
-  <div class="card" id="card" aria-live="polite"></div>
+  <section class="tl-sec" aria-labelledby="tl-h">
+    <div class="tl-head">
+      <h2 id="tl-h"><span data-en-only>What each step uses</span><span data-es-only>Qué se usa en cada paso</span></h2>
+      <p><span data-en-only>Tap a circle to see it on the map.</span><span data-es-only>Toca un círculo para verlo en el mapa.</span></p>
+    </div>
+    <ol class="tl" id="tl"></ol>
+  </section>
 
-  <div class="start">
-    <strong data-en-only>Start</strong><strong data-es-only>Empezar</strong>
-    <code>git clone github.com/CamiloRincon96/creator-os</code><span class="arr">→</span>
-    <code>claude</code><span class="arr">→</span><code>/creator-start</code>
-  </div>
+  <section class="foot">
+    <div>
+      <h3><span data-en-only>Start</span><span data-es-only>Empezar</span></h3>
+      <div class="chain"><code>git clone github.com/CamiloRincon96/creator-os</code><span>→</span><code>claude</code><span>→</span><code>/creator-start</code></div>
+    </div>
+    <div>
+      <h3><span data-en-only>Runs on</span><span data-es-only>Corre en</span></h3>
+      <div class="chips"><code>Claude Code · Codex · Gemini · Grok</code><code>Node 18+</code><code>Python 3.10+</code><code>ffmpeg</code><code>Chrome</code><code>~6 GB</code></div>
+    </div>
+    <ul class="rules">
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span data-en-only>Never publishes without your yes</span><span data-es-only>Nunca publica sin tu sí</span></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5z"/></svg><span data-en-only>Never types your keys</span><span data-es-only>Nunca escribe tus claves</span></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4zM8 9h8M8 12h5"/></svg><span data-en-only>Talks to you in your language</span><span data-es-only>Te habla en tu idioma</span></li>
+    </ul>
+  </section>
 </div>
 
 <script>
-const IC = {
-  start: "M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z",
-  brand: "M5 21V4m0 0h11l-2 4 2 4H5",
-  ideas: "M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z",
-  reel: "M4 9h16v11H4zM4 9l3-5M10 9l3-5M16 9l3-5",
-  review: "M4 20h4L19 9l-4-4L4 16zM13 7l4 4",
-  publish: "M22 2 11 13M22 2l-7 20-4-9-9-4z",
-  pulse: "M3 12h4l3-8 4 16 3-8h4",
-  express: "M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM6 11a6 6 0 0 0 12 0M12 17v4"
-};
-// x, y, label position (below unless noted), plugs: [name, kind, x, y]
-const ST = {
-  start:   { x: 96,   y: 250, cmd: "/creator-start", en: "Set up", es: "Preparar", plugs: [["install.py", "in", 70, 150], ["Whisper", "in", 128, 104]] },
-  brand:   { x: 262,  y: 250, cmd: "/creator-brand", en: "Brand", es: "Marca", plugs: [[["your app / site", "tu app / sitio"], "req", 232, 150], ["last30days", "free", 300, 104]] },
-  ideas:   { x: 450,  y: 250, lab: "left", cmd: "/creator-ideas", en: "Ideas", es: "Ideas", plugs: [["last30days", "free", 392, 120], ["instagram-agent", "free", 502, 92], ["marketing", "free", 450, 52]] },
-  reel:    { x: 640,  y: 250, cmd: "/creator-reel", en: "Produce", es: "Producir", plugs: [["Remotion", "in", 590, 150], ["real-sfx", "in", 690, 150], ["HyperFrames", "free", 640, 112], ["After Effects", "paid", 576, 64], ["ElevenLabs", "paid", 640, 40], ["Higgsfield", "paid", 712, 64]] },
-  review:  { x: 850,  y: 250, cmd: "/creator-notes", en: "Review", es: "Revisar", plugs: [["Montage", "in", 850, 140]] },
-  publish: { x: 1060, y: 250, lab: "left", cmd: "instagram.py", en: "Publish", es: "Publicar", plugs: [["Instagram API", "free", 1060, 140]] },
-  pulse:   { x: 1060, y: 470, cmd: "/creator-pulse", en: "Learn", es: "Aprender", plugs: [[["watcher", "vigilancia"], "in", 1130, 560], ["Instagram API", "free", 952, 580]] }
-};
-const CARD = {
-  start:   { en: ["Checks your computer and installs what's missing.", "Anything that touches your system"], es: ["Revisa tu computador e instala lo que falta.", "Lo que toque tu sistema"] },
-  brand:   { en: ["Reads your app and finds your real niche.", "Every change"], es: ["Lee tu app y encuentra tu nicho real.", "Cada cambio"] },
-  ideas:   { en: ["Sees what's trending in your niche and proposes hooks.", "The idea"], es: ["Mira qué está pegando en tu nicho y propone ganchos.", "La idea"] },
-  reel:    { en: ["Cuts the voice, animates and adds sound, stage by stage.", "Each stage, the sound by ear"], es: ["Corta la voz, anima y pone sonido, por etapas.", "Cada etapa, el sonido de oído"] },
-  review:  { en: ["You draw on the frame; the AI fixes it.", "The FINAL version"], es: ["Dibujas sobre el cuadro; la IA lo corrige.", "La versión FINAL"] },
-  publish: { en: ["Schedules the trial reels you approved.", "The exact batch"], es: ["Programa los reels de prueba que aprobaste.", "El lote exacto"] },
-  pulse:   { en: ["Measures what worked and tunes your style.", "Your style guide"], es: ["Mide qué funcionó y afina tu estilo.", "Tu guía de estilo"] },
-  express: { en: ["A voice note becomes an animated reel.", "The finished video"], es: ["Una nota de voz se vuelve un reel animado.", "El video terminado"], cmd: "/creator-reel", plugs: [["Remotion", "in"], ["real-sfx", "in"], ["library/", "in"]] }
-};
+(() => {
 const NS = "http://www.w3.org/2000/svg";
+const $ = (id) => document.getElementById(id);
 const el = (n, a = {}) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
-const bi = (parent, en, es, attrs) => { const t = el("text", attrs); const a = el("tspan", { "data-en-only": "" }); a.textContent = en; const b = el("tspan", { "data-es-only": "" }); b.textContent = es; t.append(a, b); parent.append(t); return t; };
-const B = document.getElementById("branches"), G = document.getElementById("stations");
-const halo = (t, w = 5) => { t.setAttribute("paint-order", "stroke"); t.setAttribute("stroke", "var(--paper)"); t.setAttribute("stroke-width", w); t.setAttribute("stroke-linejoin", "round"); return t; };
-// every branch line first, then every stop and its name on top, so no line crosses a name
-for (const s of Object.values(ST)) for (const [, , px, py] of s.plugs) B.append(el("line", { class: "branch", x1: s.x, y1: s.y, x2: px, y2: py }));
-for (const [k, s] of Object.entries(ST)) {
-  for (const [name, kind, px, py] of s.plugs) {
-    const g = el("g");
-    g.append(el("circle", { class: `dot-${kind}`, cx: px, cy: py, r: kind === "in" ? 7 : 8 }));
-    const below = py > s.y;
-    const t = el("text", { class: `plug ${kind === "free" ? "t-free" : kind === "paid" ? "t-paid" : ""}`, x: px, y: below ? py + 23 : py - 15, "text-anchor": "middle" });
-    if (Array.isArray(name)) { for (const [i, w] of name.entries()) { const sp = el("tspan", { [i ? "data-es-only" : "data-en-only"]: "" }); sp.textContent = w; t.append(sp); } } else t.textContent = name;
-    // halo so labels stay readable over branch lines
-    t.setAttribute("paint-order", "stroke"); t.setAttribute("stroke", "var(--paper)"); t.setAttribute("stroke-width", "5"); t.setAttribute("stroke-linejoin", "round");
-    g.append(t); B.append(g);
-  }
-  const g = el("g", { class: "st", id: `st-${k}`, "data-k": k, tabindex: "0", role: "button", "aria-label": s.en });
-  g.append(el("circle", { class: "halo", cx: s.x, cy: s.y, r: 48 }));
-  g.append(el("circle", { class: "ring", cx: s.x, cy: s.y, r: 30 }));
-  const ic = el("g", { class: "ico", transform: `translate(${s.x - 12} ${s.y - 12})` }); ic.append(el("path", { d: IC[k] })); g.append(ic);
-  // stations with a line going down label on the left of it
-  const left = s.lab === "left";
-  const lx = left ? s.x - 18 : s.x, ly = s.y + 58, anchor = left ? "end" : "middle";
-  halo(bi(g, s.en, s.es, { x: lx, y: ly, "text-anchor": anchor, class: "lbl" }), 6);
-  const c = halo(el("text", { x: lx, y: ly + 18, "text-anchor": anchor, class: "cmd" }), 5); c.textContent = s.cmd; g.append(c);
-  G.append(g);
-}
+const bi = (t, en, es) => {
+  if (en === es) { t.append(document.createTextNode(en)); return t; }
+  const a = el("tspan", { "data-en-only": "" }); a.textContent = en;
+  const b = el("tspan", { "data-es-only": "" }); b.textContent = es;
+  t.append(a, b); return t;
+};
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+const IC = {
+  start: "M14.7 6.3a4 4 0 0 0-5.4 5.4L3.6 17.4a1.9 1.9 0 0 0 2.7 2.7l5.7-5.7a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.6-.6-.6-2.6z",
+  brand: "M5 21V4M5 4h12l-2.5 4.5L17 13H5",
+  ideas: "M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z",
+  reel: "M3 9h18v11H3zM3 9l2.5-5h13L21 9M8.5 4 7 9M13.5 4 12 9M18.5 4 17 9",
+  express: "M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM6 11a6 6 0 0 0 12 0M12 17v4M9 21h6",
+  review: "M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4",
+  publish: "M21 3 10 14M21 3l-7 18-4-7-7-4z",
+  pulse: "M3 12h4l3-8 4 16 3-8h4",
+  loop: "M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7",
+  map: "M9 4 3 6v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14",
+};
+
+// Each stop: where it sits, its command, one line, what you approve, and what it uses [name, kind, what for (en), what for (es)].
+const D = {
+  start: { n: 1, x: 110, y: 330, cmd: "/creator-start", en: "Set up", es: "Preparar",
+    line: { en: "Gets your computer ready: models, sounds and tools.", es: "Deja listo tu computador: modelos, sonidos y herramientas." },
+    ok: { en: "What touches your system, and your logins", es: "Lo que toca tu sistema y tus inicios de sesión" },
+    uses: [["install.py", "in", "installs everything in one go", "instala todo de una vez"],
+           ["Whisper", "req", "hears every word, on your computer", "oye cada palabra, en tu computador"],
+           ["Node · Python · ffmpeg", "req", "the engine underneath", "el motor de abajo"]] },
+  brand: { n: 2, x: 270, y: 330, cmd: "/creator-brand", en: "Brand", es: "Marca",
+    line: { en: "Finds what your brand really talks about, and to whom.", es: "Encuentra de qué habla de verdad tu marca, y a quién." },
+    ok: { en: "Every change to niche, tone and accounts", es: "Cada cambio de nicho, tono y cuentas" },
+    uses: [[["your app / site", "tu app / sitio"], "req", "where the real niche comes from", "de ahí sale el nicho real"],
+           ["last30days", "free", "checks people are talking about it", "comprueba que la gente hable de eso"]] },
+  ideas: { n: 3, x: 455, y: 330, lab: "left", cmd: "/creator-ideas", en: "Ideas", es: "Ideas",
+    line: { en: "Sees what your niche shares this week and proposes hooks with evidence.", es: "Mira qué comparte tu nicho esta semana y propone ganchos con evidencia." },
+    ok: { en: "The idea. Nothing is saved until you say “this one”", es: "La idea. Nada se guarda hasta tu «esta va»" },
+    uses: [["last30days", "free", "what's trending this month", "lo que está sonando este mes"],
+           ["ScrapeCreators", "free", "TikTok and Instagram data", "datos de TikTok e Instagram"],
+           ["instagram-agent", "free", "hooks and script in your voice", "ganchos y guion con tu voz"],
+           ["marketing skills", "free", "selling without sounding like an ad", "vender sin sonar a anuncio"],
+           ["Instagram API", "free", "what already worked for you", "lo que ya te funcionó"]] },
+  reel: { n: 4, x: 640, y: 330, cmd: "/creator-reel", en: "Produce", es: "Producir",
+    line: { en: "Cuts the voice without clipping words, animates and adds sound, stage by stage.", es: "Corta la voz sin cortar palabras, anima y pone sonido, por etapas." },
+    ok: { en: "Every stage. The cut and the sound, by ear", es: "Cada etapa. El corte y el sonido, de oído" },
+    uses: [["Remotion kit", "in", "animates in code", "anima en código"],
+           ["real-sfx", "in", "real sounds on the exact frame", "sonidos reales en el cuadro exacto"],
+           ["library/", "in", "your own footage", "tus propias tomas"],
+           ["HyperFrames", "free", "HTML animation", "animación en HTML"],
+           ["After Effects", "paid", "what code can't pull off", "lo que el código no logra"],
+           ["ElevenLabs", "paid", "cleans up the voice", "limpia la voz"],
+           ["Higgsfield", "paid", "AI on the person, only with a quote", "IA sobre la persona, solo con cotización"]] },
+  express: { x: 640, y: 470, small: true, cmd: "/creator-reel", en: "Express", es: "Exprés",
+    sub: { en: "voice note → reel", es: "nota de voz → reel" },
+    line: { en: "The daily shortcut: one voice note becomes a reel.", es: "El atajo diario: una nota de voz se vuelve reel." },
+    ok: { en: "Two checks: the draft and the final", es: "Dos vistos buenos: el borrador y el final" },
+    uses: [["note.py", "in", "voice note → scenes", "nota de voz → escenas"],
+           ["Explainer", "in", "ready-made animated scenes", "escenas animadas listas"]] },
+  review: { n: 5, x: 820, y: 330, cmd: "/creator-notes", en: "Review", es: "Revisar",
+    line: { en: "You mark the frame; the AI fixes it and posts a new version.", es: "Marcas el cuadro; la IA lo corrige y sube otra versión." },
+    ok: { en: "Which version is FINAL. Only you mark it", es: "Cuál versión es la FINAL. Solo tú la marcas" },
+    uses: [["Montage", "in", "draw notes right on the frame", "dibujas notas sobre el cuadro"],
+           ["faces.py", "in", "nothing covers your face", "nada tapa tu cara"],
+           ["listen.py", "in", "measures the sound: −14 LUFS", "mide el sonido: −14 LUFS"]] },
+  publish: { n: 6, x: 990, y: 330, lab: "right", cmd: "instagram.py", en: "Publish", es: "Publicar",
+    line: { en: "Schedules trial reels to test hooks before your followers see them.", es: "Programa reels de prueba para probar ganchos antes de que los vean tus seguidores." },
+    ok: { en: "The exact batch: videos, captions, day and time", es: "El lote exacto: videos, textos, día y hora" },
+    uses: [["instagram.py", "in", "publishes only the batch you approved", "publica solo el lote que aprobaste"],
+           ["Instagram API", "free", "the official connection", "la conexión oficial"]] },
+  pulse: { n: 7, x: 990, y: 650, stack: "right", ly: 70, cmd: "/creator-pulse", en: "Learn", es: "Aprender",
+    line: { en: "Measures what worked and writes down your own style.", es: "Mide qué funcionó y escribe tu estilo propio." },
+    ok: { en: "Your style guide (OWN-STYLE.md)", es: "Tu guía de estilo (OWN-STYLE.md)" },
+    uses: [["pulse.py", "in", "reads every post and story", "lee cada publicación e historia"],
+           [["watcher", "vigilancia"], "in", "collects metrics every hour", "recoge métricas cada hora"],
+           ["Instagram API", "free", "reach, shares, saves", "alcance, compartidos, guardados"]] },
+  loop: { cmd: "/creator-pulse → /creator-ideas", en: "Every Monday", es: "Cada lunes",
+    line: { en: "What worked feeds next week's ideas. Every post makes it sharper.", es: "Lo que funcionó alimenta las ideas de la semana. Cada publicación lo afina más." },
+    ok: { en: "What to repeat and what to drop", es: "Qué se repite y qué se deja" },
+    uses: [] },
+};
+const OV = {
+  line: { en: "Seven stops and a shortcut. Every Monday it starts again, a little sharper.", es: "Siete paradas y un atajo. Cada lunes vuelve a empezar, un poco más afinado." },
+  ok: { en: "Every step", es: "Cada paso" },
+};
+const ORDER = ["start", "brand", "ideas", "reel", "express", "review", "publish", "pulse"];
+const STEPS = [...ORDER, "loop"];
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const readme = location.hash === "#readme";
 let lang = (navigator.language || "en").toLowerCase().startsWith("es") ? "es" : "en";
 try { lang = localStorage.getItem("cos-map-lang") || lang; } catch (e) {}
-const readme = location.hash === "#readme";
 if (readme) { document.body.classList.add("readme"); document.documentElement.dataset.theme = "light"; lang = "en"; }
-let current = "ideas";
-function show(k) {
-  current = k;
-  document.querySelectorAll(".st").forEach((g) => g.classList.toggle("on", g.dataset.k === k));
-  const c = CARD[k], s = ST[k] || { cmd: c.cmd, en: "Express", es: "Exprés", plugs: c.plugs };
-  const [line, ok] = c[lang];
-  const name = k === "express" ? (lang === "en" ? "Express" : "Exprés") : s[lang];
-  const plugs = (s.plugs || []).map((p) => `<span class="chip ${p[1]}">${Array.isArray(p[0]) ? p[0][lang === "en" ? 0 : 1] : p[0]}</span>`).join("");
-  document.getElementById("card").innerHTML =
-    `<div class="ic"><svg viewBox="0 0 24 24"><path d="${IC[k]}"/></svg></div>
-     <h2>${name} <code>${s.cmd}</code></h2><p>${line}</p>
-     <p class="ok">✓ ${lang === "en" ? "You approve" : "Tú apruebas"}: ${ok}</p>
-     <div class="chips">${plugs}</div>`;
+const T = (o) => o[lang];
+const nameOf = (n) => Array.isArray(n) ? n[lang === "en" ? 0 : 1] : n;
+
+// ---------- build the stops ----------
+const svg = $("map"), ST = {}, STK = {}, PL = {}, PARTS = {};
+function pill(u, x, y, fromLeft) {
+  const [name, kind] = u, names = Array.isArray(name) ? name : [name, name];
+  const w = 32 + Math.max(names[0].length, names[1].length) * 7.2, x0 = fromLeft ? x : x - w / 2;
+  const g = el("g", { class: `pill ${kind}` });
+  g.append(el("rect", { x: x0, y: y - 12, width: w, height: 24, rx: 12 }));
+  g.append(el("circle", { cx: x0 + 12, cy: y, r: 4 }));
+  g.append(bi(el("text", { x: x0 + 22, y: y + 4.2 }), names[0], names[1]));
+  return g;
 }
+for (const k of ORDER) {
+  const s = D[k], n = s.uses.length, sg = el("g", { class: "stack" });
+  PL[k] = [];
+  if (s.stack === "right") {
+    const x0 = s.x + 52, y0 = s.y - (n - 1) * 16;
+    let d = `M ${s.x + 32} ${s.y} H ${x0 - 12} M ${x0 - 12} ${y0} V ${y0 + (n - 1) * 32}`;
+    for (let j = 0; j < n; j++) d += ` M ${x0 - 12} ${y0 + j * 32} H ${x0}`;
+    sg.append(el("path", { class: "conn", d }));
+    s.uses.forEach((u, j) => { const p = pill(u, x0, y0 + j * 32, true); sg.append(p); PL[k].push(p); });
+  } else if (!s.small) {
+    sg.append(el("line", { class: "conn", x1: s.x, y1: s.y - 30, x2: s.x, y2: s.y - 58 - (n - 1) * 32 }));
+    s.uses.forEach((u, j) => { const p = pill(u, s.x, s.y - 58 - j * 32, false); sg.append(p); PL[k].push(p); });
+  }
+  $("stacks").append(sg); STK[k] = sg;
+
+  const r = s.small ? 26 : 32, sc = s.small ? 1.05 : 1.25;
+  const g = el("g", { class: "st" + (s.small ? " small" : ""), tabindex: "0", role: "button", "data-k": k });
+  g.append(el("circle", { class: "pulse", cx: s.x, cy: s.y, r }));
+  const ring = el("circle", { class: "ring", cx: s.x, cy: s.y, r }); g.append(ring);
+  const ic = el("g", { class: "ico", transform: `translate(${s.x - 12 * sc} ${s.y - 12 * sc}) scale(${sc})` });
+  ic.append(el("path", { d: IC[k] })); g.append(ic);
+  if (s.n) {
+    g.append(el("circle", { class: "bdg", cx: s.x + 26, cy: s.y - 26, r: 11 }));
+    const t = el("text", { class: "bdg-t", x: s.x + 26, y: s.y - 22, "text-anchor": "middle" }); t.textContent = s.n; g.append(t);
+  }
+  let lx = s.x, ly = s.y + (s.ly || (s.small ? 54 : 64)), anc = "middle";
+  if (s.lab === "left") { lx = s.x - 22; anc = "end"; }
+  if (s.lab === "right") { lx = s.x + 50; ly = s.y + 2; anc = "start"; }
+  const nm = bi(el("text", { class: "nm", x: lx, y: ly, "text-anchor": anc }), s.en, s.es); g.append(nm);
+  const cm = el("text", { class: "cm", x: lx, y: ly + 20, "text-anchor": anc });
+  if (s.sub) bi(cm, s.sub.en, s.sub.es); else cm.textContent = s.cmd;
+  g.append(cm);
+  $("stations").append(g); ST[k] = g;
+  PARTS[k] = n && !s.small ? [ring, nm, cm, sg] : [ring, nm, cm];
+}
+
+// ---------- lines: how much of each is lit ----------
+const mainP = $("lit-main"), loopP = $("lit-loop"), expP = $("base-exp");
+const LM = mainP.getTotalLength(), LL = loopP.getTotalLength(), LE = expP.getTotalLength();
+const nearest = (p, len, x, y) => { let best = 0, bd = 1e9; for (let L = 0; L <= len; L += 2) { const q = p.getPointAtLength(L), d = Math.hypot(q.x - x, q.y - y); if (d < bd) { bd = d; best = L; } } return best; };
+const AT = {}; for (const k of ["start", "brand", "ideas", "reel", "review", "publish"]) AT[k] = nearest(mainP, LM, D[k].x, D[k].y);
+const EXM = nearest(expP, LE, D.express.x, D.express.y);
+const FULL = { main: LM, exp: LE, loop: LL }, ZERO = { main: 0, exp: 0, loop: 0 };
+const LITFOR = {
+  start: { main: AT.start, exp: 0, loop: 0 }, brand: { main: AT.brand, exp: 0, loop: 0 }, ideas: { main: AT.ideas, exp: 0, loop: 0 },
+  reel: { main: AT.reel, exp: 0, loop: 0 }, express: { main: AT.reel, exp: EXM, loop: 0 }, review: { main: AT.review, exp: LE, loop: 0 },
+  publish: { main: AT.publish, exp: LE, loop: 0 }, pulse: { main: LM, exp: LE, loop: 0 }, loop: FULL,
+};
+const DASHED = [[mainP, "main", LM], [$("glow-main"), "main", LM], [$("mk-main"), "main", LM], [loopP, "loop", LL], [$("glow-loop"), "loop", LL], [$("mk-loop"), "loop", LL], [$("mk-exp"), "exp", LE]];
+DASHED.forEach(([p, , len]) => { p.style.strokeDasharray = `${len + 2} ${len + 40}`; });
+
+let cam = { x: 0, y: 13, w: 1200, h: 760 }, lit = { ...ZERO };
+function apply() {
+  svg.setAttribute("viewBox", `${cam.x.toFixed(1)} ${cam.y.toFixed(1)} ${cam.w.toFixed(1)} ${cam.h.toFixed(1)}`);
+  for (const [p, key, len] of DASHED) {
+    const v = lit[key];
+    p.style.visibility = v <= 0.5 ? "hidden" : "visible";
+    p.style.strokeDashoffset = String(len + 2 - v);
+  }
+}
+
+// ---------- camera ----------
+function aspect() { const r = svg.getBoundingClientRect(); return r.width > 0 && r.height > 0 ? r.width / r.height : 1200 / 760; }
+function fit(b, minW) { const a = aspect(), w = Math.max(b.w, b.h * a, minW), h = w / a; return { x: b.x + b.w / 2 - w / 2, y: b.y + b.h / 2 - h / 2, w, h }; }
+function overviewBox() { return fit({ x: 0, y: 30, w: 1200, h: 728 }, 0); }
+function focusBox(k) {
+  if (k === "loop") return overviewBox();
+  const bs = PARTS[k].map((e) => e.getBBox()).filter((b) => b.width > 0);
+  const x0 = Math.min(...bs.map((b) => b.x)), y0 = Math.min(...bs.map((b) => b.y));
+  const x1 = Math.max(...bs.map((b) => b.x + b.width)), y1 = Math.max(...bs.map((b) => b.y + b.height));
+  const wpx = svg.getBoundingClientRect().width || 800, pad = 40;
+  const b = fit({ x: x0 - pad, y: y0 - pad - 22, w: x1 - x0 + 2 * pad, h: y1 - y0 + 2 * pad + 22 }, Math.min(660, wpx * 0.92));
+  // keep the camera over the map, never over empty space past its edges
+  if (b.w < 1220) b.x = Math.max(-10, Math.min(b.x, 1210 - b.w));
+  if (b.h < 790) b.y = Math.max(0, Math.min(b.y, 790 - b.h));
+  return b;
+}
+
+// ---------- the tour ----------
+const SEG = STEPS.map((k, j) => {
+  const b = document.createElement("button"); b.type = "button"; b.className = "seg"; b.innerHTML = "<i><b></b></i>";
+  b.addEventListener("click", () => go(j, true)); $("segs").append(b); return b;
+});
+const fills = SEG.map((b) => b.querySelector("b"));
+const train = $("train"), train2 = $("train2"), spotC = $("spot");
+let anim = null, mode = "intro", playing = false, finished = false, i = -1, stepT = 0, travelD = 1, shown = 0, okShown = true, clock = 0;
+let spot = null, spotX = 640, spotY = 330, last = performance.now(), autoTimer = null;
+const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const lerp = (a, b, p) => a + (b - a) * p;
+const ROW = 1150;
+const total = (k) => (k === "loop" ? travelD + 7000 : travelD + 500 + D[k].uses.length * ROW + 3600);
+
+function startAnim(tc, tl, d) { anim = { fc: { ...cam }, fl: { ...lit }, tc, tl, t: 0, d: Math.max(1, d) }; }
+function moveTrains() {
+  const show = !!anim && mode === "step" && !reduce;
+  const onLoop = lit.loop > 1 && lit.loop < LL - 1;
+  const p = onLoop ? loopP.getPointAtLength(lit.loop) : mainP.getPointAtLength(Math.min(lit.main, LM));
+  train.setAttribute("transform", `translate(${p.x} ${p.y})`);
+  train.classList.toggle("on", show && (Math.abs(anim.fl.main - anim.tl.main) > 1 || Math.abs(anim.fl.loop - anim.tl.loop) > 1));
+  const q = expP.getPointAtLength(lit.exp);
+  train2.setAttribute("transform", `translate(${q.x} ${q.y})`);
+  train2.classList.toggle("on", show && Math.abs(anim.fl.exp - anim.tl.exp) > 1);
+}
+function tc() {
+  const f = Math.floor((clock / 1000) * 30), p = (v) => String(v).padStart(2, "0");
+  $("tc").textContent = `${p(Math.floor(f / 108000))}:${p(Math.floor(f / 1800) % 60)}:${p(Math.floor(f / 30) % 60)}:${p(f % 30)}`;
+}
+function frame(now) {
+  const dt = Math.min(80, now - last); last = now;
+  if (anim) {
+    anim.t += dt;
+    const p = ease(Math.min(1, anim.t / anim.d));
+    for (const key of ["x", "y", "w", "h"]) cam[key] = lerp(anim.fc[key], anim.tc[key], p);
+    for (const key of ["main", "exp", "loop"]) lit[key] = lerp(anim.fl[key], anim.tl[key], p);
+    apply(); moveTrains();
+    if (anim.t >= anim.d) { anim = null; moveTrains(); }
+  }
+  if (mode === "step" && playing) {
+    stepT += dt; clock += dt; tc();
+    const k = STEPS[i], n = D[k].uses.length;
+    while (shown < n && stepT >= travelD + 500 + shown * ROW) revealRow(shown++);
+    if (!okShown && stepT >= travelD + 500 + n * ROW) { $("d-ok").classList.remove("wait"); okShown = true; }
+    if (stepT >= total(k)) { if (i < STEPS.length - 1) go(i + 1); else finish(); }
+  }
+  if (spot) {
+    const f = reduce ? 1 : 1 - Math.exp(-dt / 220);
+    spotX = lerp(spotX, spot.x, f); spotY = lerp(spotY, spot.y, f);
+    spotC.setAttribute("cx", spotX.toFixed(1)); spotC.setAttribute("cy", spotY.toFixed(1));
+  }
+  fills.forEach((b, j) => { const v = j < i ? 1 : j === i ? Math.min(1, stepT / total(STEPS[i])) : 0; b.style.width = (v * 100).toFixed(1) + "%"; });
+  requestAnimationFrame(frame);
+}
+
+function setStops(reached, cur) {
+  for (const o of ORDER) {
+    ST[o].classList.toggle("lit", reached.has(o));
+    ST[o].classList.toggle("cur", o === cur);
+    STK[o].classList.toggle("off", !reached.has(o));
+    PL[o].forEach((p) => p.classList.remove("wait", "hit"));
+  }
+}
+function go(j, fast) {
+  clearTimeout(autoTimer);
+  i = Math.max(0, Math.min(STEPS.length - 1, j));
+  const k = STEPS[i];
+  mode = "step"; finished = false; stepT = 0;
+  travelD = reduce ? 1 : k === "loop" ? 2800 : fast ? 1200 : 2000;
+  startAnim(focusBox(k), LITFOR[k], travelD);
+  setStops(new Set(k === "loop" ? ORDER : STEPS.slice(0, i + 1)), k);
+  const hold = playing && !reduce && k !== "loop";
+  if (hold) PL[k].forEach((p) => p.classList.add("wait"));
+  $("monday").classList.toggle("on", k === "loop");
+  $("arrow").classList.toggle("on", k === "loop");
+  spot = k === "loop" ? null : D[k];
+  spotC.classList.toggle("on", !!spot);
+  shown = hold ? 0 : D[k].uses.length; okShown = !hold;
+  renderDeck(k, hold);
+  sync();
+}
+function revealRow(j) {
+  const k = STEPS[i], li = $("d-uses").children[j], p = PL[k] && PL[k][j];
+  if (li) li.classList.remove("wait");
+  if (p) { p.classList.remove("wait"); p.classList.add("hit"); }
+}
+function revealAll() {
+  if (i < 0 || mode !== "step") return;
+  const k = STEPS[i];
+  [...$("d-uses").children].forEach((li) => li.classList.remove("wait"));
+  if (PL[k]) PL[k].forEach((p) => p.classList.remove("wait"));
+  $("d-ok").classList.remove("wait");
+  shown = D[k].uses.length; okShown = true;
+}
+function finish() { playing = false; finished = true; stepT = total(STEPS[i]); revealAll(); sync(); }
+function overview() {
+  clearTimeout(autoTimer);
+  playing = false; mode = "overview"; finished = false;
+  startAnim(overviewBox(), FULL, reduce ? 1 : 1500);
+  setStops(new Set(ORDER), null);
+  $("monday").classList.add("on"); $("arrow").classList.add("on");
+  spot = null; spotC.classList.remove("on");
+  renderDeck("overview");
+  sync();
+}
+function intro() {
+  mode = "intro"; cam = overviewBox(); lit = { ...ZERO }; apply();
+  setStops(new Set(), null);
+  renderDeck("overview");
+  sync();
+  autoTimer = setTimeout(() => { playing = true; go(0); }, 1700);
+}
+
+// ---------- the chapter panel ----------
+function renderDeck(k, hold = false) {
+  const ov = k === "overview", d = ov ? null : D[k];
+  $("d-n").innerHTML = ov ? "<b>Creator OS</b>"
+    : d.n ? `<b>${String(d.n).padStart(2, "0")}</b> / 07`
+    : `<b>${k === "express" ? T({ en: "Shortcut", es: "Atajo" }) : T({ en: "Loop", es: "Ciclo" })}</b>`;
+  $("d-cmd").textContent = ov ? "" : d.cmd;
+  $("d-icp").setAttribute("d", IC[ov ? "map" : k]);
+  $("d-tt").textContent = ov ? T({ en: "The whole map", es: "El mapa completo" }) : T(d);
+  $("d-line").textContent = T(ov ? OV.line : d.line);
+  const uses = ov ? [] : d.uses;
+  $("d-uses-w").hidden = !uses.length;
+  $("d-k").textContent = T({ en: "Uses", es: "Se usa" });
+  $("d-uses").innerHTML = uses.map(([n, kind, en, es]) =>
+    `<li class="${hold ? "wait" : ""}"><code class="tool ${kind}">${esc(nameOf(n))}</code><span>${esc(lang === "en" ? en : es)}</span></li>`).join("");
+  $("d-index").hidden = !ov;
+  if (ov) $("d-index").innerHTML = ORDER.map((o) =>
+    `<button type="button" data-k="${o}"><i>${D[o].n || "↯"}</i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${IC[o]}"/></svg><span>${esc(T(D[o]))}</span></button>`).join("");
+  $("d-ok-k").textContent = T({ en: "You approve", es: "Tú apruebas" });
+  $("d-ok-t").textContent = T(ov ? OV.ok : d.ok);
+  $("d-ok").classList.toggle("wait", hold);
+}
+function sync() {
+  const b = $("b-play"), ip = $("i-play");
+  b.classList.toggle("replay", finished);
+  ip.setAttribute("d", playing ? "M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" : finished ? "M4 12a8 8 0 1 0 2.3-5.7M4 4v5h5" : "M8 5v14l11-7z");
+  b.setAttribute("aria-label", playing ? T({ en: "Pause", es: "Pausar" }) : finished ? T({ en: "Play again", es: "Ver de nuevo" }) : T({ en: "Play the tour", es: "Ver el recorrido" }));
+  $("b-prev").setAttribute("aria-label", T({ en: "Previous step", es: "Paso anterior" }));
+  $("b-next").setAttribute("aria-label", T({ en: "Next step", es: "Paso siguiente" }));
+  $("rec").classList.toggle("on", playing);
+  $("deck").setAttribute("aria-live", playing ? "off" : "polite");
+  SEG.forEach((s, j) => s.setAttribute("aria-label", `${j + 1}. ${T(D[STEPS[j]])}`));
+  for (const o of ORDER) ST[o].setAttribute("aria-label", T(D[o]));
+}
+
+// ---------- the timeline under the player ----------
+function renderTimeline() {
+  const check = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  $("tl").innerHTML = ORDER.map((k) => {
+    const d = D[k];
+    return `<li class="tl-row${d.small ? " x" : ""}">
+      <div class="tl-mark"><button type="button" class="tl-ic" data-k="${k}" aria-label="${esc(T({ en: "Show on the map: ", es: "Ver en el mapa: " }) + T(d))}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${IC[k]}"/></svg>${d.n ? `<span class="tl-n">${d.n}</span>` : ""}</button></div>
+      <div class="tl-main"><h3>${esc(T(d))} <code>${esc(d.cmd)}</code></h3><p>${esc(T(d.line))}</p>
+        <p class="tl-ok">${check}<span>${esc(T({ en: "You approve:", es: "Tú apruebas:" }))} ${esc(T(d.ok))}</span></p></div>
+      <ul class="tl-uses">${d.uses.map(([n, kind, en, es]) => `<li><code class="tool ${kind}">${esc(nameOf(n))}</code><span>${esc(lang === "en" ? en : es)}</span></li>`).join("")}</ul>
+    </li>`;
+  }).join("");
+}
+
+// ---------- language ----------
 function setLang(l) {
   lang = l; document.body.dataset.l = l; document.documentElement.lang = l;
-  document.getElementById("l-en").setAttribute("aria-pressed", String(l === "en"));
-  document.getElementById("l-es").setAttribute("aria-pressed", String(l === "es"));
+  $("l-en").setAttribute("aria-pressed", String(l === "en"));
+  $("l-es").setAttribute("aria-pressed", String(l === "es"));
   try { localStorage.setItem("cos-map-lang", l); } catch (e) {}
-  show(current);
+  const k = mode === "step" ? STEPS[i] : "overview";
+  renderDeck(k, false);
+  if (mode === "step" && playing) {
+    [...$("d-uses").children].forEach((li, j) => li.classList.toggle("wait", j >= shown));
+    $("d-ok").classList.toggle("wait", !okShown);
+  }
+  renderTimeline();
+  sync();
 }
-document.querySelectorAll(".st").forEach((g) => {
-  g.addEventListener("click", () => show(g.dataset.k));
-  g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); show(g.dataset.k); } });
+
+// ---------- controls ----------
+const pick = (k) => { clearTimeout(autoTimer); playing = false; go(STEPS.indexOf(k), true); };
+for (const o of ORDER) {
+  ST[o].addEventListener("click", () => pick(o));
+  ST[o].addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(o); } });
+}
+$("d-index").addEventListener("click", (e) => { const b = e.target.closest("button[data-k]"); if (b) pick(b.dataset.k); });
+$("tl").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-k]"); if (!b) return;
+  pick(b.dataset.k);
+  $("player").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
 });
-document.getElementById("l-en").addEventListener("click", () => setLang("en"));
-document.getElementById("l-es").addEventListener("click", () => setLang("es"));
-// the train: a dot rides the red line and lights each station as it passes
-const main = document.getElementById("main"), train = document.getElementById("train");
-const total = main.getTotalLength();
-const order = ["start", "brand", "ideas", "reel", "review", "publish", "pulse"];
-const at = {};
-for (const k of order) { let best = 0, bd = 1e9; for (let L = 0; L <= total; L += 2) { const p = main.getPointAtLength(L), d = Math.hypot(p.x - ST[k].x, p.y - ST[k].y); if (d < bd) { bd = d; best = L; } } at[k] = best; }
-let running = false;
-document.getElementById("play").addEventListener("click", () => {
-  if (running) return;
-  running = true; train.setAttribute("opacity", "1");
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const dur = reduce ? 0 : 9000, t0 = performance.now();
-  let lit = -1;
-  const step = (now) => {
-    const p = dur ? Math.min(1, (now - t0) / dur) : 1;
-    const L = p * total, pt = main.getPointAtLength(L);
-    train.setAttribute("transform", `translate(${pt.x} ${pt.y})`);
-    for (let i = lit + 1; i < order.length; i++) { if (L >= at[order[i]] - 1) { lit = i; show(order[i]); } else break; }
-    if (p < 1) requestAnimationFrame(step);
-    else { setTimeout(() => { train.setAttribute("opacity", "0"); show("ideas"); running = false; }, 900); }
-  };
-  if (reduce) { order.forEach((k, i) => setTimeout(() => show(k), i * 900)); setTimeout(() => { running = false; }, order.length * 900); }
-  else requestAnimationFrame(step);
+$("b-play").addEventListener("click", () => {
+  clearTimeout(autoTimer);
+  if (playing) { playing = false; revealAll(); sync(); return; }
+  playing = true;
+  if (finished || i < 0) { if (finished) { clock = 0; lit = { ...ZERO }; apply(); } go(0); }
+  else if (mode !== "step") go(i);
+  else sync();
 });
+$("b-prev").addEventListener("click", () => go(i <= 0 ? 0 : i - 1, true));
+$("b-next").addEventListener("click", () => { if (i >= STEPS.length - 1) overview(); else go(i + 1, true); });
+$("b-all").addEventListener("click", overview);
+$("l-en").addEventListener("click", () => setLang("en"));
+$("l-es").addEventListener("click", () => setLang("es"));
+new ResizeObserver(() => { if (anim) return; cam = mode === "step" ? focusBox(STEPS[i]) : overviewBox(); apply(); }).observe(svg);
+
+// ---------- start ----------
 setLang(lang);
-// the README picture shows no station selected
-if (readme) document.querySelectorAll(".st.on").forEach((g) => g.classList.remove("on"));
+if (readme) {
+  mode = "overview"; cam = overviewBox(); lit = { ...FULL }; apply();
+  setStops(new Set(ORDER), null);
+  $("monday").classList.add("on"); $("arrow").classList.add("on");
+} else if (reduce) {
+  overview();
+} else {
+  intro();
+}
+requestAnimationFrame(frame);
+})();
 </script>
 </body>
 </html>
