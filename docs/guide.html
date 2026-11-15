@@ -12,8 +12,10 @@
 <style>
 /* Layout: a dark player (the metro map as a screen, with the chapter panel beside it), then the timeline of what each step uses, then how to start. */
 :root {
-  --bg: #eef0f4; --surface: #ffffff; --ink: #12151c; --muted: #5b6372; --rule: #d6dbe3;
-  --accent: #d93e33; --free: #18784e; --paid: #a85507;
+  /* one look, the one of diraccore.com: pure black, light beams, translucent edges */
+  --bg: #000000; --surface: #0d0e10; --ink: #f0f0f0; --muted: #a1a4a5; --rule: #ddeaf81a;
+  --accent: #ff6155; --free: #4cc58c; --paid: #f0974a; --ice: #7de3f4; --panel: rgb(20 21 23 / 0.6);
+  color-scheme: dark;
   /* the player is a screen: the same in both themes */
   --s-bg: #07090e; --s-panel: #0d1118; --s-raise: #151a24; --s-ink: #f2f4f8; --s-muted: #8f98a9; --s-faint: #1f2632; --s-dim: #394150;
   --s-red: #ff4f45; --s-amber: #ffb547; --s-free: #4fd294; --s-free-bg: #0c2118; --s-paid: #ffa24f; --s-paid-bg: #29190a; --s-shade: rgb(0 0 0 / 0.62);
@@ -21,11 +23,27 @@
   --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0a0c11; --surface: #11151d; --ink: #eceef3; --muted: #99a1b0; --rule: #232934; --accent: #ff6155; --free: #4cc58c; --paid: #f0974a; color-scheme: dark; } }
-:root[data-theme="dark"] { --bg: #0a0c11; --surface: #11151d; --ink: #eceef3; --muted: #99a1b0; --rule: #232934; --accent: #ff6155; --free: #4cc58c; --paid: #f0974a; color-scheme: dark; }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45; position: relative; isolation: isolate; }
+/* the background: diagonal beams of light that drift slowly, a soft white glow on top,
+   the brand's ice blue on one side and the map's red and amber on the other */
+body::before, body::after { content: ""; position: fixed; inset: -20%; z-index: -1; pointer-events: none; }
+body::before {
+  background:
+    linear-gradient(112deg, transparent 32%, rgb(255 255 255 / 0.045) 41%, transparent 47%),
+    linear-gradient(112deg, transparent 52%, rgb(255 255 255 / 0.03) 58%, transparent 63%),
+    linear-gradient(112deg, transparent 70%, rgb(125 227 244 / 0.035) 75%, transparent 80%);
+  animation: beams 26s ease-in-out infinite alternate;
+}
+body::after {
+  background:
+    radial-gradient(55% 35% at 50% 12%, rgb(255 255 255 / 0.07), transparent 70%),
+    radial-gradient(35% 30% at 88% 30%, rgb(125 227 244 / 0.09), transparent 70%),
+    radial-gradient(40% 32% at 10% 72%, rgb(255 79 69 / 0.08), transparent 70%),
+    radial-gradient(35% 28% at 80% 92%, rgb(255 181 71 / 0.06), transparent 70%);
+}
+@keyframes beams { from { transform: translateX(-4%); } to { transform: translateX(4%); } }
 body[data-l="en"] [data-es-only], body[data-l="es"] [data-en-only] { display: none; }
 .page { max-width: 1320px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 26px 56px; display: grid; gap: 22px; }
 button { font-family: inherit; }
@@ -62,7 +80,7 @@ h1 span { background: linear-gradient(100deg, var(--s-red), var(--s-amber)); -we
 .mt-head h2 { margin: 0; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; font: 800 clamp(1.6rem, 3.4vw, 2.3rem)/1.05 var(--display); letter-spacing: -0.02em; text-wrap: balance; }
 .mt-head h2 code { font: 500 0.85rem var(--mono); color: var(--muted); letter-spacing: 0; }
 .mt-head p { margin: 6px 0 0; color: var(--muted); max-width: 70ch; }
-.shot { margin: 0; display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: 18px 26px; align-items: center; background: var(--surface); border: 1px solid var(--rule); border-radius: 22px; padding: 16px; }
+.shot { margin: 0; display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: 18px 26px; align-items: center; background: var(--panel); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid var(--rule); border-radius: 22px; padding: 16px; }
 .shot img { display: block; width: 100%; height: auto; max-width: 100%; border-radius: 12px; border: 1px solid var(--rule); }
 .shot figcaption { display: grid; gap: 8px; padding-right: 8px; min-width: 0; }
 .shot .n { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--surface); font: 700 0.85rem var(--mono); }
@@ -218,7 +236,7 @@ path.lit.exp { stroke-width: 5; stroke-dasharray: 0.1 11; }
 .tl-sec { display: grid; gap: 16px; margin-top: 18px; }
 .tl-head h2 { margin: 0; font: 800 clamp(1.6rem, 3.4vw, 2.3rem)/1.05 var(--display); letter-spacing: -0.02em; text-wrap: balance; }
 .tl-head p { margin: 6px 0 0; color: var(--muted); }
-.tl { --t-ink: var(--ink); --t-inv: var(--surface); --t-free: var(--free); --t-paid: var(--paid); list-style: none; margin: 0; padding: 0 24px; background: var(--surface); border: 1px solid var(--rule); border-radius: 22px; }
+.tl { --t-ink: var(--ink); --t-inv: var(--surface); --t-free: var(--free); --t-paid: var(--paid); list-style: none; margin: 0; padding: 0 24px; background: var(--panel); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid var(--rule); border-radius: 22px; }
 .tl-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) minmax(0, 1.2fr); gap: 10px 28px; padding-block: 24px; border-top: 1px solid var(--rule); }
 .tl-row:first-child { border-top: 0; }
 .tl-mark { position: relative; display: flex; justify-content: center; align-items: flex-start; }
@@ -241,7 +259,7 @@ path.lit.exp { stroke-width: 5; stroke-dasharray: 0.1 11; }
 .tl-uses span { color: var(--muted); font-size: 0.94rem; line-height: 1.3; }
 
 /* how to start */
-.foot { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px 30px; background: var(--surface); border: 1px solid var(--rule); border-radius: 22px; padding: 22px 24px; }
+.foot { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 20px 30px; background: var(--panel); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid var(--rule); border-radius: 22px; padding: 22px 24px; }
 .foot h3 { margin: 0 0 10px; font: 700 11px var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
 .chain, .chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .chain code, .chips code { font: 500 0.85rem var(--mono); background: var(--bg); border: 1px solid var(--rule); border-radius: 9px; padding: 6px 10px; overflow-wrap: anywhere; }
@@ -259,7 +277,7 @@ path.lit.exp { stroke-width: 5; stroke-dasharray: 0.1 11; }
   .d-index { grid-template-columns: minmax(0, 1fr); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .flow, .st.cur .pulse, .pill.hit, .rec.on { animation: none; }
+  .flow, .st.cur .pulse, .pill.hit, .rec.on, body::before { animation: none; }
   .st .ring, .st .nm, .pill, .stack, .uses li > *, .d-ok, .spot, .train { transition: none; }
 }
 /* README render: only the map, in English */
