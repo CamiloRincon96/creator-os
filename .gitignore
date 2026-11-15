@@ -68,3 +68,6 @@ library/sheets/
 
 # the example brand's CC0 library does go in git (with credits)
 !brands/example/sounds/**/*.mp3
+
+# The README diagram is part of the repo
+!docs/*.png
