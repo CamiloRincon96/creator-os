@@ -246,8 +246,7 @@ body.readme .deck, body.readme .segs, body.readme .hud, body.readme .lang, body.
     <div class="stage" id="stage">
       <div class="segs" id="segs"></div>
       <div class="hud" aria-hidden="true"><i class="rec" id="rec"></i><span id="tc">00:00:00:00</span><span class="fps">· 30 fps</span></div>
-      <svg class="map" id="map" viewBox="0 13 1200 760" preserveAspectRatio="xMidYMid meet" role="group" aria-labelledby="map-t">
-        <title id="map-t">Creator OS as a metro map: set up, brand, ideas, produce, review, publish and learn, looping back to ideas every Monday, with an express shortcut from ideas to review. Each stop shows what it uses.</title>
+      <svg class="map" id="map" viewBox="0 13 1200 760" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Creator OS map">
         <defs>
           <linearGradient id="g-line" gradientUnits="userSpaceOnUse" x1="110" y1="0" x2="1000" y2="0">
             <stop offset="0" style="stop-color: var(--s-red)"/>
@@ -678,6 +677,11 @@ function sync() {
   $("deck").setAttribute("aria-live", playing ? "off" : "polite");
   SEG.forEach((s, j) => s.setAttribute("aria-label", `${j + 1}. ${T(D[STEPS[j]])}`));
   for (const o of ORDER) ST[o].setAttribute("aria-label", T(D[o]));
+  // described with aria-label, not an SVG <title>: a <title> shows as a tooltip over the whole map
+  svg.setAttribute("aria-label", T({
+    en: "Creator OS as a metro map: set up, brand, ideas, produce, review, publish and learn, looping back to ideas every Monday, with an express shortcut from ideas to review.",
+    es: "Creator OS como un mapa de metro: preparar, marca, ideas, producir, revisar, publicar y aprender, que vuelve a ideas cada lunes, con un atajo exprés de ideas a revisar.",
+  }));
 }
 
 // ---------- the timeline under the player ----------
