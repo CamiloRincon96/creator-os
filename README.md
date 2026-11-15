@@ -57,7 +57,7 @@ Every video, image or carousel the AI makes lands in Montage as a new version (`
 
 ![Montage: a reel paused on its first frame, a red box over the words "2 hours" and a note being written](docs/montage-1-note.jpg)
 
-**2. The AI answers with a new version.** It replies to each note with its plan, makes the change and publishes v2, marking what it fixed. You approve or reopen. The star marks the FINAL, and only you can mark it.
+**2. The AI answers with a new version.** Type `/creator-notes` in your AI: it takes each change one by one, replies to the note with its plan, makes it and publishes v2, marking what it fixed. You approve or reopen. The star marks the FINAL, and only you can mark it.
 
 ![Montage: v2 resolved the note, the AI replied with its plan, with Approve and Reopen buttons](docs/montage-2-versions.jpg)
 
