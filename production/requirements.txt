@@ -1,0 +1,8 @@
+# Tools in production/tools (transcribe, cut, level and measure the voice).
+# production/install.py installs them in production/.venv.
+faster-whisper>=1.2,<2
+soundfile>=0.13
+numpy>=2.0
+scipy>=1.13
+opencv-python-headless<5  # (5 removed CascadeClassifier) face detection: covered-face check and cover (faces.py)
+pyloudnorm  # loudness in LUFS (common.py)

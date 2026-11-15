@@ -1,0 +1,70 @@
+# Lightweight repo: code, rules and guides. Videos, audio, renders and After Effects projects
+# stay on each computer (they weigh GBs). Exceptions at the end: logos, the Montage icon and
+# two test projects so Montage doesn't start empty.
+
+# System and tools
+.DS_Store
+node_modules/
+*.log
+.playwright-mcp/
+.venv/
+models/
+__pycache__/
+
+# Montage: local data and builds
+montage/.cache/
+montage/.state/
+montage/web/dist/
+montage/projects/*
+
+# Media and editing projects
+*.mp4
+*.mov
+*.m4v
+*.webm
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.aac
+*.aep
+*.prproj
+*.psd
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+**/auto-save/
+
+# Exceptions: brand logos and Montage icons (the app uses them)
+!brands/*/identity/logo/**
+!montage/web/public/brand/**
+!montage/.impeccable/mocks/comp-compact.png
+
+
+# Exceptions: the Example CC0 sound library (effects and music, with credits in credits.json). real-sfx uses it
+# in stage 9 of /creator-reel; without it the sound can't be done on another computer. It weighs ~14 MB.
+!brands/example/sounds/**/*.mp3
+# ...except the two that failed the license review (see credits.json, field DO_NOT_USE)
+brands/example/sounds/openverse/impact/impact.mp3
+brands/example/sounds/openverse/cash-register/
+
+# Exceptions: images and logos used by the Example Remotion compositions
+!brands/example/reel/public/brand/*.png
+!brands/example/reel/public/brand/*.svg
+
+# After Effects render logs
+*.aep Logs/
+
+# Temporary files
+**/generators/.tmp/
+**/sound/result/_work/
+
+# own footage library: the catalog goes in git, the videos don't
+library/inbox/
+library/videos/
+library/sheets/
+
+# the example brand's CC0 library does go in git (with credits)
+!brands/example/sounds/**/*.mp3

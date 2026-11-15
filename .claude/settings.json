@@ -1,0 +1,28 @@
+{
+  "extraKnownMarketplaces": {
+    "instagram-agent-skill": {
+      "source": {
+        "source": "github",
+        "repo": "Jakeschincariol/instagram-agent-skill"
+      }
+    },
+    "last30days-skill": {
+      "source": {
+        "source": "github",
+        "repo": "mvanhorn/last30days-skill"
+      }
+    },
+    "marketingskills": {
+      "source": {
+        "source": "github",
+        "repo": "coreyhaines31/marketingskills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "instagram-agent@instagram-agent-skill": true,
+    "last30days@last30days-skill": true,
+    "marketing-skills@marketingskills": true,
+    "hyperframes@claude-plugins-official": true
+  }
+}

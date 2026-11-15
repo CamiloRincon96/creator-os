@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "aftereffects": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@kumoproductions/mcp-aftereffects"]
+    },
+    "higgsfield": {
+      "type": "http",
+      "url": "https://mcp.higgsfield.ai/mcp"
+    }
+  }
+}

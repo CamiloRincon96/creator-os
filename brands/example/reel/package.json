@@ -1,0 +1,27 @@
+{
+  "name": "brand-reel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The brand's reels in Remotion: kit, explainer from a voice note and mockup.",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "4.2.0",
+    "@mediabunny/server": "1.64.0",
+    "@remotion/cli": "4.0.541",
+    "@remotion/google-fonts": "4.0.541",
+    "@remotion/media": "4.0.541",
+    "@remotion/motion-blur": "4.0.541",
+    "@remotion/video-matting": "4.0.541",
+    "mediabunny": "1.64.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.541"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "typescript": "^5.9.3"
+  }
+}

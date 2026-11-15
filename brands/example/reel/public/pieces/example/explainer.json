@@ -1,0 +1,136 @@
+{
+ "folder": "pieces/example",
+ "voice": "",
+ "duration": 12.5,
+ "words": [
+  {
+   "t": "This",
+   "start": 0.3,
+   "end": 0.62
+  },
+  {
+   "t": "is",
+   "start": 0.72,
+   "end": 1.04
+  },
+  {
+   "t": "a",
+   "start": 1.14,
+   "end": 1.46
+  },
+  {
+   "t": "demo",
+   "start": 1.56,
+   "end": 1.88
+  },
+  {
+   "t": "of",
+   "start": 1.98,
+   "end": 2.3
+  },
+  {
+   "t": "the",
+   "start": 2.4,
+   "end": 2.72
+  },
+  {
+   "t": "explainer:",
+   "start": 2.82,
+   "end": 3.14
+  },
+  {
+   "t": "swap",
+   "start": 3.24,
+   "end": 3.56
+  },
+  {
+   "t": "the",
+   "start": 3.66,
+   "end": 3.98
+  },
+  {
+   "t": "scenes",
+   "start": 4.08,
+   "end": 4.4
+  },
+  {
+   "t": "for",
+   "start": 4.5,
+   "end": 4.82
+  },
+  {
+   "t": "yours",
+   "start": 4.92,
+   "end": 5.24
+  },
+  {
+   "t": "and",
+   "start": 5.34,
+   "end": 5.66
+  },
+  {
+   "t": "record",
+   "start": 5.76,
+   "end": 6.08
+  },
+  {
+   "t": "your",
+   "start": 6.18,
+   "end": 6.5
+  },
+  {
+   "t": "voice",
+   "start": 6.6,
+   "end": 6.92
+  },
+  {
+   "t": "note.",
+   "start": 7.02,
+   "end": 7.34
+  }
+ ],
+ "scenes": [
+  {
+   "type": "title",
+   "start": 0,
+   "end": 2.6,
+   "kicker": "Demo",
+   "text": "Your *hook* in the first second"
+  },
+  {
+   "type": "number",
+   "start": 2.6,
+   "end": 4.8,
+   "value": 153500,
+   "prefix": "$",
+   "label": "a number that *hurts*",
+   "tone": "coral"
+  },
+  {
+   "type": "list",
+   "start": 4.8,
+   "end": 7.6,
+   "title": "Three steps",
+   "items": [
+    "Record a voice note",
+    "Write the *scenes*",
+    "Render"
+   ]
+  },
+  {
+   "type": "app",
+   "start": 7.6,
+   "end": 10.0,
+   "screen": "transactions",
+   "text": "Your *product* in action"
+  },
+  {
+   "type": "outro",
+   "start": 10.0,
+   "end": 12.5,
+   "cta": "Follow for *more*",
+   "sub": "yourbrand.com"
+  }
+ ],
+ "noCaptions": []
+}
