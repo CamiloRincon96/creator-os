@@ -9,7 +9,7 @@ Everything has one place. No folders are created outside this map: a new brand c
 ├── WORKFLOW.md                 how we work, for every brand
 ├── MAP.md                      this map
 │
-├── docs/                       guide.html (the interactive map) and how-it-works.png (the same map, in the README)
+├── docs/                       guide.html (the interactive map), how-it-works.png (the same map, in the README), the Montage screenshots and the logo
 ├── brands/
 │   └── example/                the shape of a brand (copy it with /creator-brand)
 │       ├── NICHE.md            who it's really for and the content wheel (used by /creator-ideas)

@@ -1,6 +1,13 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.png">
+    <img src="docs/logo-light.png" alt="Dirac Core" width="340">
+  </picture>
+</p>
+
 # Creator OS
 
-**Your AI content team for growing on social media.** An open system for Claude Code, Codex, Gemini or Grok: it decides what to post, produces reels at editor quality and learns from your metrics.
+**by Dirac Core** · **Your AI content team for growing on social media.** An open system for Claude Code, Codex, Gemini or Grok: it decides what to post, produces reels at editor quality and learns from your metrics.
 
 A system so your AI helps you **grow on social media**: decide what to post, produce reels at editor quality (voice-based cuts, word-by-word captions, motion graphics, measured sound), test variations and learn from your own metrics. It is built to work **in stages, with your approval at each one**: the AI prepares, you decide.
 
@@ -38,7 +45,25 @@ Python and Node tools live in `production/tools/`. Among others:
 2. Type **`/creator-start`**, or ask it to "read `GETTING-STARTED.md` and walk me through it". It takes you step by step.
 3. Create your brand with **`/creator-brand`** and plan the week with **`/creator-ideas`**.
 
+**You don't need to know how to code.** Ask your AI to walk you through the installation and to explain what each command does before it runs it. The skills come with the repo: in Claude Code they show up as the `/creator-…` commands, and Codex, Gemini and Grok find them through `AGENTS.md`. Nothing gets installed or paid for without your yes.
+
 What's required and what's optional, in detail: [`GETTING-STARTED.md`](GETTING-STARTED.md). The folder map: [`MAP.md`](MAP.md).
+
+## Montage, the review editor
+
+Every video, image or carousel the AI makes lands in Montage as a new version (`/creator-montage`). It runs on your computer: nothing gets uploaded anywhere.
+
+**1. Point at the exact frame.** Pause, draw a box, arrow or pin over what you want changed, pick the kind (change, add, remove, fix, idea) and write it. *Send to Claude* sends all your notes at once.
+
+![Montage: a reel paused on its first frame, a red box over the words "2 hours" and a note being written](docs/montage-1-note.jpg)
+
+**2. The AI answers with a new version.** It replies to each note with its plan, makes the change and publishes v2, marking what it fixed. You approve or reopen. The star marks the FINAL, and only you can mark it.
+
+![Montage: v2 resolved the note, the AI replied with its plan, with Approve and Reopen buttons](docs/montage-2-versions.jpg)
+
+**3. See it on every network.** The same piece inside Reels, TikTok, Shorts, Stories, the feed and the profile grid, so you see what gets covered and cropped before posting.
+
+![Montage social view: the reel inside eight phone mockups for Instagram, TikTok, YouTube and Facebook](docs/montage-3-social.jpg)
 
 ## Principles
 
@@ -52,3 +77,9 @@ What's required and what's optional, in detail: [`GETTING-STARTED.md`](GETTING-S
 ## License
 
 MIT (see `LICENSE`). The sounds in `brands/example/sounds/` are CC0 and come with their credits. Remotion has its own license: it is free for individuals and for companies of up to 3 employees ([terms](https://www.remotion.dev/license)).
+
+## Found it useful?
+
+We'd appreciate your ⭐ on GitHub, the like of repos: it helps more creators find Creator OS.
+
+**[Star Creator OS on GitHub](https://github.com/CamiloRincon96/creator-os)** · by Dirac Core
