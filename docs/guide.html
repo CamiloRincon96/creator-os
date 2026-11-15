@@ -635,9 +635,9 @@ let anim = null, mode = "intro", playing = false, finished = false, i = -1, step
 let spot = null, spotX = 640, spotY = 330, last = performance.now(), autoTimer = null;
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const lerp = (a, b, p) => a + (b - a) * p;
-// timing of the tour (30% faster than the first cut)
-const ROW = 805;
-const total = (k) => (k === "loop" ? travelD + 4900 : travelD + 350 + D[k].uses.length * ROW + 2520);
+// timing of the tour (about half the time of the first cut)
+const ROW = 565;
+const total = (k) => (k === "loop" ? travelD + 3430 : travelD + 245 + D[k].uses.length * ROW + 1760);
 
 function startAnim(tc, tl, d) { anim = { fc: { ...cam }, fl: { ...lit }, tc, tl, t: 0, d: Math.max(1, d) }; }
 function moveTrains() {
@@ -667,8 +667,8 @@ function frame(now) {
   if (mode === "step" && playing) {
     stepT += dt; clock += dt; tc();
     const k = STEPS[i], n = D[k].uses.length;
-    while (shown < n && stepT >= travelD + 350 +shown * ROW) revealRow(shown++);
-    if (!okShown && stepT >= travelD + 350 +n * ROW) { $("d-ok").classList.remove("wait"); okShown = true; }
+    while (shown < n && stepT >= travelD + 245 +shown * ROW) revealRow(shown++);
+    if (!okShown && stepT >= travelD + 245 +n * ROW) { $("d-ok").classList.remove("wait"); okShown = true; }
     if (stepT >= total(k)) { if (i < STEPS.length - 1) go(i + 1); else finish(); }
   }
   if (spot) {
@@ -693,7 +693,7 @@ function go(j, fast) {
   i = Math.max(0, Math.min(STEPS.length - 1, j));
   const k = STEPS[i];
   mode = "step"; finished = false; stepT = 0;
-  travelD = reduce ? 1 : k === "loop" ? 1960 : fast ? 840 : 1400;
+  travelD = reduce ? 1 : k === "loop" ? 1370 : fast ? 590 : 980;
   startAnim(focusBox(k), LITFOR[k], travelD);
   setStops(new Set(k === "loop" ? ORDER : STEPS.slice(0, i + 1)), k);
   const hold = playing && !reduce && k !== "loop";
@@ -735,7 +735,7 @@ function intro() {
   setStops(new Set(), null);
   renderDeck("overview");
   sync();
-  autoTimer = setTimeout(() => { playing = true; go(0); }, 1200);
+  autoTimer = setTimeout(() => { playing = true; go(0); }, 850);
 }
 
 // ---------- the chapter panel ----------
