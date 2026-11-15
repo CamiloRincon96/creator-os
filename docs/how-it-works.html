@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How Creator OS works</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+:root {
+  --bg: #f2f3f5; --card: #ffffff; --ink: #161a22; --muted: #5b6372; --line: #d9dde4;
+  --rec: #d6403a; --ok: #1f8a5b; --req: #161a22; --free: #1f8a5b; --paid: #c2410c;
+  --free-soft: #e1f2ea; --paid-soft: #fdebdc; --req-soft: #e9ecf1; --rec-soft: #fbe7e5;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { width: 1600px; background: var(--bg); color: var(--ink); font-family: "Inter", system-ui, sans-serif; }
+.frame { padding: 44px 48px 40px; display: grid; gap: 26px; }
+.top { display: flex; justify-content: space-between; align-items: end; gap: 24px; }
+.top h1 { font-family: "Bricolage Grotesque", system-ui; font-weight: 800; font-size: 46px; letter-spacing: -0.02em; margin: 0; line-height: 1; }
+.top p { margin: 10px 0 0; color: var(--muted); font-size: 19px; max-width: 760px; }
+.legend { display: grid; gap: 8px; font-size: 15px; color: var(--muted); justify-items: end; }
+.legend .row { display: flex; gap: 18px; align-items: center; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 7px; vertical-align: -1px; }
+.chiplegend b { font-family: "JetBrains Mono", monospace; font-size: 12.5px; font-weight: 600; padding: 3px 9px; border-radius: 6px; margin-right: 6px; }
+
+.flow { position: relative; display: grid; grid-template-columns: 1.05fr repeat(5, 1fr); gap: 16px; padding-top: 46px; }
+.loop { position: absolute; top: 0; left: 632px; right: 118px; /* from /creator-pulse back to /creator-ideas */ height: 40px; border: 2.5px dashed #aab1bd; border-bottom: 0; border-radius: 16px 16px 0 0; }
+.loop span { position: absolute; top: -13px; left: 50%; translate: -50% 0; background: var(--bg); padding: 0 12px; font-family: "JetBrains Mono", monospace; font-size: 14px; color: var(--muted); white-space: nowrap; }
+.loop::before { content: ""; position: absolute; left: -8px; bottom: -6px; border: 8px solid transparent; border-top: 12px solid #aab1bd; }
+.col { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 20px 18px 18px; display: grid; gap: 14px; align-content: start; position: relative; }
+.col.once { background: transparent; border-style: dashed; }
+.col:not(:last-child)::after { content: ""; position: absolute; right: -14px; top: 38px; border: 7px solid transparent; border-left: 10px solid #aab1bd; }
+.num { font-family: "JetBrains Mono", monospace; font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; }
+.num .tag { color: var(--muted); }
+.cmd { font-family: "JetBrains Mono", monospace; font-weight: 600; font-size: 19px; letter-spacing: -0.01em; }
+.what { font-family: "Bricolage Grotesque", system-ui; font-weight: 800; font-size: 23px; line-height: 1.08; letter-spacing: -0.01em; }
+.k { font-family: "JetBrains Mono", monospace; font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; display: flex; align-items: center; gap: 7px; }
+.k::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.k.ai { color: var(--rec); } .k.you { color: var(--ok); } .k.plug { color: var(--muted); }
+.k.plug::before { border-radius: 2px; }
+ul { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+li { font-size: 15px; line-height: 1.35; color: #2a303b; }
+li::before { content: "– "; color: var(--muted); }
+.you-box { background: var(--free-soft); border-radius: 10px; padding: 9px 11px; font-size: 14.5px; line-height: 1.35; color: #164e36; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.chip { font-family: "JetBrains Mono", monospace; font-size: 12.5px; font-weight: 600; padding: 4px 9px; border-radius: 7px; line-height: 1.25; }
+.chip.req { background: var(--req-soft); color: var(--req); }
+.chip.free { background: var(--free-soft); color: #145c3c; }
+.chip.paid { background: var(--paid-soft); color: #9a3412; }
+.chip.in { background: var(--card); color: var(--ink); border: 1.5px solid var(--ink); }
+
+.base { display: grid; grid-template-columns: auto 1fr auto; gap: 22px; align-items: center; background: var(--ink); color: #eef0f4; border-radius: 18px; padding: 18px 22px; }
+.base .t { font-family: "Bricolage Grotesque", system-ui; font-weight: 800; font-size: 20px; }
+.base .chips .chip.req { background: #2a303b; color: #eef0f4; }
+.base .rules { display: flex; gap: 18px; font-size: 14.5px; color: #c4c9d3; }
+.base .rules b { color: #fff; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="top">
+    <div>
+      <h1>Creator OS · how it works</h1>
+      <p>An AI agent becomes your content studio. It works in stages: the AI prepares, you approve, and every week it learns from your numbers.</p>
+    </div>
+    <div class="legend">
+      <div class="row"><span><i style="background:var(--rec)"></i>The AI prepares</span><span><i style="background:var(--ok)"></i>You approve</span></div>
+      <div class="row chiplegend"><span><b class="chip in">bundled</b>in the repo</span><span><b class="chip req">required</b></span><span><b class="chip free">optional · free</b></span><span><b class="chip paid">optional · paid</b></span></div>
+    </div>
+  </div>
+
+  <div class="flow">
+    <div class="loop"><span>↺ every Monday: what worked feeds the next ideas</span></div>
+
+    <div class="col once">
+      <div class="num"><span>00</span><span class="tag">once</span></div>
+      <div class="cmd">/creator-start</div>
+      <div class="what">Set up your computer</div>
+      <div><span class="k ai">AI does</span><ul><li>Checks what's installed</li><li>Installs what's missing</li><li>Explains each connection and its cost</li></ul></div>
+      <div class="you-box">Anything that touches your system, and your logins</div>
+      <div><span class="k plug">Plugs into</span><div class="chips"><span class="chip req">install.py</span><span class="chip req">Whisper (local)</span></div></div>
+    </div>
+
+    <div class="col">
+      <div class="num"><span>01</span><span class="tag">per brand</span></div>
+      <div class="cmd">/creator-brand</div>
+      <div class="what">What you talk about</div>
+      <div><span class="k ai">AI does</span><ul><li>Reads your product's repo or site</li><li>Finds the real niche</li><li>Writes tone and content wheel</li></ul></div>
+      <div class="you-box">Every change to NICHE, BRAND and PROFILE</div>
+      <div><span class="k plug">Plugs into</span><div class="chips"><span class="chip req">your product repo / site</span><span class="chip free">last30days</span></div></div>
+    </div>
+
+    <div class="col">
+      <div class="num"><span>02</span><span class="tag">weekly</span></div>
+      <div class="cmd">/creator-ideas</div>
+      <div class="what">What to post</div>
+      <div><span class="k ai">AI does</span><ul><li>Asks network and format</li><li>Finds what your niche shares this week</li><li>Proposes 8–10 hooks with evidence</li></ul></div>
+      <div class="you-box">The idea. Nothing is saved until "this one"</div>
+      <div><span class="k plug">Plugs into</span><div class="chips"><span class="chip free">last30days</span><span class="chip free">ScrapeCreators</span><span class="chip free">marketing skills</span><span class="chip free">instagram-agent</span></div></div>
+    </div>
+
+    <div class="col">
+      <div class="num"><span>03</span><span class="tag">per piece</span></div>
+      <div class="cmd">/creator-reel</div>
+      <div class="what">Produce it</div>
+      <div><span class="k ai">AI does</span><ul><li>Cuts voice, never mid-word</li><li>Animates in code, places real sounds</li><li>Express: a reel from a voice note</li></ul></div>
+      <div class="you-box">Each stage. The cut and the sound, by ear</div>
+      <div><span class="k plug">Plugs into</span><div class="chips"><span class="chip in">Remotion kit</span><span class="chip in">real-sfx</span><span class="chip in">library/</span><span class="chip req">ffmpeg</span><span class="chip free">HyperFrames</span><span class="chip paid">After Effects</span><span class="chip paid">ElevenLabs</span><span class="chip paid">Higgsfield</span></div></div>
+    </div>
+
+    <div class="col">
+      <div class="num"><span>04</span><span class="tag">per version</span></div>
+      <div class="cmd">/creator-notes</div>
+      <div class="what">Review on the frame</div>
+      <div><span class="k ai">AI does</span><ul><li>Reads your drawn notes</li><li>Fixes and publishes a new version</li><li>Checks: face never covered, −14 LUFS</li></ul></div>
+      <div class="you-box">Which version is FINAL. Only you mark it</div>
+      <div><span class="k plug">Plugs into</span><div class="chips"><span class="chip in">Montage editor</span><span class="chip req">Chrome</span></div></div>
+    </div>
+
+    <div class="col">
+      <div class="num"><span>05</span><span class="tag">weekly</span></div>
+      <div class="cmd">/creator-pulse</div>
+      <div class="what">Publish and learn</div>
+      <div><span class="k ai">AI does</span><ul><li>Schedules trial reels you approved</li><li>Collects metrics (stories hourly)</li><li>Updates your own style guide</li></ul></div>
+      <div class="you-box">The exact batch: videos, captions, day and times</div>
+      <div><span class="k plug">Plugs into</span><div class="chips"><span class="chip free">Instagram API</span><span class="chip in">watcher (hourly)</span></div></div>
+    </div>
+  </div>
+
+  <div class="base">
+    <div class="t">Runs on</div>
+    <div class="chips"><span class="chip req">Claude Code · Codex · Gemini · Grok</span><span class="chip req">Node 18+</span><span class="chip req">Python 3.10+</span><span class="chip req">ffmpeg</span><span class="chip req">Chrome</span><span class="chip req">~6 GB</span></div>
+    <div class="rules"><span><b>Never</b> publishes without your yes</span><span><b>Never</b> types your keys</span><span>Talks to you <b>in your language</b></span></div>
+  </div>
+</div>
+</body>
+</html>

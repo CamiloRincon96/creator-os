@@ -8,6 +8,11 @@ It works with agents that read and edit files and run commands on your computer:
 
 **Use it in your language.** The repo is in English, but the AI talks to you, asks you things and walks you through every setup step (logins, connections, approvals) in whatever language you write to it in.
 
+
+![How Creator OS works: six commands from setup to publishing, what the AI prepares, what you approve, and what each step plugs into (bundled, required, optional free, optional paid)](docs/how-it-works.png)
+
+**Interactive guide** (English / Español): download [`docs/guide.html`](docs/guide.html) and open it in your browser. It walks through every command, the stages of a reel, the content wheel and what to connect.
+
 ## What's inside
 
 | Command (skill) | What it's for |

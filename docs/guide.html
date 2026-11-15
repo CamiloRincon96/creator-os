@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Creator OS Field Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a production rundown — one long column of "segments", each opened by a timecode, with a 9:16 frame motif for commands. */
+:root {
+  --bg: #f2f3f5;
+  --surface: #ffffff;
+  --ink: #161a22;
+  --muted: #5b6372;
+  --line: #d9dde4;
+  --rec: #d6403a;        /* the red tally light: the AI is working */
+  --ok: #1f8a5b;         /* approval gates: you decide */
+  --accent-soft: #fbe7e5;
+  --ok-soft: #e1f2ea;
+  --chip: #e9ecf1;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11141a; --surface: #191d25; --ink: #eceef2; --muted: #9aa3b2; --line: #2b313c;
+    --rec: #ff6b5f; --ok: #4cc58c; --accent-soft: #3a1f1d; --ok-soft: #173327; --chip: #232833; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11141a; --surface: #191d25; --ink: #eceef2; --muted: #9aa3b2; --line: #2b313c;
+  --rec: #ff6b5f; --ok: #4cc58c; --accent-soft: #3a1f1d; --ok-soft: #173327; --chip: #232833; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+body[data-l="en"] .es, body[data-l="es"] .en { display: none !important; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 64px; display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.08; margin: 0; text-wrap: balance; letter-spacing: -0.02em; }
+h1 { font-size: clamp(2.6rem, 6vw, 4.4rem); font-weight: 800; }
+h2 { font-size: clamp(1.7rem, 3.4vw, 2.3rem); font-weight: 800; }
+h3 { font-size: 1.2rem; font-weight: 600; }
+p { margin: 0; max-width: 65ch; }
+code, .mono { font-family: var(--mono); font-size: 0.9em; }
+.tc { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); letter-spacing: 0.06em; display: flex; align-items: center; gap: 10px; }
+.tc::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--rec); }
+.lede { font-size: 1.15rem; color: var(--muted); }
+
+/* top bar */
+.bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.brand { font-family: var(--display); font-weight: 800; font-size: 1.1rem; display: flex; gap: 10px; align-items: center; }
+.brand i { display: inline-block; width: 14px; height: 24px; border: 2.5px solid var(--ink); border-radius: 4px; position: relative; }
+.brand i::after { content: ""; position: absolute; top: 3px; right: 2px; width: 4px; height: 4px; border-radius: 50%; background: var(--rec); }
+.lang { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--surface); }
+.lang button { border: 0; background: transparent; color: var(--muted); font: 600 0.85rem var(--body); padding: 6px 14px; border-radius: 999px; cursor: pointer; }
+.lang button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+button:focus-visible, a:focus-visible { outline: 3px solid var(--rec); outline-offset: 2px; }
+
+/* hero */
+.hero { display: grid; gap: 18px; }
+.hero-row { display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: center; }
+.legend { display: flex; flex-wrap: wrap; gap: 10px 20px; font-size: 0.92rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.dot.rec { background: var(--rec); } .dot.ok { background: var(--ok); }
+.phone { width: 150px; aspect-ratio: 9 / 16; border: 3px solid var(--ink); border-radius: 22px; padding: 14px 10px; display: grid; align-content: space-between; background: var(--surface); }
+.phone .hook { font-family: var(--display); font-weight: 800; font-size: 1.05rem; line-height: 1.05; }
+.phone .hook b { color: var(--rec); }
+.phone .meta { font-family: var(--mono); font-size: 0.62rem; color: var(--muted); line-height: 1.5; }
+
+/* loop */
+.loop { display: grid; gap: 20px; }
+.track { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; padding-bottom: 34px; }
+.track::after { content: ""; position: absolute; left: 10%; right: 10%; bottom: 8px; height: 18px; border: 2px dashed var(--line); border-top: 0; border-radius: 0 0 14px 14px; }
+.track .back { position: absolute; bottom: -6px; left: 50%; translate: -50% 0; background: var(--bg); padding: 0 10px; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); z-index: 1; }
+.station { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 14px; padding: 14px 12px; cursor: pointer; color: var(--ink); font: inherit; display: grid; gap: 6px; position: relative; min-width: 0; }
+.station .n { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+.station .cmd { font-family: var(--mono); font-size: 0.86rem; font-weight: 500; overflow-wrap: anywhere; }
+.station .what { font-size: 0.88rem; color: var(--muted); line-height: 1.35; }
+.station[aria-selected="true"] { border-color: var(--rec); box-shadow: 0 0 0 2px var(--rec) inset; }
+.station:not(:last-of-type)::after { content: "→"; position: absolute; right: -11px; top: 50%; translate: 0 -50%; color: var(--muted); font-size: 0.9rem; }
+.panel { border: 1px solid var(--line); background: var(--surface); border-radius: 16px; padding: 22px; display: grid; gap: 16px; }
+.panel-head { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: baseline; justify-content: space-between; }
+.panel-head code { font-size: 1.1rem; font-weight: 500; }
+.cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.cols > div { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.k { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.k.ok { color: var(--ok); }
+.say { background: var(--chip); border-radius: 10px; padding: 10px 12px; font-size: 0.92rem; }
+.once { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+
+/* stages */
+.mode { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; padding: 3px; background: var(--surface); gap: 2px; }
+.mode button { border: 0; background: transparent; color: var(--muted); font: 600 0.9rem var(--body); padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+.mode button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.stages { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-left: 2px solid var(--line); margin-left: 6px; }
+.stages li { position: relative; padding: 0 0 18px 26px; display: grid; gap: 2px; }
+.stages li::before { content: ""; position: absolute; left: -7px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); border: 2px solid var(--muted); }
+.stages li.gate::before { background: var(--ok); border-color: var(--ok); }
+.stages .row { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; }
+.stages .num { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); min-width: 2.2em; }
+.stages .title { font-weight: 600; }
+.stages .gate-tag { font-family: var(--mono); font-size: 0.7rem; color: var(--ok); background: var(--ok-soft); padding: 2px 8px; border-radius: 999px; }
+.stages .opt-tag { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); background: var(--chip); padding: 2px 8px; border-radius: 999px; }
+.stages .desc { color: var(--muted); font-size: 0.93rem; padding-left: calc(2.2em + 12px); max-width: 70ch; }
+
+/* wheel */
+.wheel { display: grid; grid-template-columns: 220px 1fr; gap: 32px; align-items: center; }
+.wheel svg { width: 100%; max-width: 220px; height: auto; }
+.roles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 20px; }
+.role { display: grid; grid-template-columns: 14px 1fr; gap: 4px 12px; align-items: start; min-width: 0; }
+.role .sw { width: 14px; height: 14px; border-radius: 4px; margin-top: 5px; }
+.role b { font-weight: 600; } .role span { grid-column: 2; color: var(--muted); font-size: 0.92rem; }
+
+/* needs */
+.needs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.need { border-top: 3px solid var(--ink); padding-top: 12px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.need.free { border-color: var(--ok); } .need.paid { border-color: var(--rec); }
+.need ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.need li { font-size: 0.93rem; } .need li small { display: block; color: var(--muted); font-size: 0.85rem; }
+
+/* rules */
+.rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 24px; margin: 0; padding: 0; list-style: none; }
+.rules li { display: grid; gap: 4px; min-width: 0; }
+.rules b { font-family: var(--display); font-size: 1.05rem; }
+.rules span { color: var(--muted); font-size: 0.93rem; }
+
+/* start */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 14px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; counter-increment: s; }
+.steps li::before { content: counter(s); font-family: var(--display); font-weight: 800; font-size: 1.4rem; color: var(--rec); text-align: center; }
+.steps code { display: block; overflow-x: auto; white-space: nowrap; }
+.steps small { display: block; color: var(--muted); font-size: 0.85rem; }
+.copy { border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: 600 0.8rem var(--body); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+.foot { color: var(--muted); font-size: 0.9rem; display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 18px; }
+.foot a { color: var(--ink); }
+section { display: grid; gap: 18px; }
+
+@media (max-width: 860px) {
+  .track { grid-template-columns: 1fr; padding-bottom: 0; }
+  .track::after, .track .back { display: none; }
+  .station:not(:last-of-type)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -15px; translate: -50% 0; }
+  .cols, .needs, .rules { grid-template-columns: 1fr; }
+  .wheel { grid-template-columns: 1fr; }
+  .roles { grid-template-columns: 1fr; }
+  .hero-row { grid-template-columns: 1fr; }
+  .phone { display: none; }
+}
+@media (max-width: 520px) { .steps li { grid-template-columns: 28px minmax(0, 1fr); } .steps .copy { grid-column: 2; justify-self: start; } }
+@media (prefers-reduced-motion: no-preference) { .station, .panel { transition: border-color .15s, box-shadow .15s; } }
+</style>
+
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body data-l="en">
+<div class="wrap" id="top">
+  <div class="bar">
+    <div class="brand"><i aria-hidden="true"></i>Creator OS</div>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" id="l-en" aria-pressed="true">English</button>
+      <button type="button" id="l-es" aria-pressed="false">Español</button>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="tc">00:00:00:00 · <span class="en">FIELD GUIDE</span><span class="es">GUÍA DE CAMPO</span></div>
+    <div class="hero-row">
+      <div style="display:grid;gap:18px;min-width:0">
+        <h1><span class="en">Your AI content team. You decide.</span><span class="es">Tu equipo de contenido con IA. Tú decides.</span></h1>
+        <p class="lede"><span class="en">Creator OS turns an AI agent (Claude Code, Codex, Gemini or Grok) into a content studio: it figures out what to post, produces reels at editor quality, tests variations and learns from your numbers. It works in stages, and every stage stops for your approval.</span><span class="es">Creator OS convierte un agente de IA (Claude Code, Codex, Gemini o Grok) en un estudio de contenido: decide qué publicar, produce reels con calidad de editor, prueba variaciones y aprende de tus números. Trabaja por etapas, y cada etapa se detiene hasta que la apruebas.</span></p>
+        <div class="legend">
+          <span><i class="dot rec"></i><span class="en">The AI prepares</span><span class="es">La IA prepara</span></span>
+          <span><i class="dot ok"></i><span class="en">You approve</span><span class="es">Tú apruebas</span></span>
+          <span class="mono">1080×1920 · 30 fps · −14 LUFS</span>
+        </div>
+      </div>
+      <div class="phone" aria-hidden="true">
+        <div class="hook"><span class="en">The topic shows up in the <b>first second</b>.</span><span class="es">El tema aparece en el <b>primer segundo</b>.</span></div>
+        <div class="meta">00:00:00:01<br>skip rate ↓<br>shares ↑</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="loop" aria-labelledby="loop-h">
+    <div class="tc">00:00:12:00 · <span class="en">THE WEEKLY LOOP</span><span class="es">EL CICLO DE LA SEMANA</span></div>
+    <h2 id="loop-h"><span class="en">Five commands, one loop</span><span class="es">Cinco comandos, un ciclo</span></h2>
+    <p><span class="en">Pick a command to see what it does, when to use it and what it needs from you. <code>/creator-start</code> runs once, the first time; the rest turn every week.</span><span class="es">Elige un comando para ver qué hace, cuándo usarlo y qué necesita de ti. <code>/creator-start</code> se corre una vez, la primera; los demás giran cada semana.</span></p>
+    <div class="track" role="tablist" aria-label="Commands">
+      <button class="station" role="tab" type="button" data-k="brand" aria-selected="true"><span class="n">01</span><span class="cmd">/creator-brand</span><span class="what"><span class="en">What you talk about</span><span class="es">De qué se habla</span></span></button>
+      <button class="station" role="tab" type="button" data-k="ideas" aria-selected="false"><span class="n">02</span><span class="cmd">/creator-ideas</span><span class="what"><span class="en">What to post this week</span><span class="es">Qué publicar esta semana</span></span></button>
+      <button class="station" role="tab" type="button" data-k="reel" aria-selected="false"><span class="n">03</span><span class="cmd">/creator-reel</span><span class="what"><span class="en">Produce it, stage by stage</span><span class="es">Producirlo, por etapas</span></span></button>
+      <button class="station" role="tab" type="button" data-k="notes" aria-selected="false"><span class="n">04</span><span class="cmd">/creator-notes</span><span class="what"><span class="en">Review on the exact frame</span><span class="es">Revisar en el cuadro exacto</span></span></button>
+      <button class="station" role="tab" type="button" data-k="pulse" aria-selected="false"><span class="n">05</span><span class="cmd">/creator-pulse</span><span class="what"><span class="en">What worked, what's next</span><span class="es">Qué funcionó, qué sigue</span></span></button>
+      <span class="back"><span class="en">↺ every Monday, back to ideas</span><span class="es">↺ cada lunes, de vuelta a ideas</span></span>
+    </div>
+    <div class="panel" id="panel" role="tabpanel" aria-live="polite"></div>
+    <p class="once"><span class="en">Before the loop:</span><span class="es">Antes del ciclo:</span> <code>/creator-start</code> — <span class="en">checks your computer, installs what's required with your permission, explains each optional connection and what it costs, and creates your first brand.</span><span class="es">revisa tu computador, instala lo obligatorio con tu permiso, te explica cada conexión opcional y lo que cuesta, y crea tu primera marca.</span></p>
+  </section>
+
+  <section aria-labelledby="st-h">
+    <div class="tc">00:00:31:00 · <span class="en">INSIDE /creator-reel</span><span class="es">DENTRO DE /creator-reel</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:end">
+      <h2 id="st-h"><span class="en">From idea to published reel</span><span class="es">De la idea al reel publicado</span></h2>
+      <div class="mode" role="group" aria-label="Mode">
+        <button type="button" id="m-full" aria-pressed="true"><span class="en">Full piece</span><span class="es">Pieza completa</span></button>
+        <button type="button" id="m-exp" aria-pressed="false"><span class="en">Express (daily)</span><span class="es">Exprés (diario)</span></button>
+      </div>
+    </div>
+    <p id="mode-note"></p>
+    <ol class="stages" id="stages"></ol>
+  </section>
+
+  <section aria-labelledby="wh-h">
+    <div class="tc">00:00:58:00 · <span class="en">THE CONTENT WHEEL</span><span class="es">LA RUEDA DE CONTENIDO</span></div>
+    <h2 id="wh-h"><span class="en">Grow first, sell second</span><span class="es">Primero crecer, después vender</span></h2>
+    <div class="wheel">
+      <svg viewBox="0 0 220 220" role="img" aria-label="Content wheel: shareable 60%, useful 25%, product 10%, connection 5% of reels; connection lives mostly in daily stories">
+        <circle cx="110" cy="110" r="80" fill="none" stroke="var(--line)" stroke-width="34"/>
+        <circle cx="110" cy="110" r="80" fill="none" stroke="var(--rec)" stroke-width="34" stroke-dasharray="301.6 502.7" transform="rotate(-90 110 110)"/>
+        <circle cx="110" cy="110" r="80" fill="none" stroke="var(--ok)" stroke-width="34" stroke-dasharray="125.7 502.7" stroke-dashoffset="-301.6" transform="rotate(-90 110 110)"/>
+        <circle cx="110" cy="110" r="80" fill="none" stroke="var(--ink)" stroke-width="34" stroke-dasharray="50.3 502.7" stroke-dashoffset="-427.3" transform="rotate(-90 110 110)"/>
+        <circle cx="110" cy="110" r="80" fill="none" stroke="var(--muted)" stroke-width="34" stroke-dasharray="25.1 502.7" stroke-dashoffset="-477.6" transform="rotate(-90 110 110)"/>
+        <text x="110" y="106" text-anchor="middle" font-family="Bricolage Grotesque, system-ui" font-weight="800" font-size="26" fill="var(--ink)">10</text>
+        <text x="110" y="126" text-anchor="middle" font-family="Inter, system-ui" font-size="11" fill="var(--muted)">reels</text>
+      </svg>
+      <div style="display:grid;gap:16px;min-width:0">
+        <p><span class="en">Every piece has one job. Most exist so people share them because they want to, not because you asked. Your <code>NICHE.md</code> sets the weights for each brand.</span><span class="es">Cada pieza tiene un solo trabajo. La mayoría existe para que la gente la comparta porque quiere, no porque se lo pidas. El <code>NICHE.md</code> de cada marca pone los pesos.</span></p>
+        <div class="roles">
+          <div class="role"><i class="sw" style="background:var(--rec)"></i><b><span class="en">Shareable · ~6 in 10</span><span class="es">Compartible · ~6 de 10</span></b><span><span class="en">"This happens to me." Reaches new people.</span><span class="es">«Esto me pasa». Llega a gente nueva.</span></span></div>
+          <div class="role"><i class="sw" style="background:var(--ok)"></i><b><span class="en">Useful · ~2–3 in 10</span><span class="es">Útil · ~2–3 de 10</span></b><span><span class="en">Mini guides worth saving. Brings people back.</span><span class="es">Mini guías para guardar. Hace que vuelvan.</span></span></div>
+          <div class="role"><i class="sw" style="background:var(--muted)"></i><b><span class="en">Connection · daily stories</span><span class="es">Cercanía · historias diarias</span></b><span><span class="en">Behind the scenes, polls, what went wrong. Turns viewers into followers.</span><span class="es">Detrás de cámaras, encuestas, lo que salió mal. Vuelve seguidores a quien mira.</span></span></div>
+          <div class="role"><i class="sw" style="background:var(--ink)"></i><b><span class="en">Product · ~1 in 10</span><span class="es">Producto · ~1 de 10</span></b><span><span class="en">The product solving one thing in 3 seconds. Converts.</span><span class="es">El producto resolviendo algo en 3 segundos. Convierte.</span></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="nd-h">
+    <div class="tc">00:01:20:00 · <span class="en">WHAT YOU NEED</span><span class="es">LO QUE NECESITAS</span></div>
+    <h2 id="nd-h"><span class="en">Required, optional and paid</span><span class="es">Obligatorio, opcional y de pago</span></h2>
+    <div class="needs">
+      <div class="need"><h3><span class="en">Required</span><span class="es">Obligatorio</span></h3><ul>
+        <li><span class="en">An agent that runs commands</span><span class="es">Un agente que corra comandos</span><small>Claude Code, Codex CLI, Gemini CLI, Grok CLI…</small></li>
+        <li>Node.js 18+ · Python 3.10+ · ffmpeg · Chrome<small><span class="en">Videos, editor, tools. The installer checks them.</span><span class="es">Videos, editor, herramientas. El instalador los revisa.</span></small></li>
+        <li><span class="en">~6 GB free</span><span class="es">~6 GB libres</span><small><span class="en">Local transcription model (Whisper) and renders.</span><span class="es">Modelo de transcripción local (Whisper) y renders.</span></small></li>
+      </ul></div>
+      <div class="need free"><h3><span class="en">Optional · free</span><span class="es">Opcional · gratis</span></h3><ul>
+        <li><span class="en">Instagram API</span><span class="es">API de Instagram</span><small><span class="en">Scheduled trial reels and automatic metrics.</span><span class="es">Reels de prueba programados y métricas automáticas.</span></small></li>
+        <li>last30days<small><span class="en">What your niche shares this week (free tier for TikTok and Instagram).</span><span class="es">Qué comparte tu nicho esta semana (TikTok e Instagram con plan gratis).</span></small></li>
+        <li>HyperFrames · marketing skills · instagram-agent<small><span class="en">Motion blocks, strategy, hooks and captions.</span><span class="es">Bloques de movimiento, estrategia, ganchos y copies.</span></small></li>
+      </ul></div>
+      <div class="need paid"><h3><span class="en">Optional · paid</span><span class="es">Opcional · de pago</span></h3><ul>
+        <li>After Effects<small><span class="en">Color and reframing. Without it: ffmpeg or Remotion.</span><span class="es">Color y reencuadre. Sin él: ffmpeg o Remotion.</span></small></li>
+        <li>ElevenLabs<small><span class="en">Clean up a voice or make a brand voice.</span><span class="es">Limpiar la voz o crear una voz de marca.</span></small></li>
+        <li>Higgsfield<small><span class="en">AI retouch of the person. Always quoted first.</span><span class="es">Retoque de la persona con IA. Siempre se cotiza antes.</span></small></li>
+      </ul></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="ru-h">
+    <div class="tc">00:01:44:00 · <span class="en">HOUSE RULES</span><span class="es">REGLAS DE LA CASA</span></div>
+    <h2 id="ru-h"><span class="en">What it will never do on its own</span><span class="es">Lo que nunca hace sola</span></h2>
+    <ul class="rules">
+      <li><b><span class="en">Publish</span><span class="es">Publicar</span></b><span><span class="en">Only the exact batch you approve in chat: videos, captions, day and times.</span><span class="es">Solo el lote exacto que apruebas en el chat: videos, copies, día y horas.</span></span></li>
+      <li><b><span class="en">Touch your keys</span><span class="es">Tocar tus claves</span></b><span><span class="en">Tokens live in your keychain. You save them; it never types them.</span><span class="es">Los tokens viven en tu llavero. Los guardas tú; la IA nunca los escribe.</span></span></li>
+      <li><b><span class="en">Spend money</span><span class="es">Gastar plata</span></b><span><span class="en">Paid tools need a quote you approve first.</span><span class="es">Las herramientas de pago necesitan una cotización que apruebes antes.</span></span></li>
+      <li><b><span class="en">Pretend to hear</span><span class="es">Fingir que oye</span></b><span><span class="en">It measures loudness and clarity; you approve the sound by ear.</span><span class="es">Mide el volumen y la claridad; tú apruebas el sonido de oído.</span></span></li>
+      <li><b><span class="en">Use music without a license</span><span class="es">Usar música sin licencia</span></b><span><span class="en">CC0 only, with its credit. Trending songs are added by you in the app.</span><span class="es">Solo CC0, con su crédito. Las canciones de moda las pones tú en la app.</span></span></li>
+      <li><b><span class="en">Speak another language</span><span class="es">Hablarte en otro idioma</span></b><span><span class="en">The repo is in English; it talks to you in yours.</span><span class="es">El repo está en inglés; te habla en el tuyo.</span></span></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="go-h">
+    <div class="tc">00:02:05:00 · <span class="en">START</span><span class="es">EMPEZAR</span></div>
+    <h2 id="go-h"><span class="en">Three steps to your first week</span><span class="es">Tres pasos para tu primera semana</span></h2>
+    <ol class="steps">
+      <li><div style="min-width:0"><code id="c1">git clone https://github.com/CamiloRincon96/creator-os.git</code><small><span class="en">Get the repo.</span><span class="es">Baja el repo.</span></small></div><button class="copy" type="button" data-c="c1"><span class="en">Copy</span><span class="es">Copiar</span></button></li>
+      <li><div style="min-width:0"><code id="c2">cd creator-os &amp;&amp; claude</code><small><span class="en">Open it with your agent (or Codex, Gemini, Grok: "read AGENTS.md and guide me").</span><span class="es">Ábrelo con tu agente (o Codex, Gemini, Grok: «lee AGENTS.md y guíame»).</span></small></div><button class="copy" type="button" data-c="c2"><span class="en">Copy</span><span class="es">Copiar</span></button></li>
+      <li><div style="min-width:0"><code id="c3">/creator-start</code><small><span class="en">It walks you through setup, then <code>/creator-brand</code> and <code>/creator-ideas</code>.</span><span class="es">Te guía en la instalación y luego <code>/creator-brand</code> e <code>/creator-ideas</code>.</span></small></div><button class="copy" type="button" data-c="c3"><span class="en">Copy</span><span class="es">Copiar</span></button></li>
+    </ol>
+  </section>
+
+  <footer class="foot">
+    <span>Creator OS · MIT</span>
+    <a href="https://github.com/CamiloRincon96/creator-os" target="_blank" rel="noopener">github.com/CamiloRincon96/creator-os</a>
+  </footer>
+</div>
+
+<script>
+const T = {
+  brand: {
+    cmd: "/creator-brand",
+    en: { when: "A new brand, a new topic, or a change of direction.", does: "Reads your product's repo or website and finds the real niche (people with a concrete problem, not a category). Writes the tone, what can't be promised, the content wheel and your accounts.", you: "Every change, before it's written. Each one is dated, with the reason.", say: "“New brand from github.com/me/my-app. It's for freelancers.”" },
+    es: { when: "Una marca nueva, un tema nuevo o un cambio de rumbo.", does: "Lee el repo o la web de tu producto y encuentra el nicho real (gente con un problema concreto, no una categoría). Escribe el tono, lo que no se promete, la rueda de contenido y tus cuentas.", you: "Cada cambio, antes de escribirse. Cada uno queda con fecha y motivo.", say: "“Marca nueva desde github.com/yo/mi-app. Es para independientes.”" }
+  },
+  ideas: {
+    cmd: "/creator-ideas",
+    en: { when: "Every Monday, or whenever you don't know what to post.", does: "Asks the network and format (reel, story, carousel, series, the whole week). Looks at what your niche is sharing this week across TikTok, Instagram, YouTube and Reddit, adds your own numbers, and proposes 8–10 ideas with the hook for the first second and the evidence.", you: "The idea you pick. Nothing is saved to the repo until you say “this one”.", say: "“Instagram, the whole week, mostly shareable.”" },
+    es: { when: "Cada lunes, o cuando no sepas qué publicar.", does: "Pregunta la red y el formato (reel, historia, carrusel, serie, la semana). Mira lo que tu nicho está compartiendo esta semana en TikTok, Instagram, YouTube y Reddit, suma tus números y propone 8 a 10 ideas con el gancho del primer segundo y la evidencia.", you: "La idea que elijas. Nada se guarda en el repo hasta que digas «esta va».", say: "“Instagram, la semana completa, sobre todo compartibles.”" }
+  },
+  reel: {
+    cmd: "/creator-reel",
+    en: { when: "To produce a piece: a big one on camera, or a daily express reel.", does: "Takes the piece stage by stage: script, voice cut that never splits a word, voice, a gray mockup, image, animation in code, measured sound, a fixed final checklist (nothing covering your face, captions in sync, −14 LUFS) and variations.", you: "The end of each stage. The cut and the sound, by ear.", say: "“I recorded the take, it's in source/.”" },
+    es: { when: "Para producir una pieza: una grande a cámara o el reel exprés del día.", does: "Lleva la pieza etapa por etapa: guion, corte de voz que nunca parte una palabra, voz, maqueta gris, imagen, animación en código, sonido medido, una lista final fija (nada te tapa la cara, subtítulos a tiempo, −14 LUFS) y variaciones.", you: "El final de cada etapa. El corte y el sonido, de oído.", say: "“Ya grabé la toma, está en source/.”" }
+  },
+  notes: {
+    cmd: "/creator-notes",
+    en: { when: "Whenever something in a version doesn't convince you.", does: "Montage, the local editor, shows every version. You draw on the exact frame and write the note; the AI plans the fix, makes it and publishes a new version, keeping the whole history. /creator-montage opens it and keeps the AI listening.", you: "Which version is FINAL. Only you mark it.", say: "“At 0:12 the music covers my voice.”" },
+    es: { when: "Cuando algo de una versión no te convence.", does: "Montage, el editor local, muestra cada versión. Dibujas sobre el cuadro exacto y escribes la nota; la IA planea el arreglo, lo hace y publica una versión nueva, sin perder el historial. /creator-montage lo abre y deja a la IA escuchando.", you: "Cuál versión es la FINAL. Solo tú la marcas.", say: "“En el 0:12 la música tapa mi voz.”" }
+  },
+  pulse: {
+    cmd: "/creator-pulse",
+    en: { when: "Every Monday, before /creator-ideas.", does: "Collects the metrics of everything published (stories too: the Mac saves them every hour, before they expire). Builds a card for each reel (hook frames, cuts per minute, loudness, first words) and compares shares, saves and skip rate against reach. Keeps OWN-STYLE.md: what works for you, measured.", you: "Any change to your style guide. You get three things for next week: repeat, drop, try.", say: "“How did last week go?”" },
+    es: { when: "Cada lunes, antes de /creator-ideas.", does: "Junta las métricas de todo lo publicado (también las historias: el Mac las guarda cada hora, antes de que desaparezcan). Arma una ficha de cada reel (cuadros del gancho, cortes por minuto, volumen, primeras palabras) y compara compartidos, guardados y salto contra el alcance. Mantiene OWN-STYLE.md: lo que te funciona, medido.", you: "Cualquier cambio a tu guía de estilo. Recibes tres cosas para la semana: repetir, dejar, probar.", say: "“¿Cómo nos fue la semana pasada?”" }
+  }
+};
+const S = {
+  full: [
+    [0, "What piece is it", "Qué pieza es", "Type, style, length, references.", "Tipo, estilo, duración, referencias.", 1],
+    [1, "Idea and script", "Idea y guion", "Three hooks; for each line, what's on screen.", "Tres ganchos; para cada frase, qué se ve.", 1],
+    [2, "Recording", "Grabación", "One continuous take, plus 2–3 alternative openings for variations.", "Una toma seguida, más 2 o 3 arranques distintos para las variaciones.", 0],
+    [3, "Voice cut", "Corte de voz", "Local transcription; cuts never land on a word.", "Transcripción local; los cortes nunca caen sobre una palabra.", 1, "by ear", "de oído"],
+    [4, "Voice", "Voz", "Leveled phrase by phrase; optional enhanced versions.", "Nivelada frase por frase; versiones mejoradas opcionales.", 1, "by ear", "de oído"],
+    [5, "Visual script and mockup", "Guion visual y maqueta", "Real timings from the cut, a gray mockup to judge the rhythm.", "Tiempos reales del corte y una maqueta gris para juzgar el ritmo.", 1],
+    [6, "Image of the person", "Imagen de la persona", "Color and framing of each camera block.", "Color y encuadre de cada bloque de cámara.", 1],
+    [7, "Animation", "Animación", "Remotion with the brand kit; the hard moments first.", "Remotion con el kit de la marca; primero los momentos difíciles.", 1],
+    [8, "AI and retouch", "IA y retoque", "Only if you want it, and only after a quote.", "Solo si la quieres, y solo con cotización.", 1, null, null, 1],
+    [9, "Sound", "Sonido", "Real CC0 effects on the exact frame, music with ducking.", "Efectos CC0 reales en su cuadro exacto, música con ducking.", 1, "by ear", "de oído"],
+    [10, "Review", "Revisión", "Fixed checklist: topic in the first second, face never covered, captions, −14 LUFS, cover.", "Lista fija: tema en el primer segundo, la cara nunca tapada, subtítulos, −14 LUFS, portada.", 0],
+    [11, "Delivery", "Entrega", "You mark FINAL; caption in two lines, cover, files per network.", "Tú marcas FINAL; copy de dos líneas, portada, archivos por red.", 1],
+    [12, "Variations", "Variaciones", "Diagnosis from real metrics, better hooks as drafts, a trial-reel batch for non-followers.", "Diagnóstico con métricas reales, mejores ganchos en borrador, un lote de reels de prueba para no seguidores.", 1]
+  ],
+  exp: [
+    ["→", "Pick the idea", "Elegir la idea", "From /creator-ideas, with its script.", "De /creator-ideas, con su guion.", 1],
+    ["→", "Record a voice note", "Grabar una nota de voz", "Your phone is enough. Or film yourself talking.", "Basta el celular. O grábate hablando.", 0],
+    ["→", "Cut and voice", "Corte y voz", "Pauses and filler removed, leveled. Automatic.", "Sin pausas ni muletillas, nivelada. Automático.", 0],
+    ["→", "Scenes", "Escenas", "Title, number, list, your own clip, the app, outro — on the words' timing.", "Título, cifra, lista, tu toma, la app, cierre, al ritmo de las palabras.", 0],
+    ["→", "Render", "Render", "Captions, swipes, motion blur, sound, −14 LUFS, three cover options.", "Subtítulos, barridos, desenfoque de movimiento, sonido, −14 LUFS, tres portadas.", 0],
+    ["→", "Final checklist and review", "Lista final y revisión", "In Montage, like any other piece.", "En Montage, como cualquier pieza.", 1]
+  ]
+};
+let lang = "en", key = "brand", mode = "full";
+try { lang = localStorage.getItem("cos-lang") || "en"; } catch (e) {}
+const $ = (s) => document.querySelector(s);
+function esc(s) { return String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])); }
+function renderPanel() {
+  const t = T[key], d = t[lang];
+  const L = lang === "en"
+    ? { when: "When", does: "What it does", you: "You approve", say: "You might say" }
+    : { when: "Cuándo", does: "Qué hace", you: "Tú apruebas", say: "Podrías decir" };
+  $("#panel").innerHTML = `<div class="panel-head"><code>${t.cmd}</code><span class="k">${esc(L.when)}: <span style="text-transform:none;letter-spacing:0;font-family:var(--body);font-size:.92rem;color:var(--ink)">${esc(d.when)}</span></span></div>
+  <div class="cols"><div><span class="k">${esc(L.does)}</span><p>${esc(d.does)}</p></div><div><span class="k ok">${esc(L.you)}</span><p>${esc(d.you)}</p></div><div><span class="k">${esc(L.say)}</span><p class="say">${esc(d.say)}</p></div></div>`;
+}
+function renderStages() {
+  const rows = S[mode], i = lang === "en" ? 0 : 1;
+  $("#mode-note").textContent = mode === "full"
+    ? (lang === "en" ? "For the big pieces: the person on camera, custom animation. Green dots are where it stops for you." : "Para las piezas grandes: la persona a cámara, animación a medida. Los puntos verdes son donde se detiene por ti.")
+    : (lang === "en" ? "For publishing almost every day: two approvals, the idea and the finished video. Built from a voice note or your own clips." : "Para publicar casi todos los días: dos aprobaciones, la idea y el video terminado. Sale de una nota de voz o de tus tomas.");
+  $("#stages").innerHTML = rows.map((r) => {
+    const [n, en, es, den, des, gate, ear_en, ear_es, opt] = r;
+    const ear = gate && (lang === "en" ? ear_en : ear_es);
+    const tag = gate ? `<span class="gate-tag">${lang === "en" ? "you approve" : "apruebas"}${ear ? " · " + ear : ""}</span>` : "";
+    const o = opt ? `<span class="opt-tag">${lang === "en" ? "optional" : "opcional"}</span>` : "";
+    return `<li class="${gate ? "gate" : ""}"><div class="row"><span class="num">${n}</span><span class="title">${esc(i ? es : en)}</span>${tag}${o}</div><div class="desc">${esc(i ? des : den)}</div></li>`;
+  }).join("");
+}
+function setLang(l) {
+  lang = l;
+  document.body.setAttribute("data-l", l);
+  document.documentElement.lang = l;
+  $("#l-en").setAttribute("aria-pressed", String(l === "en"));
+  $("#l-es").setAttribute("aria-pressed", String(l === "es"));
+  try { localStorage.setItem("cos-lang", l); } catch (e) {}
+  renderPanel(); renderStages();
+}
+document.querySelectorAll(".station").forEach((b) => b.addEventListener("click", () => {
+  key = b.dataset.k;
+  document.querySelectorAll(".station").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+  renderPanel();
+}));
+$("#l-en").addEventListener("click", () => setLang("en"));
+$("#l-es").addEventListener("click", () => setLang("es"));
+$("#m-full").addEventListener("click", () => { mode = "full"; $("#m-full").setAttribute("aria-pressed", "true"); $("#m-exp").setAttribute("aria-pressed", "false"); renderStages(); });
+$("#m-exp").addEventListener("click", () => { mode = "exp"; $("#m-exp").setAttribute("aria-pressed", "true"); $("#m-full").setAttribute("aria-pressed", "false"); renderStages(); });
+document.querySelectorAll(".copy").forEach((b) => b.addEventListener("click", async () => {
+  const el = document.getElementById(b.dataset.c), txt = el.textContent;
+  try { await navigator.clipboard.writeText(txt); b.querySelectorAll("span").forEach((s) => s.textContent = s.classList.contains("en") ? "Copied" : "Copiado"); }
+  catch (e) { const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+}));
+setLang(lang === "es" ? "es" : "en");
+</script>
+
+</body>
+</html>
