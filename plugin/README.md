@@ -4,6 +4,8 @@
 
 Creator OS by Dirac Core is a content studio that runs inside Claude Code, for one brand or many (an agency's clients, your own products, your personal account). It finds each brand's real niche, proposes hooks backed by what that niche is sharing this month, produces reels with motion graphics and real recorded sound, lets you review them on the exact frame in a local editor, schedules Instagram trial reels and reads the metrics every Monday. You approve every stage.
 
+See the whole flow first: the interactive guide at https://diraccore.com/creator-os plays a short tour of every step, what it uses and what you approve.
+
 This plugin adds one command, `/creator-os:start`. It sets up the Creator OS workspace on your computer and hands over to `/creator-start`, which walks you through the rest.
 
 ## Install

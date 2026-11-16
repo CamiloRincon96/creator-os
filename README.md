@@ -18,7 +18,7 @@ It works with agents that read and edit files and run commands on your computer:
 
 ![Creator OS as a metro map: set up, brand, ideas, produce, review, publish and learn, looping back to ideas every week, with what plugs into each stop (bundled, required, optional free, optional paid)](docs/how-it-works.png)
 
-**Interactive map** (English / Español): download [`docs/guide.html`](docs/guide.html) and open it in your browser. It plays a short tour on its own: each stop, what it uses and what you approve. Tap any stop to see it up close.
+**Interactive map** (English / Español): open **[diraccore.com/creator-os](https://diraccore.com/creator-os)**, or download [`docs/guide.html`](docs/guide.html) and open it in your browser. It plays a short tour on its own: each stop, what it uses and what you approve. Tap any stop to see it up close.
 
 ## What's inside
 
