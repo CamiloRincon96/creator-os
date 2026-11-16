@@ -71,3 +71,6 @@ library/sheets/
 
 # The README diagram is part of the repo
 !docs/*.png
+
+# The Claude Code plugin icon (public repo only: the plugin lives in plugin/)
+!plugin/*.png

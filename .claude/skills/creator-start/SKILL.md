@@ -7,6 +7,10 @@ description: First time with this repo (or on a new computer). Checks what is in
 
 Speak the person's language: every question, instruction (log in here, paste this, click that), approval request and summary goes in the language they write to you in; translate tool messages when you relay them. Commands, code and file names stay in English. Explain each thing in one line: what it is, what it is for, and whether it costs money. **Do not install anything that touches the system without their yes.** Anything that stays inside the repo can be installed without asking.
 
+## 0. Are you inside the repo?
+
+If `production/install.py` isn't in the working directory, the skill arrived on its own (from a skills directory or the plugin) and the repo is missing. Explain in one line what it contains, ask where to put it (`~/creator-os` by default, never over a folder that already has files) and, with their yes, `git clone https://github.com/CamiloRincon96/creator-os "<folder>"`. Then ask them to open their agent in that folder so the commands load, and continue here.
+
 ## 1. Check
 
 `python3 production/install.py --check` says what is there and what is missing. Show it as a short table: required and optional, and the state of each item (ready or missing).

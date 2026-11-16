@@ -41,6 +41,17 @@ Python and Node tools live in `production/tools/`. Among others:
 
 ## Getting started
 
+**In Claude Code, the plugin is the fastest way.** Paste this into Claude Code:
+
+```
+/plugin marketplace add CamiloRincon96/creator-os
+/plugin install creator-os@creator-os
+```
+
+Then type **`/creator-os:start`**. It asks where to put the folder, clones the repo with your yes and opens the way to `/creator-start`.
+
+**With any other agent (or if you'd rather do it by hand):**
+
 1. Clone this repo and open it with your agent (for example, `claude` in the folder).
 2. Type **`/creator-start`**, or ask it to "read `GETTING-STARTED.md` and walk me through it". It takes you step by step.
 3. Create your brand with **`/creator-brand`** and plan the week with **`/creator-ideas`**.

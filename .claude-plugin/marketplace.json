@@ -1,0 +1,17 @@
+{
+  "name": "creator-os",
+  "description": "Creator OS by Dirac Core: an open-source content studio that runs inside Claude Code.",
+  "owner": {
+    "name": "Dirac Core",
+    "url": "https://github.com/CamiloRincon96/creator-os"
+  },
+  "plugins": [
+    {
+      "name": "creator-os",
+      "source": "./plugin",
+      "description": "Sets up Creator OS on your computer: brand niches, ideas from what your niche is sharing, reels with motion graphics and real sound, review on the exact frame, Instagram trial reels and weekly metrics. You approve every stage.",
+      "category": "productivity",
+      "tags": ["social-media", "content", "reels", "instagram", "tiktok", "video", "marketing", "agency"]
+    }
+  ]
+}

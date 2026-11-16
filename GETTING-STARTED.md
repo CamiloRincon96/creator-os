@@ -5,6 +5,15 @@
 
 The easy way is to open the repo with your agent and type **`/creator-start`** (or "walk me through GETTING-STARTED.md"). This is the same thing, in writing.
 
+**In Claude Code you can skip the clone.** Install the plugin and it sets up the workspace for you:
+
+```
+/plugin marketplace add CamiloRincon96/creator-os
+/plugin install creator-os@creator-os
+```
+
+Then type `/creator-os:start`. It asks where to put the folder, clones the repo with your yes and hands over to `/creator-start`.
+
 ## 1. What's required
 
 | What | What for | How |
