@@ -21,7 +21,7 @@ Then type `/creator-os:start`, or just ask: "set up Creator OS".
 
 - **One download, with your yes:** `git clone` of the public repo (github.com/CamiloRincon96/creator-os, about 20 MB) into a folder you choose. It never clones into a folder that already has files.
 - **Git, only if it's missing and only with your yes:** the plugin gives you the install command for your system before running it.
-- **Nothing is sent anywhere.** The plugin has no hooks, no MCP servers, no background processes and no telemetry.
+- **Nothing is sent anywhere.** The plugin has no hooks, no MCP servers, no background processes and no telemetry. Details in [PRIVACY.md](PRIVACY.md).
 
 After that, the workspace's own `/creator-start` checks your computer and installs the requirements (Node, Python, ffmpeg, a local Whisper model) one question at a time. The optional connections are explained before you turn them on: the Instagram API, last30days research, After Effects, ElevenLabs and Higgsfield. The last three are paid tools and are never used without a quote you approved. The full list is in the repo's `GETTING-STARTED.md`.
 
