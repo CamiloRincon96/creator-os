@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from common import AUDIO_EXT, SKILL_DIR, config_path, is_sound_file
+from common import AUDIO_EXT, SKILL_DIR, config_path, is_sound_file, norm_path
 
 EXAMPLE = {
     "libraries": [],
@@ -34,8 +34,8 @@ def tool(name):
     if not p:
         return None, None
     try:
-        out = subprocess.run([name, "-version" if name.startswith("ff") else "--version"], capture_output=True,
-                             text=True, timeout=10).stdout.splitlines()
+        out = subprocess.run([p, "-version" if name.startswith("ff") else "--version"], capture_output=True,
+                             text=True, encoding="utf-8", errors="replace", timeout=10).stdout.splitlines()
         return p, (out[0] if out else "")
     except Exception:
         return p, ""
@@ -123,6 +123,7 @@ def write_config(libs, force, tier="main"):
         cfg = json.loads(json.dumps(EXAMPLE))
     have = {l["name"]: l for l in cfg["libraries"]}
     for name, path in libs:
+        path = norm_path(path)                       # '/e/Sounds' typed in Git Bash -> 'E:/Sounds'
         if not Path(path).is_dir():
             print(f"warning: {path} is not a folder (kept anyway)")
         have[name] = {"name": name, "path": str(path), "tier": tier}
@@ -139,8 +140,14 @@ def install_uisfx():
     npm = shutil.which("npm")
     if not npm:
         sys.exit("npm not found: install Node.js first (https://nodejs.org), then run this again")
+    cmd = [npm]
+    node = shutil.which("node")
+    if os.name == "nt" and node:      # npm is npm.cmd there: run its JS with node, so cmd.exe never parses the path
+        cli = Path(node).parent / "node_modules" / "npm" / "bin" / "npm-cli.js"
+        if cli.is_file():
+            cmd = [node, str(cli)]
     print("installing uisfx (CC0 UI sounds, ~9 MB) ...", flush=True)
-    subprocess.check_call([npm, "install", "uisfx", "--prefix", str(vendor), "--no-audit", "--no-fund"])
+    subprocess.check_call(cmd + ["install", "uisfx", "--prefix", str(vendor), "--no-audit", "--no-fund"])
 
 
 def main():

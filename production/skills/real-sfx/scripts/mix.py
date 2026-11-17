@@ -473,7 +473,7 @@ def run_ffmpeg(args, script_text=None, workdir=None):
     """Run ffmpeg; a long filter graph goes through a script file (Windows command lines are short)."""
     base = ["ffmpeg", "-v", "error", "-y", "-nostdin"]
     if script_text is None:
-        r = subprocess.run(base + args, capture_output=True, text=True, errors="replace")
+        r = subprocess.run(base + args, capture_output=True, text=True, encoding="utf-8", errors="replace")
         if r.returncode:
             sys.exit("ffmpeg failed:\n" + r.stderr[-2000:])
         return
@@ -485,7 +485,7 @@ def run_ffmpeg(args, script_text=None, workdir=None):
             # the script flag has to come right before the outputs, i.e. after all -i inputs
             i = args.index("@@GRAPH@@")
             cmd = base + args[:i] + [flag, script] + args[i + 1:]
-            r = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
+            r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
             if r.returncode == 0:
                 return
         sys.exit("ffmpeg failed:\n" + r.stderr[-2000:])
@@ -549,7 +549,7 @@ def frame_peaks(path):
     r = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-nostdin", "-i", str(path), "-vn", "-af",
                         "aresample=192000,asetnsamples=n=4096:p=0,astats=metadata=1:reset=1,"
                         "ametadata=print:key=lavfi.astats.Overall.Peak_level:file=-",
-                        "-f", "null", "-"], capture_output=True, text=True, errors="replace")
+                        "-f", "null", "-"], capture_output=True, text=True, encoding="utf-8", errors="replace")
     t_now, rows = 0.0, []
     for line in r.stdout.splitlines():
         m = re.search(r"pts_time:(-?[\d.]+)", line)
@@ -1185,7 +1185,7 @@ def main():
             def _mean_vol(p_):
                 r_ = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-nostdin", "-i", str(p_), "-af",
                                      "volumedetect", "-f", "null", "-"], capture_output=True, text=True,
-                                    errors="replace")
+                                    encoding="utf-8", errors="replace")
                 m_ = re.search(r"mean_volume:\s*(-?[\d.]+) dB", r_.stderr)
                 return float(m_.group(1)) if m_ else None
             vd_, vs_ = _mean_vol(ducked_wav), _mean_vol(sfx_wav)

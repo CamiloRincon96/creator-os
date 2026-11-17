@@ -20,7 +20,7 @@ import { deliver, VARIANTS } from './deliver.mjs';
 import { exportTimeline, missingRasters, rasterPath, validateTimeline } from './export.mjs';
 import { mediaState, mediaEvents, pruneCache } from './media.mjs';
 import { jobEvents, readJob } from './jobs.mjs';
-import { withLock, isInside, writeAtomic, writeJSON, hash, readJSON } from './util.mjs';
+import { withLock, isInside, toPosix, writeAtomic, writeJSON, hash, readJSON } from './util.mjs';
 
 const { MontageError } = data;
 const APP_VERSION = '0.1.0';
@@ -464,10 +464,10 @@ api.get('/repo', async (req, res) => {
         size = (await fsp.stat(file)).size;
       } catch {}
     }
-    out.push({ name: e.name, path: path.relative(REPO, file), type, size });
+    out.push({ name: e.name, path: toPosix(path.relative(REPO, file)), type, size });
   }
   out.sort((a, b) => (b.type === 'folder') - (a.type === 'folder') || a.name.localeCompare(b.name, 'en'));
-  res.json({ dir: path.relative(REPO, dir), entries: out });
+  res.json({ dir: toPosix(path.relative(REPO, dir)), entries: out });
 });
 
 api.post('/cache/clear', async (_req, res) => res.json(await pruneCache(0)));
@@ -514,7 +514,7 @@ api.post('/projects/:id/media', async (req, res) => {
     out.on('finish', resolve);
     out.on('error', reject);
   });
-  res.status(201).json({ path: path.relative(REPO, destination) });
+  res.status(201).json({ path: toPosix(path.relative(REPO, destination)) });
 });
 
 // ----- video editor: text/logo rasters and export
@@ -573,7 +573,16 @@ api.post('/projects/:id/deliver', async (req, res) => {
 api.post('/reveal', async (req, res) => {
   const file = resolvePath(String(req.body?.path || ''));
   if (!isInside(REPO, file)) throw new MontageError(403, 'Outside the repo');
-  spawn('open', ['-R', file], { stdio: 'ignore', detached: true }).unref();
+  // Shows the file in Finder / File Explorer / its containing folder (Linux).
+  const [cmd, args] =
+    process.platform === 'darwin'
+      ? ['open', ['-R', file]]
+      : process.platform === 'win32'
+        ? ['explorer.exe', ['/select,', file]] // explorer exits with code 1 even when it works: not checked
+        : ['xdg-open', [fs.existsSync(file) && fs.statSync(file).isDirectory() ? file : path.dirname(file)]];
+  const child = spawn(cmd, args, { stdio: 'ignore', detached: true });
+  child.on('error', (e) => console.error(`[reveal] ${cmd}: ${e.message}`));
+  child.unref();
   res.json({ ok: true });
 });
 

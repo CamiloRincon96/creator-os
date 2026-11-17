@@ -1,7 +1,7 @@
 """Matches the voice's timbre take by take and gives it presence. For when a take was recorded closer to or farther from
 the mic (suddenly more bass and more brightness): each take is equalized toward the median timbre of all of them.
 
-    production/.venv/bin/python production/tools/match_timbre.py <piece> <voice.wav> <output.wav> [--no-presence]
+    python3 production/tools/match_timbre.py <piece> <voice.wav> <output.wav> [--no-presence]
 
 1. Measures each TAKE (the phrases T01-.., T02-.. of voice/cut-vN.json) in third-octave bands, relative to its level: the
    distance to the mic changes between takes, not between phrases of the same take (matching per phrase changes the
@@ -12,6 +12,10 @@ the mic (suddenly more bass and more brightness): each take is equalized toward 
    gentle compression (3:1), and leaves the voice at the same integrated loudness it had.
 Prints the timbre before and after: the spread between phrases should go down. Claude cannot hear: the creator approves by ear.
 """
+import system
+
+system.prepare(venv=True, args=3)
+
 import io
 import json
 import subprocess

@@ -1,11 +1,15 @@
 """Stage 6: cuts the blocks where the person appears out of the takes, at full quality and with a margin.
-Usage: production/.venv/bin/python production/tools/blocks.py <piece> [--margin 0.5]
+Usage: python3 production/tools/blocks.py <piece> [--margin 0.5]
 
 Reads image/blocks.json (from visual_script.py) and the cut the visual script uses. Each block comes out of its
 take in work/takes/ (fixed 30 fps) with `margin` extra seconds on each side, to
 image/blocks/B01-raw.mov, and blocks.json is updated with its source: take, second of the take where the
 file starts and how much margin it has before (to line it up in the piece:
 second in the file = second in the piece - start + margin_before)."""
+import system
+
+system.prepare(venv=True, args=1)
+
 import json, os, sys
 from common import FPS, ff, load, piece, probe, save
 

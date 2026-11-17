@@ -196,7 +196,8 @@ async function runJob(id, j, plan, { author, name, note, rev }) {
       '-/filter_complex', graph,
       '-map', '[vout]', '-map', '[aout]', '-t', num(plan.D), '-r', String(plan.fps),
       '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-profile:v', 'high', '-pix_fmt', 'yuv420p', ...TAGS_709,
-      '-c:a', 'aac_at', '-b:a', '192k', '-ar', '48000',
+      // aac_at (AudioToolbox) only exists on macOS; on Windows and Linux, ffmpeg's own AAC.
+      '-c:a', process.platform === 'darwin' ? 'aac_at' : 'aac', '-b:a', '192k', '-ar', '48000',
       '-movflags', '+faststart', output,
     ];
     const r = await run(FFMPEG, args, {
@@ -208,7 +209,7 @@ async function runJob(id, j, plan, { author, name, note, rev }) {
         }
       },
     });
-    if (r.code !== 0) throw new Error(r.stderr.trim().split('\n').slice(-3).join(' | ') || 'ffmpeg failed');
+    if (r.code !== 0) throw new Error(r.stderr.trim().split(/\r?\n/).slice(-3).join(' | ') || 'ffmpeg failed');
     j.stage = 'publishing';
     notifyJob(j);
     const v = await data.addVersion(id, {

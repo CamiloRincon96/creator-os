@@ -1,0 +1,72 @@
+# Every change is tested on Windows, macOS and Linux, on clean machines: the install, every tool, the secret store,
+# the hourly task, Montage (its tests, the editor and a real published version) and the Remotion kit.
+# The same steps a person follows in GETTING-STARTED.md, without the 2.9 GB Whisper download.
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    defaults:
+      run:
+        shell: bash   # on Windows this is Git Bash, the same shell Claude Code uses there
+    env:
+      PYTHONIOENCODING: ""   # no help: the tools must handle UTF-8 by themselves
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: ffmpeg
+        run: |
+          case "$RUNNER_OS" in
+            Windows) choco install ffmpeg -y --no-progress ;;
+            macOS)   brew install ffmpeg ;;
+            Linux)   sudo apt-get update -q && sudo apt-get install -y -q ffmpeg ;;
+          esac
+          ffmpeg -version | head -1
+
+      - name: Nothing that only works on one system
+        run: python production/tests/portability.py
+
+      - name: Install (python production/install.py, without Whisper)
+        run: |
+          set +e
+          python production/install.py
+          code=$?
+          # 0: all set · 2: only things that need the person's yes are left (Whisper, logins) · 1: something failed
+          test $code -eq 0 -o $code -eq 2
+
+      - name: Install check from PowerShell
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python production/install.py --check
+          if ($LASTEXITCODE -eq 1) { exit 1 } else { exit 0 }
+
+      - name: Montage tests and types
+        working-directory: montage
+        run: npm test && npm run check
+
+      - name: Remotion kit types
+        working-directory: brands/example/reel
+        run: npx tsc --noEmit
+
+      - name: Smoke test (every tool, system.py, voice, Remotion, Montage, secrets, hourly task)
+        run: python production/tests/smoke.py --all

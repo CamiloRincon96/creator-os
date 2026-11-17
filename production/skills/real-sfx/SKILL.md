@@ -55,6 +55,10 @@ No index, or the libraries moved: `python scripts/build_index.py`, then `python 
 No uisfx: `setup.py init --uisfx`. Another machine: `setup.py scan FOLDER`, `setup.py add-library NAME PATH [--tier
 main|extra] --index`. Run scripts from the skill folder; quote paths with spaces or non-Latin characters; your own Python
 with non-Latin paths on Windows: `PYTHONUTF8=1`. In PowerShell, quotes break JSON arguments: put them in a file.
+`python` in these commands is the machine's Python 3: `python3` on macOS and Linux, `python` or `py` on Windows (there
+`python3` is often missing or opens the Microsoft Store). To show the user a page or a picture: `open FILE` (macOS),
+`start "" FILE` (Windows, Git Bash or cmd; PowerShell: `Start-Process FILE`), `xdg-open FILE` (Linux);
+`listen_page.py serve ... --open` opens the listening page on any of them.
 
 ## Where the sounds come from
 

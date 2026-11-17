@@ -22,6 +22,10 @@ import sys
 from html.parser import HTMLParser
 from pathlib import Path
 
+for _s in (sys.stdout, sys.stderr):      # a piped stdout on Windows is cp1252: a non-Latin name would stop the script
+    if hasattr(_s, "reconfigure"):
+        _s.reconfigure(encoding="utf-8", errors="replace")
+
 sys.path.insert(0, str(Path(__file__).parent))
 
 VOID = {"br", "hr", "img", "input", "meta", "link", "source", "area", "base", "col", "embed", "track", "wbr"}

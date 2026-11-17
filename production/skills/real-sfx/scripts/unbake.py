@@ -142,7 +142,7 @@ def _decode(path, rate):
 
 def _duration(path):
     r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8", errors="replace")
     try:
         return float(r.stdout.strip())
     except ValueError:
@@ -423,7 +423,7 @@ def layer_loudness(synth, gains_db, work_wav):
     graph = ";".join(chains) + ";" + "".join(f"[x{i}]" for i in range(len(items))) + \
         f"amix=inputs={len(items)}:normalize=0:duration=longest[o]"
     cmd += ["-filter_complex", graph, "-map", "[o]", "-c:a", "pcm_s24le", str(work_wav)]
-    r = subprocess.run(cmd, capture_output=True, text=True)
+    r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
     if r.returncode != 0:
         return None
     m = measure_loudness(work_wav).get("lufs")
@@ -570,7 +570,7 @@ def unbake(video, synth, out_wav, mix=None, work=None, say=print):
     for p in inputs:
         cmd += ["-i", p]
     cmd += ["-filter_complex", graph, "-map", "[out]", "-c:a", "pcm_s24le", "-ar", str(SR), str(out_wav)]
-    r = subprocess.run(cmd, capture_output=True, text=True)
+    r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
     if r.returncode != 0 or not Path(out_wav).exists():
         rep["reason"] = "ffmpeg could not build the subtraction: " + (r.stderr or "")[-200:]
         return rep

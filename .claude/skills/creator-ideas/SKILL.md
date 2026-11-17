@@ -65,7 +65,7 @@ Three sources, in parallel, from this week and never from memory:
    - **it never reads browser cookies**;
    - it does not save reports to disk.
 
-   TikTok and Instagram need the ScrapeCreators key in the keychain (see "Set up"). If it is not there, run with YouTube, Reddit and the web, and say so.
+   TikTok and Instagram need the ScrapeCreators key saved (see "Set up"). If it is not there, run with YouTube, Reddit and the web, and say so.
 2. **The account:** `python3 production/tools/instagram.py reels <brand> 10` brings views, reach, % that skip in 3 s, shares and saves. What won and why; to read it, `instagram-agent:ig-audit`.
 3. **The calendar:** the dates of the coming week and month in the niche's country (bonuses, paydays, taxes, seasons).
 
@@ -154,18 +154,18 @@ Ideas the creator liked but are not for today go to `brands/<brand>/ideas/BANK.m
 ## Set up (once per computer)
 
 - The `last30days` and `marketing-skills` plugins are declared in `.claude/settings.json`. Claude Code asks to approve them the first time.
-- **The ScrapeCreators key** (TikTok and Instagram in last30days, 10,000 free queries) is saved by the creator in the keychain. Claude does not write it:
+- **The ScrapeCreators key** (TikTok and Instagram in last30days, 10,000 free queries) is saved by the creator in their own terminal (on Windows, PowerShell). Claude does not write it:
 
   ```bash
-  security add-generic-password -U -a "$USER" -s last30days-SCRAPECREATORS_API_KEY -w
+  python3 production/tools/save_token.py --scrapecreators
   ```
 
-  It asks for the key twice without showing it.
+  It asks for the key without showing it. On macOS it goes in the Keychain; on Windows and Linux, in `~/.config/last30days/.env`, which is where last30days looks for it. On Windows, type `python` instead of `python3`.
 - **Safe config** in `~/.config/last30days/.env`:
   - `BROWSER_CONSENT=false` and `FROM_BROWSER=off`: never browser cookies;
   - `INCLUDE_SOURCES=tiktok,instagram,youtube_comments,tiktok_comments,instagram_comments`;
   - `LAST30DAYS_MEMORY_DIR=`: no reports on disk.
-- `yt-dlp` installed, for YouTube (`brew install yt-dlp`).
+- `yt-dlp` installed, for YouTube: `brew install yt-dlp` (macOS), `winget install --id yt-dlp.yt-dlp -e` (Windows) or `uv tool install yt-dlp` (any system).
 
 ## How it gets refined
 

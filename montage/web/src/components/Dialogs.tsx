@@ -4,7 +4,7 @@ import { FORMATS } from '../../../shared/formats.js';
 import { api } from '../api';
 import { notify, dismissToast, setStore, useStore } from '../state';
 import type { ProjectType } from '../types';
-import { cx } from '../util';
+import { CMD, cx } from '../util';
 import { pathsFromSelection, FilePicker, selectionType, type Selection } from './FilePicker';
 
 export function Modal({ title, onClose, children, width = 560 }: { title: string; onClose: () => void; children: React.ReactNode; width?: number }) {
@@ -185,13 +185,13 @@ const SHORTCUTS: [string, string][] = [
   ['I · O · X', 'Mark in · out · clear range'],
   ['C', 'New note on this frame'],
   ['V R E A P T N', 'Pointer · rectangle · circle · arrow · pencil · text · point'],
-  ['Cmd + Z', 'Undo the last stroke'],
+  [`${CMD} + Z`, 'Undo the last stroke'],
   ['[ · ]', 'Previous / next note'],
   ['G', 'Safe zones'],
   ['M', 'Mute'],
   ['Z · Shift + Z', 'Fit to window · 100 %'],
-  ['Cmd + wheel', 'Zoom in the viewer or the timeline'],
-  ['Cmd + Enter', 'Send to Claude'],
+  [`${CMD} + wheel`, 'Zoom in the viewer or the timeline'],
+  [`${CMD} + Enter`, 'Send to Claude'],
   ['Esc', 'Close / deselect'],
 ];
 

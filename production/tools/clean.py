@@ -17,6 +17,10 @@ screenshots) and the Remotion copy in `brands/<brand>/reel/public/pieces/<piece>
 Without a FINAL in Montage it deletes nothing (unless --no-final). After deleting, Montage still has to be archived:
     node montage/cli.mjs archive <project> --yes
 """
+import system
+
+system.prepare()
+
 import json
 import sys
 from pathlib import Path

@@ -1,12 +1,12 @@
 """An account's pulse: what was posted, how it did and what each piece was like. Used by /creator-pulse; fed by the watcher.
 
     python3 production/tools/pulse.py collect <brand>          # metrics of everything posted (and of the stories that are live)
-    production/.venv/bin/python production/tools/pulse.py cards <brand> [--no-voice]   # what each reel was like
+    python3 production/tools/pulse.py cards <brand> [--no-voice]   # what each reel was like
     python3 production/tools/pulse.py report <brand> [--days 28]  # the table, relative to reach
     python3 production/tools/pulse.py tag <brand> <id> [--role …] [--topic …] [--hook …] [--format …] [--notes …]
 
 Everything lives in brands/<brand>/pulse/posts.json (in git: it is small and it is the account's memory). Downloaded
-videos and frame sheets go to the Mac's cache (~/Library/Caches/creator-os/pulse), never to the repo.
+videos and frame sheets go to the computer's cache (system.cache_dir: the cache folder of macOS, Windows or Linux), never to the repo.
 
 - collect: the watcher runs it every hour (instagram.py watch). A STORY's metrics only exist while it is
   live (24 h): that is why they are saved every hour. For reels and posts a snapshot is saved at each age bucket
@@ -22,6 +22,11 @@ import re
 import statistics
 import subprocess
 import sys
+import system
+
+if __name__ == "__main__":
+    system.prepare(venv=len(sys.argv) > 1 and sys.argv[1] == "cards")  # the cards use production/.venv
+
 import urllib.request
 from pathlib import Path
 
@@ -29,7 +34,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 import instagram as ig  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
-CACHE = Path.home() / "Library" / "Caches" / "creator-os" / "pulse"
+CACHE = system.cache_dir("creator-os", "pulse")
 BUCKETS_H = [1, 3, 6, 12, 24, 48, 72, 168, 336, 720]
 METRICS = {
     "REELS": ["views", "reach", "saved", "shares", "comments", "likes", "total_interactions", "ig_reels_avg_watch_time",

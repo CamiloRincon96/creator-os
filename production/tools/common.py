@@ -26,8 +26,8 @@ def piece(arg):
     return os.path.abspath(p)
 
 
-def ff(*args):
-    r = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-y", "-v", "error", *map(str, args)], capture_output=True, text=True)
+def ff(*args, cwd=None):
+    r = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-y", "-v", "error", *map(str, args)], capture_output=True, text=True, cwd=cwd)
     if r.returncode:
         sys.exit("ffmpeg failed:\n" + r.stderr[-1500:])
     return r
@@ -45,11 +45,13 @@ def read(path):
 
 def save(obj, path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    json.dump(obj, open(path, "w"), ensure_ascii=False, indent=1)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False, indent=1)
 
 
 def load(path):
-    return json.load(open(path))
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
 
 
 # ---------- voice measurement ----------

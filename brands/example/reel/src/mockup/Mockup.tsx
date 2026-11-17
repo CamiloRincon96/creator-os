@@ -20,6 +20,8 @@ type Scene = {
   says?: string;
 };
 type Word = { t: string; start: number; end: number };
+// The file name without its folder: a path written on Windows has backslashes.
+const fileName = (path: string) => path.split(/[\\/]/).pop();
 export type MockupProps = {
   folder: string;
   fps: number;
@@ -86,7 +88,7 @@ const SceneView = ({ e, p }: { e: Scene; p: MockupProps }) => {
       <AbsoluteFill style={{ scale: String(zoom(e, t)), transformOrigin: "50% 40%" }}>
         {person || e.shot === "OUTRO" ? (
           <Video
-            src={staticFile(`${p.folder}/${p.cut_video.split("/").pop()}`)}
+            src={staticFile(`${p.folder}/${fileName(p.cut_video)}`)}
             trimBefore={Math.round(e.start * p.fps)}
             muted
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
@@ -165,6 +167,6 @@ export const Mockup = (p: MockupProps) =>
     ))}
     <Captions p={p} />
     <Label p={p} />
-    <Audio src={staticFile(`${p.folder}/${p.voice.split("/").pop()}`)} />
+    <Audio src={staticFile(`${p.folder}/${fileName(p.voice)}`)} />
   </AbsoluteFill>
 );

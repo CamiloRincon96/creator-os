@@ -10,7 +10,7 @@
     python3 production/tools/instagram.py cancel <batch.json>
     python3 production/tools/instagram.py results <batch.json>   # views, reach, saves... of each one
     python3 production/tools/instagram.py watch                  # every batch: saves metrics once they reach 24 and 72 h
-    python3 production/tools/instagram.py watcher install|remove|status   # `watch` every hour on the Mac (launchd)
+    python3 production/tools/instagram.py watcher install|remove|status   # `watch` every hour (launchd, Task Scheduler or cron)
 
 RULE: Claude never posts on its own. `approve` is run only after the creator approves IN THE CHAT that exact batch
 (videos, copies, day and times), and what they said is saved. `schedule` does not run without that approval.
@@ -19,17 +19,20 @@ Setup (once per computer, done by the creator; see production/INSTAGRAM.md):
   - The Instagram account is professional and linked to a Facebook page.
   - A Meta app with the instagram_basic, instagram_content_publish, instagram_manage_insights,
     pages_show_list and pages_read_engagement permissions, and a token (preferably a system user's, which does not expire).
-  - The token goes in the macOS keychain, never in the repo:
-        zsh production/tools/save-token.sh <brand>
-    (it asks you to paste it; Claude neither writes nor sees it; a bare `security ... -w` cuts the token at 128 characters).
+  - The token goes in the system's secure store (the macOS keychain, the Windows Credential Manager,
+    secret-tool on Linux) or in the <BRAND>_INSTAGRAM_TOKEN variable, never in the repo. The person saves it:
+        python3 production/tools/save_token.py <brand>
+    (it asks you to paste it; Claude neither writes nor sees it).
 It uses the resumable upload (graph.facebook.com + rupload.facebook.com): it uploads the file from the computer, without hosting it.
 Meta's limit: 100 API posts in 24 hours.
 """
+import system
+
+system.prepare()
+
 import datetime as dt
 import json
 import os
-import signal
-import subprocess
 import sys
 import time
 import urllib.error
@@ -45,7 +48,7 @@ RUPLOAD = os.environ.get("IG_RUPLOAD_TEST", "https://rupload.facebook.com/ig-api
 
 
 def cfg():
-    return json.loads(CONFIG.read_text()) if CONFIG.exists() else {"version": "v27.0", "accounts": {}}
+    return json.loads(CONFIG.read_text(encoding="utf-8")) if CONFIG.exists() else {"version": "v27.0", "accounts": {}}
 
 
 def version():
@@ -55,18 +58,15 @@ def version():
 def token(brand):
     if os.environ.get("IG_TOKEN_TEST"):
         return os.environ["IG_TOKEN_TEST"]
-    # Windows or Linux: environment variable <BRAND>_INSTAGRAM_TOKEN (e.g. EXAMPLE_INSTAGRAM_TOKEN). On a Mac, the keychain.
-    env = os.environ.get(f"{brand.upper().replace('-', '_')}_INSTAGRAM_TOKEN")
-    if env:
-        return env.strip()
-    try:
-        r = subprocess.run(["security", "find-generic-password", "-s", f"{brand}-instagram", "-a", "token", "-w"], capture_output=True, text=True)
-    except FileNotFoundError:
-        r = None
-    if not r or r.returncode or not r.stdout.strip():
-        sys.exit(f"There is no token for {brand}. On a Mac:\n  zsh production/tools/save-token.sh {brand}\n"
-                 f"On Windows or Linux: environment variable {brand.upper()}_INSTAGRAM_TOKEN. See production/INSTAGRAM.md")
-    return r.stdout.strip()
+    # first the environment variable <BRAND>_INSTAGRAM_TOKEN (e.g. EXAMPLE_INSTAGRAM_TOKEN); if not, the system's store
+    var = f"{brand.upper().replace('-', '_')}_INSTAGRAM_TOKEN"
+    if os.environ.get(var):
+        return os.environ[var].strip()
+    tok = system.read_secret(f"{brand}-instagram", "token")
+    if not tok:
+        sys.exit(f"There is no token for {brand}. Save it yourself, in your own terminal:\n  {system.PY} production/tools/save_token.py {brand}\n"
+                 f"(or in the environment variable {var}). See production/INSTAGRAM.md")
+    return tok
 
 
 def api(method, path, tok, data=None, url=None):
@@ -95,11 +95,11 @@ def account(brand):
 
 
 def load(batch):
-    return json.loads(Path(batch).read_text())
+    return json.loads(Path(batch).read_text(encoding="utf-8"))
 
 
 def save(batch, d):
-    Path(batch).write_text(json.dumps(d, indent=1, ensure_ascii=False))
+    Path(batch).write_text(json.dumps(d, indent=1, ensure_ascii=False), encoding="utf-8")
 
 
 def timetable(d):
@@ -162,16 +162,13 @@ def metrics_of(tok, media_id):
         return res
 
 
-LABEL = "com.creator-os.metrics"
-PLIST = Path.home() / "Library" / "LaunchAgents" / f"{LABEL}.plist"
-WATCHER_LOG = Path.home() / "Library" / "Logs" / "creator-os-metrics.log"
-
-
-def notify(title, text):
-    subprocess.run(["osascript", "-e", f'display notification {json.dumps(text)} with title {json.dumps(title)}'], capture_output=True)
+TASK = "com.creator-os.metrics"
+WATCHER_LOG = system.logs_dir("creator-os") / "creator-os-metrics.log"
+notify = system.notify
 
 
 def main():
+    sys.argv = system.log_to(sys.argv)
     if len(sys.argv) < 2 or (len(sys.argv) < 3 and sys.argv[1] not in ("watch", "watcher")):
         sys.exit(__doc__)
     command, arg = sys.argv[1], (sys.argv[2] if len(sys.argv) > 2 else "")
@@ -187,7 +184,7 @@ def main():
         chosen = next((ig for _, ig in accounts if ig.get("username", "").lower() == arg.lower()), accounts[0][1])
         c = cfg()
         c["accounts"][arg] = {"ig_id": chosen["id"], "username": chosen.get("username")}
-        CONFIG.write_text(json.dumps(c, indent=1))
+        CONFIG.write_text(json.dumps(c, indent=1), encoding="utf-8")
         print(f"Connected @{chosen.get('username')} for {arg} ({CONFIG.relative_to(REPO)}).")
 
     elif command == "test":
@@ -244,14 +241,15 @@ def main():
             sys.exit(f"The time has already passed for {', '.join(late)}: change the batch's times.")
         account(d["brand"])
         token(d["brand"])
-        log = open(Path(arg).with_suffix(".log"), "a")
-        proc = subprocess.Popen(["caffeinate", "-is", sys.executable, __file__, "run", str(Path(arg).resolve())],
-                                stdout=log, stderr=log, start_new_session=True)
-        d["process"] = proc.pid
+        pid = system.launch_detached([sys.executable, str(Path(__file__).resolve()), "run", str(Path(arg).resolve())],
+                                     Path(arg).with_suffix(".log"))
+        d["process"] = pid
         save(arg, d)
-        print(f"Scheduled (process {proc.pid}). The computer has to stay on and connected until the last time slot.")
+        print(f"Scheduled (process {pid}). The computer has to stay on and connected until the last time slot.")
 
     elif command == "run":
+        system.keep_awake()
+
         def log(t):
             print(f"[{dt.datetime.now():%H:%M:%S}] {t}", flush=True)
         d = load(arg)
@@ -280,13 +278,7 @@ def main():
     elif command == "status":
         d = load(arg)
         pid = d.get("process")
-        alive = False
-        if pid:
-            try:
-                os.kill(pid, 0)
-                alive = True
-            except OSError:
-                pass
+        alive = system.alive(pid)
         print(f"process: {'running (' + str(pid) + ')' if alive else 'not running'}")
         for p, when in timetable(d):
             print(f"  {when:%H:%M} {p['id']}: {p['status']} {p.get('link', '')} {p.get('error', '')[:200]}")
@@ -294,10 +286,7 @@ def main():
     elif command == "cancel":
         d = load(arg)
         if d.get("process"):
-            try:
-                os.killpg(d["process"], signal.SIGTERM)
-            except OSError:
-                pass
+            system.terminate(d["process"])
             d.pop("process")
             save(arg, d)
         print("Canceled: whatever was not posted stays pending.")
@@ -316,10 +305,10 @@ def main():
                   f"{res.get('comments', '—'):>8} {res.get('likes', '—'):>6}  {f'{avg / 1000:.1f} s' if isinstance(avg, (int, float)) else '—'}")
         save(arg, d)
     elif command == "watch":
-        # launchd runs it every hour (watcher install). It does not use Claude: it only reads from Instagram and writes the batch.
+        # The system runs it every hour (watcher install). It does not use Claude: it only reads from Instagram and writes the batch.
         now = dt.datetime.now()
         for path in sorted(REPO.glob("brands/*/finals/*/variations/batch.json")):
-            d = json.loads(path.read_text())
+            d = json.loads(path.read_text(encoding="utf-8"))
             new = []
             for p in d.get("posts", []):
                 if not p.get("media_id") or not p.get("published_at"):
@@ -336,7 +325,7 @@ def main():
                         p.setdefault("results", []).append({"label": label, "date": now.isoformat(timespec="minutes"), **res})
                         new.append(f"{p['id']} {label}: {res.get('views', '—')} views")
             if new:
-                path.write_text(json.dumps(d, indent=1, ensure_ascii=False))
+                path.write_text(json.dumps(d, indent=1, ensure_ascii=False), encoding="utf-8")
                 print(f"{now:%Y-%m-%d %H:%M} {d['project']}: " + "; ".join(new))
                 notify(f"Results for {d['project']}", "; ".join(new)[:200])
         # the pulse of each connected account: metrics of everything posted and of the stories, which only exist for 24 h
@@ -351,35 +340,17 @@ def main():
 
     elif command == "watcher":
         action = arg or "status"
-        domain = f"gui/{os.getuid()}"
+        if action not in ("install", "remove", "status"):
+            sys.exit(__doc__)
+        r = system.hourly_task(action, TASK, __file__, ["watch"], WATCHER_LOG)
         if action == "install":
-            PLIST.parent.mkdir(parents=True, exist_ok=True)
-            WATCHER_LOG.parent.mkdir(parents=True, exist_ok=True)
-            PLIST.write_text(f"""<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0"><dict>
-  <key>Label</key><string>{LABEL}</string>
-  <key>ProgramArguments</key><array><string>{sys.executable}</string><string>{Path(__file__).resolve()}</string><string>watch</string></array>
-  <key>StartInterval</key><integer>3600</integer>
-  <key>RunAtLoad</key><true/>
-  <key>StandardOutPath</key><string>{WATCHER_LOG}</string>
-  <key>StandardErrorPath</key><string>{WATCHER_LOG}</string>
-</dict></plist>
-""")
-            subprocess.run(["launchctl", "bootout", domain, str(PLIST)], capture_output=True)
-            r = subprocess.run(["launchctl", "bootstrap", domain, str(PLIST)], capture_output=True, text=True)
-            if r.returncode:
-                sys.exit(f"launchctl did not load it: {r.stderr.strip()}")
-            print(f"Watcher installed: it runs every hour ({PLIST}). Log: {WATCHER_LOG}")
+            print(f"Watcher installed: it runs every hour with {r}. Log: {WATCHER_LOG}")
         elif action == "remove":
-            subprocess.run(["launchctl", "bootout", domain, str(PLIST)], capture_output=True)
-            PLIST.unlink(missing_ok=True)
             print("Watcher removed.")
         else:
-            r = subprocess.run(["launchctl", "print", f"{domain}/{LABEL}"], capture_output=True, text=True)
-            print("installed and loaded" if r.returncode == 0 else ("installed but not loaded" if PLIST.exists() else "not installed"))
+            print(r)
             if WATCHER_LOG.exists():
-                print("last log line:", (WATCHER_LOG.read_text().strip().splitlines() or ["(empty)"])[-1])
+                print("last log line:", (WATCHER_LOG.read_text(encoding="utf-8", errors="replace").strip().splitlines() or ["(empty)"])[-1])
     else:
         sys.exit(__doc__)
 

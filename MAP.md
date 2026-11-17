@@ -30,6 +30,7 @@ Everything has one place. No folders are created outside this map: a new brand c
 │   ├── DISTRIBUTION.md         what goes on each account and the plan (template)
 │   ├── variations/             variations of a video: PROMPT, MUSIC, CALENDAR, LEARNED
 │   ├── tools/                  the scripts: cut, voice, listen, variations, note, pulse, library, faces, instagram…
+│   ├── tests/                  portability.py (nothing specific to a single system) and smoke.py (runs everything on this system)
 │   ├── styles/ · templates/    video styles and piece templates
 │   └── install.py              sets up a computer
 │

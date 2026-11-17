@@ -206,7 +206,8 @@ KEYWORDS = {
 
 
 def ffmpeg(args):
-    r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-nostdin"] + [str(a) for a in args], capture_output=True, text=True)
+    r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-nostdin"] + [str(a) for a in args], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
     if r.returncode:
         raise RuntimeError(r.stderr[-300:])
 

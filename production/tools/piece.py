@@ -5,6 +5,10 @@ Usage:
 
 A piece lives in brands/<brand>/pieces/<date>-<short-name>/ and starts with brief.md, script.md and STATUS.md
 copied from production/templates/."""
+import system
+
+system.prepare()
+
 import datetime, glob, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

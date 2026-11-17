@@ -344,8 +344,12 @@ Array.prototype.push = function () {
   return origPush.apply(this, arguments);
 };
 const origCompile = Module.prototype._compile;
+// Windows paths compare without case: Python and Node can spell the drive letter or a folder differently
+const swapKey = p => process.platform === 'win32' ? path.resolve(p).toLowerCase() : path.resolve(p);
+const swaps = {};
+for (const k of Object.keys(cfg.swap)) swaps[swapKey(k)] = cfg.swap[k];
 Module.prototype._compile = function (content, filename) {
-  const swap = cfg.swap[path.resolve(filename)];
+  const swap = swaps[swapKey(filename)];
   if (swap) content = fs.readFileSync(swap, 'utf8');
   return origCompile.call(this, content, filename);
 };
@@ -417,7 +421,7 @@ def run_script(script, funcs, stub, work, extra_args, timeout, save_wav=None):
     hook.write_text(HOOK, encoding="utf-8")
     env = dict(os.environ, FROM_SYNTH_CFG=str(cfgp))
     r = subprocess.run(["node", "-r", str(hook), str(script)] + list(extra_args), cwd=str(_project_dir(script)),
-                       capture_output=True, text=True, env=env, timeout=timeout)
+                       capture_output=True, text=True, encoding="utf-8", errors="replace", env=env, timeout=timeout)
     if not outp.exists():
         raise RuntimeError("the script did not run to its end: " + (r.stderr or r.stdout or "")[-400:])
     return json.loads(outp.read_text(encoding="utf-8")), r
@@ -537,7 +541,7 @@ def extract(target, bed_out=None, args=(), timeout=180, say=print):
                              "[a][b]amerge=inputs=2,aeval=val(0)-val(2)|val(1)-val(3):c=stereo")
                         r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(full[0]), "-i", str(made[0]),
                                             "-filter_complex", g, "-c:a", "pcm_s24le", str(diff)],
-                                           capture_output=True, text=True)
+                                           capture_output=True, text=True, encoding="utf-8", errors="replace")
                         if r.returncode == 0 and diff.exists():
                             out["effects_wav"] = str(diff)
             finally:

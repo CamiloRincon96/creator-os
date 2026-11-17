@@ -25,7 +25,7 @@ import { FORMATS } from '../../../shared/formats.js';
 import { api, upload, uploadMedia, fileUrl, repoUrl } from '../api';
 import { notify, setStore } from '../state';
 import type { RepoEntry, Project, Version } from '../types';
-import { clamp, cx, isTyping } from '../util';
+import { CMD, clamp, cx, isTyping } from '../util';
 import {
   ZERO_ADJUSTMENTS,
   ADJUSTMENT_CONTROLS,
@@ -341,6 +341,12 @@ export function ImageEditor({ project, version, page }: Props) {
         else undo();
         return;
       }
+      // Ctrl+Y: redo, as on Windows.
+      if (e.ctrlKey && !e.metaKey && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        redo();
+        return;
+      }
       if (cmd && e.key.toLowerCase() === 'd') {
         e.preventDefault();
         duplicateSel();
@@ -481,10 +487,10 @@ export function ImageEditor({ project, version, page }: Props) {
               >
                 Before / after
               </button>
-              <button className="ico" title="Undo (Cmd+Z)" disabled={!history.current.back.length} onClick={undo}>
+              <button className="ico" title={`Undo (${CMD}+Z)`} disabled={!history.current.back.length} onClick={undo}>
                 <Undo2 size={16} />
               </button>
-              <button className="ico" title="Redo (Shift+Cmd+Z)" disabled={!history.current.forward.length} onClick={redo}>
+              <button className="ico" title={`Redo (Shift+${CMD}+Z)`} disabled={!history.current.forward.length} onClick={redo}>
                 <Redo2 size={16} />
               </button>
               <div className="bar-right">
@@ -726,7 +732,7 @@ function LayerInspector({ layer, onChange, onRemove, onDuplicate }: { layer: Lay
       <header className="panel-head">
         <h2>{layer.type === 'text' ? 'Text' : layer.type === 'image' ? 'Image' : 'Shape'}</h2>
         <div className="row-right" style={{ margin: 0 }}>
-          <button className="ico small" title="Duplicate (Cmd+D)" onClick={onDuplicate}>
+          <button className="ico small" title={`Duplicate (${CMD}+D)`} onClick={onDuplicate}>
             <Copy size={14} />
           </button>
           <button className="ico small" title="Delete layer (Del)" onClick={onRemove}>

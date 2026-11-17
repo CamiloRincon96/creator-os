@@ -22,6 +22,10 @@ import time
 import wave
 from pathlib import Path
 
+for _s in (sys.stdout, sys.stderr):      # a piped stdout on Windows is cp1252: a non-Latin name would stop the script
+    if hasattr(_s, "reconfigure"):
+        _s.reconfigure(encoding="utf-8", errors="replace")
+
 SKILL = Path(__file__).resolve().parent.parent
 PY = sys.executable
 S = SKILL / "scripts"
@@ -40,14 +44,15 @@ def sh(args, env=None, ok_codes=(0,)):
 
 
 def ff(args):
-    r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-nostdin"] + [str(a) for a in args], capture_output=True, text=True)
+    r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-nostdin"] + [str(a) for a in args], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
     if r.returncode:
         raise RuntimeError(r.stderr[-400:])
 
 
 def probe(path, entry):
     r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", entry, "-of", "csv=p=0", str(path)],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8", errors="replace")
     return r.stdout.strip()
 
 
@@ -946,7 +951,8 @@ def main():
         def max_db(path, af=None):
             cmd = ["ffmpeg", "-hide_banner", "-nostats", "-i", str(path), "-af", (af + "," if af else "") + "volumedetect",
                    "-f", "null", "-"]
-            m_ = _re.search(r"max_volume:\s*(-?[\d.]+) dB", subprocess.run(cmd, capture_output=True, text=True).stderr)
+            m_ = _re.search(r"max_volume:\s*(-?[\d.]+) dB", subprocess.run(cmd, capture_output=True, text=True,
+                                                                           encoding="utf-8", errors="replace").stderr)
             return float(m_.group(1)) if m_ else None
 
         # (a) ffmpeg's own mono -> stereo takes 3 dB off: every mono file of the skill went through it
@@ -1690,7 +1696,7 @@ def main():
                 "median": 3.0, "p25": 2.0, "p75": 4.0, "min": 1.0, "max": 5.0, "n": 4}}, "per_ref": []}), encoding="utf-8")
         code_ = (f"import sys; sys.path.insert(0, r'{S}'); import refstyle; st, p = refstyle.find_style('clean-sfx-refs'); "
                  f"print(p.parent.name, st['measures']['gest10']['median'])")
-        r_env = subprocess.run([PY, "-c", code_], capture_output=True, text=True, errors="replace",
+        r_env = subprocess.run([PY, "-c", code_], capture_output=True, text=True, encoding="utf-8", errors="replace",
                                env=dict(env, REAL_SFX_STYLES=str(rs / "styles_env")))
         check("REAL_SFX_STYLES: a folder named by the environment wins over the learned and the shipped style",
               r_env.stdout.strip() == "styles_env 3.0", (r_env.stdout + r_env.stderr)[-120:])
@@ -1736,7 +1742,7 @@ def main():
         # film stalled in the browser and was re-seeked every 250 ms); versions with pictures of their own are files
         def streams_(p_):
             r_ = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "stream=codec_type,duration", "-of", "json",
-                                 str(p_)], capture_output=True, text=True, errors="replace")
+                                 str(p_)], capture_output=True, text=True, encoding="utf-8", errors="replace")
             return json.loads(r_.stdout or "{}").get("streams", [])
         it0_ = man_["items"][0] if man_["items"] else {}
         pic_ = lp / "page" / (it0_.get("picture") or "none")
@@ -1763,7 +1769,8 @@ def main():
               and (lp / "page2" / "media" / "ab1_v2.mp4").exists() and (lp / "page3" / "media" / "ab1_v1.mp4").exists(),
               f"{ok_p2} {ok_p3} {str(m2_['items'][0])[:140]}")
         srv = subprocess.Popen([PY, str(S / "listen_page.py"), "serve", str(lp / "page"), "--port", "0"],
-                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=env)
+                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+                               encoding="utf-8", errors="replace", env=env)
         try:
             first_ = srv.stdout.readline()
             url_ = first_.split("listening page:")[1].split()[0] if "listening page:" in first_ else ""
@@ -1835,7 +1842,8 @@ def main():
         a_ok = []
         for c_ in clips_:
             pr_ = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "a", "-show_entries", "stream=codec_type",
-                                  "-of", "csv=p=0", str(c_)], capture_output=True, text=True)
+                                  "-of", "csv=p=0", str(c_)], capture_output=True, text=True,
+                                 encoding="utf-8", errors="replace")
             a_ok.append(c_.exists() and "audio" in pr_.stdout)
         check("taste_test render: one clip per sound, the picture of the host with the sound placed on the event",
               ok_tr and len(clips_) == len(its_) and all(a_ok), f"{len(clips_)} clips, audio {a_ok}")

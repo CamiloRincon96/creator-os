@@ -2,7 +2,7 @@
 name: creator-reel
 description: Takes a reel for any brand in the repo stage by stage (idea, scene-by-scene script, recording, voice cut, voice, visual script, image, animation, optional AI and retouching with a quote, sound, review and delivery), with the creator's approval at the end of each stage. Use it when the creator says "let's make a reel", "I have a recorded video", "edit this video", "let's continue the reel", "what stage are we at", types "/creator-reel", or wants to create or change a video style. It knows which tool and which skill is used at each stage. It also responds when the user writes the same in another language.
 argument-hint: "[piece or brand]"
-allowed-tools: Bash(python3 production/tools/piece.py:*), Bash(python3 production/tools/quote.py:*), Bash(zsh production/tools/codex.sh:*), Bash(production/.venv/bin/python production/tools/:*), Bash(node montage/cli.mjs:*)
+allowed-tools: Bash(python3 production/tools/piece.py:*), Bash(python3 production/tools/quote.py:*), Bash(python3 production/tools/codex.py:*), Bash(python3 production/tools/:*), Bash(python production/tools/:*), Bash(node montage/cli.mjs:*)
 ---
 
 # Reel by stages
@@ -70,19 +70,19 @@ Give the creator the script's "What to record" list and the guide: one continuou
 ## Stage 3 · Voice cut
 
 ```bash
-production/.venv/bin/python production/tools/prepare.py <piece> --names "<the brand's proper names>"
+python3 production/tools/prepare.py <piece> --names "<the brand's proper names>"
 ```
 
 1. Read `work/TRANSCRIPT.md` and check it against the script. Pick the best version of each sentence (if it was repeated, the last complete one with no slip). Note in the log what was said differently from the script.
 2. Write `<piece>/cut.json` (`phrases` in order; `corrections` for mistranscribed words).
-3. `production/.venv/bin/python production/tools/cut.py <piece>`. Read the warnings: a clipped start or a cut on the voice is told to the creator, not hidden. Between takes it leaves at least 0.45 s of air (`pause_between_segments` in `cut.json`). The creator asked for more space between sentences.
+3. `python3 production/tools/cut.py <piece>`. Read the warnings: a clipped start or a cut on the voice is told to the creator, not hidden. Between takes it leaves at least 0.45 s of air (`pause_between_segments` in `cut.json`). The creator asked for more space between sentences.
 4. Publish `voice/cut-vN.mp4` to Montage (raw takes cut together, original audio leveled).
 - **Approves, by ear:** nothing missing or extra, and no word clipped. If they ask for changes, edit `cut.json` and `cut-v(N+1)` comes out.
 
 ## Stage 4 · Voice
 
 ```bash
-production/.venv/bin/python production/tools/voice.py <piece>
+python3 production/tools/voice.py <piece>
 ```
 
 It leaves two versions (`original`, leveled, and `local`, cleaned) and `voice/cut-vN-to-enhance.wav`. It levels **sentence by sentence** (it corrects the mic being closer or farther) and matches the tone between takes.
@@ -96,7 +96,7 @@ External versions, only the ones the brief picks for that piece:
 | CapCut (enhance voice) | The creator by hand, or Codex with its computer use (see stage 8) | Their Pro plan |
 
 Each one is brought in with `voice.py <piece> --external <name> <file>`, which levels it the same way and measures it. Publish all of them to Montage in a single version.
-The chosen version always goes through `production/.venv/bin/python production/tools/match_timbre.py <piece> <voice.wav> <voice-v3.wav>`. It matches the timbre per take (mic closer = more bass) and gives it presence. Without it, in "Sin anotar" (an earlier Spanish-language reel) there was an audible jump in the voice at 8 s and the voice sounded dull and monotone. Check that the timbre spread goes down.
+The chosen version always goes through `python3 production/tools/match_timbre.py <piece> <voice.wav> <voice-v3.wav>`. It matches the timbre per take (mic closer = more bass) and gives it presence. Without it, in "Sin anotar" (an earlier Spanish-language reel) there was an audible jump in the voice at 8 s and the voice sounded dull and monotone. Check that the timbre spread goes down.
 - **Approves, by ear:** which one stays. If they pick the same one two pieces in a row, note it as the usual one in `production/REELS-WORKFLOW.md`.
 
 ## Stage 5 · Visual script
@@ -110,7 +110,7 @@ The chosen version always goes through `production/.venv/bin/python production/t
 
 ## Stage 6 · Base image of the person (only if there is a person)
 
-Only the blocks in `image/blocks.json`, with half a second of tail on each side: `production/.venv/bin/python production/tools/blocks.py <piece>` cuts them to `image/blocks/B01-raw.mov`… and notes which take and second each one comes from.
+Only the blocks in `image/blocks.json`, with half a second of tail on each side: `python3 production/tools/blocks.py <piece>` cuts them to `image/blocks/B01-raw.mov`… and notes which take and second each one comes from.
 
 - **Color and framing:** After Effects via MCP (`aftereffects`): one composition per block, Lumetri Color and reframing, render through the queue. The project stays in `image/<name>.aep`. Verify with `ae_render_frame` before rendering.
 - **Separate the person from the background:** `node production/tools/cutout-person.mjs <piece>` (local, `@remotion/video-matting`) leaves `B01-v1-front.webm` with transparency. With that, the kit's `Person` piece (`brands/<brand>/reel/src/kit/Person.tsx`) puts the big word behind the head. The background is not treated differently from the person: darkening or blurring it makes the cutout's errors visible (blotches on clothes, a halo in the hair). Any image effect goes on top of everything, evenly. The person's color stays natural: the epic feel comes from the word, the push-ins and the animation, not from a harsh grade.
@@ -147,7 +147,7 @@ If the creator wants different clothes, different light or a different angle:
 
 1. Claude pulls a clean frame from each block (`image/reference/frame-B01.png`).
 2. Writes the task in `image/reference/task.md`: what to change (clothes, light, angle), what not to touch (face, features, hair, expression), 9:16 format, and where to save the images.
-3. `zsh production/tools/codex.sh <piece> image/reference/task.md image/reference/frame-B01.png`. Codex generates the images with the creator's ChatGPT subscription. The photo goes out to OpenAI under their account.
+3. `python3 production/tools/codex.py <piece> image/reference/task.md image/reference/frame-B01.png`. Codex generates the images with the creator's ChatGPT subscription. The photo goes out to OpenAI under their account.
 4. Show them to the creator. **Approves:** the photo of how they want to look.
 
 ### 8b · Quote (required before any generation)
@@ -170,8 +170,8 @@ Claude leaves the blocks in `image/to-capcut/`. The creator's saved retouch pres
 
 1. **Claude with computer use** (what the creator prefers). From VS Code or the terminal there is no computer use, so it is done by a session of the Claude desktop app:
    - If this session already runs in the desktop app with Computer use turned on, it does it itself: it asks for access to CapCut (`request_access`) and works with the background tools (`app_*`) so it does not take over the creator's screen.
-   - If this session runs in VS Code: Claude writes the task in `image/to-capcut/TASK.md` (files, retouch preset, export format, output folder) and asks the creator to open the desktop app in the code tab, on this repo, with Computer use turned on. It can open the app for them with `open -a Claude`, but it cannot create the session or turn on computer use for them. When the session shows up in `ListAgents`, Claude sends it the task with `SendMessage`. A desktop app session does not report when it is done: Claude checks `image/from-capcut/` until all the files are there.
-2. **Codex with its computer use:** the same task with `codex.sh`. The first time, with the creator watching.
+   - If this session runs in VS Code: Claude writes the task in `image/to-capcut/TASK.md` (files, retouch preset, export format, output folder) and asks the creator to open the desktop app in the code tab, on this repo, with Computer use turned on. It can open the app for them (macOS: `open -a Claude`; Windows: `start "" claude:` or from the Start menu), but it cannot create the session or turn on computer use for them. When the session shows up in `ListAgents`, Claude sends it the task with `SendMessage`. A desktop app session does not report when it is done: Claude checks `image/from-capcut/` until all the files are there.
+2. **Codex with its computer use:** the same task with `codex.py`. The first time, with the creator watching.
 3. **The creator by hand.**
 
 Claude checks that each file has the same frames and duration, copies it as `B01-v(N+1).mp4` and repeats the render.
@@ -191,7 +191,7 @@ Claude checks that each file has the same frames and duration, copies it as `B01
 
   All of `critique.py`'s axes scoring 9 does not mean the creator will like it: in v13 everything was at 9 or 10 and they said nothing could be heard.
 - Also deliver the video at 1.08× and 1.12× (`setpts` + `atempo`) if the voice sounds monotone, and a version without music so the trending song can be added from Instagram.
-- `production/.venv/bin/python production/tools/listen.py <piece> <mix>`: the mix must be understood as well as the voice alone (same percentage of words) and land at −14 LUFS.
+- `python3 production/tools/listen.py <piece> <mix>`: the mix must be understood as well as the voice alone (same percentage of words) and land at −14 LUFS.
 - **Approves, by ear:** the mix.
 
 ## Stage 10 · Review
@@ -202,7 +202,7 @@ Plus a **fixed final checklist**:
 1. Duration and resolution (1080×1920, 30 fps).
 2. The topic is seen and heard before second 1, also without sound.
 3. Captions are in time with the voice, readable on a phone and never over a light background.
-4. Nothing covers the face: `production/.venv/bin/python production/tools/faces.py check <video>`. If there is a warning, look at the sheet it leaves and fix it.
+4. Nothing covers the face: `python3 production/tools/faces.py check <video>`. If there is a warning, look at the sheet it leaves and fix it.
 5. Loudness at −14 LUFS and the voice above the music (`listen.py`).
 6. Zero spelling mistakes, and proper names written correctly.
 7. No third-party logos, brands or material.
@@ -265,12 +265,12 @@ The account is connected once: `production/INSTAGRAM.md`.
 2. The creator approves **the exact batch: videos, copies, day and times.** Without that message, nothing is scheduled.
 
 ### 12d · Publishing
-1. `instagram.py approve <batch> --message "<what the creator said>"` and `instagram.py schedule <batch>`. The Mac stays on and connected until the last time slot, and only one computer schedules each batch.
+1. `instagram.py approve <batch> --message "<what the creator said>"` and `instagram.py schedule <batch>`. The computer stays on and connected until the last time slot, and only one computer schedules each batch.
 2. They go out as **trial reels**, for non-followers only, with manual graduation. Before scheduling, confirm the account has them (see `CALENDAR.md`). If not, the batch is spread over different days as regular reels.
 3. The ones marked `manual` (trending song) are uploaded by the creator from the app at their time: remind them with the file and the copy.
 
 ### 12e · Results and learning
-1. The 24- and 72-hour metrics are saved by the Mac's watcher on its own (`instagram.py watcher status`): it runs every hour, does not use Claude, writes them into `batch.json` and sends a notification. Claude does not sit waiting: when the creator comes back, they are read from the batch (`instagram.py results <batch>` also fetches them on the spot).
+1. The 24- and 72-hour metrics are saved by the computer's watcher on its own (`instagram.py watcher status`): it runs every hour, does not use Claude, writes them into `batch.json` and sends a notification. Claude does not sit waiting: when the creator comes back, they are read from the batch (`instagram.py results <batch>` also fetches them on the spot).
 2. At 72 h, fill in `LEARNED.md`: one row per variation and the batch's conclusion.
 3. Tell the creator which one did best with non-followers, so they graduate it to their followers in the app (Thursday, 7 p.m., per `CALENDAR.md`).
 4. What wins in two batches moves up as a rule to `PROMPT.md`, `MUSIC.md` or `CALENDAR.md`, with a date.

@@ -16,11 +16,11 @@ It closes the loop: `/creator-brand` defines what is talked about, `/creator-ide
 - Nothing in `OWN-STYLE.md`, `NICHE.md` or `LEARNED.md` changes without the creator's yes. The proposal goes in the chat first.
 - With few pieces (fewer than 6 of a type), say that the reading is weak.
 
-## 1. Gather (no Claude needed, the Mac already does it)
+## 1. Gather (no Claude needed, the computer already does it)
 
-- The Mac's watcher (`instagram.py watcher`, every hour) runs `pulse.py collect` for each connected account. It saves a snapshot of the metrics in each age bucket, **stories every hour while they are live** (their metrics disappear after 24 h) and the day's followers.
+- The computer's watcher (`instagram.py watcher`, every hour: launchd on macOS, Task Scheduler on Windows, cron on Linux) runs `pulse.py collect` for each connected account. It saves a snapshot of the metrics in each age bucket, **stories every hour while they are live** (their metrics disappear after 24 h) and the day's followers.
 - At the start: `python3 production/tools/pulse.py collect <brand>`, to bring in the latest.
-- Then: `production/.venv/bin/python production/tools/pulse.py cards <brand>`. It downloads each new reel and measures:
+- Then: `python3 production/tools/pulse.py cards <brand>`. It downloads each new reel and measures:
   - duration;
   - cuts per minute;
   - LUFS;

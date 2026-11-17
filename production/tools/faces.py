@@ -1,7 +1,7 @@
 """Two automatic checks on a finished video, with local face detection (OpenCV, no internet):
 
-    production/.venv/bin/python production/tools/faces.py check <video> [--every 0.2]
-    production/.venv/bin/python production/tools/faces.py cover <video> [--n 3] [--until 10]
+    python3 production/tools/faces.py check <video> [--every 0.2]
+    python3 production/tools/faces.py cover <video> [--n 3] [--until 10]
 
 check: looks for frames where a text, a card or a graphic covers the face. In each detected face (from the eyes to
   the chin, where the mouth is) it measures what share is graphic pixels: card or paper white, or the brand's
@@ -10,6 +10,10 @@ check: looks for frames where a text, a card or a graphic covers the face. In ea
 cover: picks the best frames for the reel's cover: sharp (not in a transition), with the face large and
   uncovered, well exposed. It leaves the candidates as images and gives their second (for `cover_s`).
 """
+import system
+
+system.prepare(venv=True)
+
 import sys
 from pathlib import Path
 

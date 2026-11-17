@@ -27,7 +27,7 @@ import { textLayer, newId, type ImageLayer, type TextLayer } from '../image/mode
 import { renderLayer } from '../image/render';
 import { clock } from '../clock';
 import type { RepoEntry, Media, Project, Version } from '../types';
-import { bytes, clamp, cx, isTyping } from '../util';
+import { CMD, bytes, clamp, cx, isTyping } from '../util';
 import { EditTimeline, DRAG_TYPE, type DraggedMedia } from './EditTimeline';
 import {
   toFrame,
@@ -439,6 +439,11 @@ export function VideoEditor({ project, version }: { project: Project; version: V
         e.preventDefault();
         return e.shiftKey ? redo() : undo();
       }
+      // Ctrl+Y: redo, as on Windows.
+      if (e.ctrlKey && !e.metaKey && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        return redo();
+      }
       if (cmd && e.key.toLowerCase() === 'd') {
         e.preventDefault();
         return duplicate();
@@ -563,7 +568,7 @@ export function VideoEditor({ project, version }: { project: Project; version: V
           <button className="btn small" onClick={() => remove(true)} disabled={!sel.length} title="Delete and close the gap (Shift+Del)">
             <WrapText size={13} /> Ripple
           </button>
-          <button className="btn small" onClick={duplicate} disabled={!sel.length} title="Duplicate (Cmd+D)">
+          <button className="btn small" onClick={duplicate} disabled={!sel.length} title={`Duplicate (${CMD}+D)`}>
             <Copy size={13} />
           </button>
           <button className="btn small" onClick={addText} title="Text at the playhead (T)">
@@ -572,13 +577,13 @@ export function VideoEditor({ project, version }: { project: Project; version: V
           <button className={cx('btn small', snapOn && 'active')} onClick={() => setSnapOn(!snapOn)} title="Snap (N)">
             <Magnet size={13} />
           </button>
-          <button className="ico" title="Undo (Cmd+Z)" disabled={!history.current.back.length} onClick={undo}>
+          <button className="ico" title={`Undo (${CMD}+Z)`} disabled={!history.current.back.length} onClick={undo}>
             <Undo2 size={15} />
           </button>
-          <button className="ico" title="Redo (Shift+Cmd+Z)" disabled={!history.current.forward.length} onClick={redo}>
+          <button className="ico" title={`Redo (Shift+${CMD}+Z)`} disabled={!history.current.forward.length} onClick={redo}>
             <Redo2 size={15} />
           </button>
-          <input className="zoom-tl" type="range" min={4} max={tl.format.fps * 60} value={pps} title="Zoom (Cmd + wheel, + / -)" onChange={(e) => setPps(Number(e.target.value))} />
+          <input className="zoom-tl" type="range" min={4} max={tl.format.fps * 60} value={pps} title={`Zoom (${CMD} + wheel, + / -)`} onChange={(e) => setPps(Number(e.target.value))} />
           <div className="bar-right">
             {job && !job.done && !job.error && (
               <span className="export-progress">
@@ -908,7 +913,7 @@ function TimelineInspector({ tl, selectedCount, onChange }: { tl: Timeline; sele
         <ColorField name="Background" value={tl.background} onChange={(v) => onChange({ ...tl, background: v || '#000000' })} />
         <div className="editor-help">
           <p>
-            <b>Shortcuts:</b> Space play · ←/→ frame · S split · B blade · T text · Del delete (Shift: close the gap) · Cmd+D duplicate · N snap · Cmd+Z undo
+            <b>Shortcuts:</b> Space play · ←/→ frame · S split · B blade · T text · Del delete (Shift: close the gap) · {CMD}+D duplicate · N snap · {CMD}+Z undo
           </p>
           <p>
             Claude can edit this timeline too: it lives in <code>montage/projects/&lt;id&gt;/timeline.json</code> and the editor updates on its own.

@@ -12,6 +12,10 @@ Each scene starts `lead` seconds before its first word: the picture arrives a li
 
 Leaves: visual-script.json (read by the Remotion mockup), visual-script.md (to read), image/blocks.json
 (the stretches where the person appears) and the brief's counts: percentage of person and how often the picture changes."""
+import system
+
+system.prepare(args=1)
+
 import glob, json, os, re, sys
 
 FPS = 30

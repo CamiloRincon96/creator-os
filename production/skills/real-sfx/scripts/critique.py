@@ -35,7 +35,8 @@ def lead_level(video, seconds=2.0):
     if not video or not Path(video).exists():
         return None
     r = subprocess.run(["ffmpeg", "-hide_banner", "-nostdin", "-t", f"{seconds}", "-i", str(video), "-vn",
-                        "-af", "volumedetect", "-f", "null", "-"], capture_output=True, text=True, errors="replace")
+                        "-af", "volumedetect", "-f", "null", "-"], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
     m = re.search(r"mean_volume:\s*(-?[\d.]+) dB", r.stderr)
     return float(m.group(1)) if m else None
 
@@ -255,7 +256,8 @@ def cut_listen(src, items, out, pre=1.0, post=2.0, dur=None):
         labels.append(f"[a{i}]")
     fc = ";".join(parts) + ";" + "".join(labels) + f"concat=n={len(items)}:v=0:a=1[o]"
     r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-nostdin", "-i", str(src), "-filter_complex", fc, "-map", "[o]",
-                        "-c:a", "pcm_s16le", str(out)], capture_output=True, text=True, errors="replace")
+                        "-c:a", "pcm_s16le", str(out)], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
     return r.returncode == 0
 
 

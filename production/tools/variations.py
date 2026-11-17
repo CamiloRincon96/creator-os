@@ -42,6 +42,10 @@ Which variations to propose and why: production/variations/PROMPT.md. Music: MUS
 Leaves each variation in brands/<brand>/finals/<project>/variations/<id>.mp4 at -14 LUFS, plus batch.json for instagram.py
 (copies, times, cover; not approved). The voice that drives the ducking is the piece's final voice (voice/*-v*.wav).
 """
+import system
+
+system.prepare(args=2)
+
 import json
 import re
 import subprocess
@@ -186,12 +190,10 @@ for v in spec["variations"]:
         until_f = f(SC[rh.get("until_scene", 1)][1])
         layer_h = tmp / f"{v['id']}-hook-remotion.mp4"
         props_h = json.dumps(rh.get("props", {}), ensure_ascii=False)
-        cmd = ["npx", "remotion", "render", rh["composition"], str(layer_h), f"--props={props_h}", f"--frames=0-{until_f - 1}", "--muted", "--log=error"]
+        cmd = [*system.remotion(BRAND_DIR / "reel"), "render", rh["composition"], str(layer_h), f"--props={props_h}", f"--frames=0-{until_f - 1}", "--muted", "--log=error"]
         if DRAFT:
             cmd.append("--scale=0.5")
-        chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-        if Path(chrome).exists():
-            cmd.append(f"--browser-executable={chrome}")
+        cmd += system.remotion_browser()
         r = subprocess.run(cmd, cwd=BRAND_DIR / "reel", capture_output=True, text=True)
         if r.returncode:
             raise SystemExit(f"{v['id']}: Remotion could not render the hook: {r.stderr[-800:]}")
@@ -242,12 +244,10 @@ for v in spec["variations"]:
     rv = v.get("remotion_video")
     if rv:
         layer_v = tmp / f"{v['id']}-video-remotion.mp4"
-        cmd = ["npx", "remotion", "render", rv["composition"], str(layer_v), f"--props={json.dumps(rv.get('props', {}), ensure_ascii=False)}", "--muted", "--log=error"]
+        cmd = [*system.remotion(BRAND_DIR / "reel"), "render", rv["composition"], str(layer_v), f"--props={json.dumps(rv.get('props', {}), ensure_ascii=False)}", "--muted", "--log=error"]
         if DRAFT:
             cmd.append("--scale=0.5")
-        chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-        if Path(chrome).exists():
-            cmd.append(f"--browser-executable={chrome}")
+        cmd += system.remotion_browser()
         r = subprocess.run(cmd, cwd=BRAND_DIR / "reel", capture_output=True, text=True)
         if r.returncode:
             raise SystemExit(f"{v['id']}: Remotion could not render {rv['composition']}: {r.stderr[-800:]}")
@@ -262,11 +262,8 @@ for v in spec["variations"]:
         reel = BRAND_DIR / "reel"
         layer = tmp / f"{v['id']}-hook.mov"
         props = json.dumps({"text": hk["text"], "seconds": float(hk.get("until", 2.5))}, ensure_ascii=False)
-        chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-        cmd = ["npx", "remotion", "render", "HookText", str(layer), "--codec=prores", "--prores-profile=4444",
-               "--pixel-format=yuva444p10le", "--image-format=png", f"--props={props}", "--log=error"]
-        if Path(chrome).exists():
-            cmd.append(f"--browser-executable={chrome}")
+        cmd = [*system.remotion(reel), "render", "HookText", str(layer), "--codec=prores", "--prores-profile=4444",
+               "--pixel-format=yuva444p10le", "--image-format=png", f"--props={props}", "--log=error", *system.remotion_browser()]
         r = subprocess.run(cmd, cwd=reel, capture_output=True, text=True)
         if r.returncode:
             raise SystemExit(f"HookText: {r.stderr[-800:]}")

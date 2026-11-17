@@ -103,7 +103,7 @@ export async function contactSheet(file, meta, frames, destination, { columns, c
     const y = gap + Math.floor(i / cols) * (cellHeight + label + gap);
     ctx.drawImage(img, x, y + label, cellWidth, cellHeight);
     ctx.fillStyle = '#e8e8e8';
-    ctx.font = '600 15px "SF Mono", Menlo, monospace';
+    ctx.font = '600 15px "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace';
     ctx.textBaseline = 'middle';
     ctx.fillText(`#${i + 1}  ${timecode(frames[i] / meta.fps, meta.fps)}  f${frames[i]}`, x + 4, y + label / 2);
   }

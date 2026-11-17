@@ -1,0 +1,5 @@
+# Same line endings on every system: LF, so scripts and hashes match on Windows too.
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf

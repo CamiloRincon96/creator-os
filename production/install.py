@@ -5,6 +5,8 @@
     python3 production/install.py                    # installs what needs no permission
     python3 production/install.py --with-whisper     # also downloads the Whisper model (2.9 GB)
 
+On Windows you type `python` instead of `python3`. It works the same on macOS, Windows and Linux.
+
 Installed without asking (everything stays inside the repo or in the user's Claude skills, and can be deleted):
   - production/.venv with the Python libraries (requirements.txt)
   - the voice cleanup model (rnnoise, 300 KB) in production/models/rnnoise/
@@ -12,20 +14,26 @@ Installed without asking (everything stays inside the repo or in the user's Clau
   - the real-sfx and openverse-audio skills in ~/.claude/skills/ (copied from production/skills/), with the repo's
     CC0 sound library (brands/example/sounds/openverse) registered in real-sfx
 Asks for permission (this script only says so; Claude asks and does it if the person says yes):
-  - missing system programs: ffmpeg, Node.js 22.12+, Python 3.10+ (with Homebrew on macOS)
+  - missing system programs: ffmpeg, Node.js 22.12+, Python 3.10+ (Homebrew on macOS, winget on Windows,
+    the package manager on Linux; this script gives the exact command)
   - the Whisper large-v3 model (2.9 GB): --with-whisper
   - logins: Higgsfield, ElevenLabs, Adobe; and approving the MCP servers and the plugin the repo declares
 Exits with 0 if everything required is there, 2 if something that needs permission is missing, 1 if something failed.
 """
-import json
-import os
-import platform
-import re
-import shutil
-import subprocess
 import sys
-import urllib.request
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent / "tools"))
+import system  # noqa: E402
+
+system.prepare()
+
+import json  # noqa: E402
+import os  # noqa: E402
+import re  # noqa: E402
+import shutil  # noqa: E402
+import subprocess  # noqa: E402
+import urllib.request  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
 PROD = REPO / "production"
@@ -38,7 +46,21 @@ SOUND_LIBRARY = REPO / "brands" / "example" / "sounds" / "openverse"
 args = sys.argv[1:]
 CHECK = "--check" in args
 WITH_WHISPER = "--with-whisper" in args
-MAC = platform.system() == "Darwin"
+MAC, WINDOWS = system.MAC, system.WINDOWS
+# how to install each system program, per system (Claude runs it only with the person's yes)
+HOW = {
+    "ffmpeg": ("brew install ffmpeg", "winget install --id Gyan.FFmpeg -e", "sudo apt install ffmpeg"),
+    "node": ("brew install node", "winget install --id OpenJS.NodeJS.LTS -e", "with nvm or the package manager (Node 22.12 or newer)"),
+    "python": ("brew install python", "winget install --id Python.Python.3.12 -e", "sudo apt install python3 python3-venv"),
+    "uv": ("brew install uv", "winget install --id astral-sh.uv -e", "curl -LsSf https://astral.sh/uv/install.sh | sh"),
+    "chrome": ("brew install --cask google-chrome", "winget install --id Google.Chrome -e", "the google-chrome package from google.com/chrome"),
+}
+
+
+def how(program):
+    mac, win, linux = HOW[program]
+    return mac if MAC else win if WINDOWS else linux
+
 
 ok, done, permission, failed, notes = [], [], [], [], []
 
@@ -60,23 +82,26 @@ def version(cmd, pattern):
 
 
 # ---------------------------------------------------------------- 1. system programs (need permission)
-brew = "brew install" if MAC else "the system's package manager"
 ff = shutil.which("ffmpeg") and shutil.which("ffprobe")
-(ok if ff else permission).append("ffmpeg and ffprobe" if ff else f"ffmpeg: cuts, mixing and videos ({brew} ffmpeg)")
+(ok if ff else permission).append("ffmpeg and ffprobe" if ff else f"ffmpeg: cuts, mixing and videos ({how('ffmpeg')})")
 node = version(["node", "--version"], r"v(\d+)\.(\d+)")
 if node and node >= (22, 12):
     ok.append(f"Node.js {node[0]}.{node[1]}")
 else:
-    permission.append(f"Node.js 22.12 or newer: Remotion and Montage ({brew} node)")
+    permission.append(f"Node.js 22.12 or newer: Remotion and Montage ({how('node')})")
 py = sys.version_info
-(ok if py >= (3, 10) else permission).append(f"Python {py.major}.{py.minor}" if py >= (3, 10) else f"Python 3.10 or newer ({brew} python)")
-if MAC and not Path("/Applications/Google Chrome.app").exists():
-    notes.append("Google Chrome is not installed: Remotion downloads its own browser; Montage opens in your regular browser")
+(ok if py >= (3, 10) else permission).append(f"Python {py.major}.{py.minor}" if py >= (3, 10) else f"Python 3.10 or newer ({how('python')})")
+if not system.chrome():
+    notes.append(f"Google Chrome is not installed (optional: {how('chrome')}). Remotion downloads its own browser and Montage opens "
+                 + ("in Edge" if WINDOWS else "in your regular browser"))
 if not shutil.which("uv"):
-    notes.append("uv is not installed: it is only needed to download reference reels (uvx yt-dlp); optional (brew install uv)")
+    notes.append(f"uv is not installed: it is only needed to download reference reels (uvx yt-dlp); optional ({how('uv')})")
+if WINDOWS and permission:
+    notes.append("Windows: after installing with winget, close and reopen the terminal (and Claude Code) so the new "
+                 "programs show up. If Windows asks for permission in a window, accept it yourself")
 
 # ---------------------------------------------------------------- 2. the repo's Python (no permission needed)
-pyvenv = VENV / "bin" / "python"
+pyvenv = system.venv_python(create=True)  # bin/python on macOS and Linux, Scripts/python.exe on Windows
 
 
 def libraries_ok():
@@ -140,7 +165,7 @@ for d in node_projects:
         (failed if node else permission).append(f"{rel}: the Node dependencies are missing (npm install)")
     else:
         try:
-            run(["npm", "ci" if (d / "package-lock.json").exists() else "install", "--no-audit", "--no-fund"], cwd=d)
+            run([system.program("npm"), "ci" if (d / "package-lock.json").exists() else "install", "--no-audit", "--no-fund"], cwd=d)
             done.append(f"{rel}: Node dependencies")
         except Exception as e:  # noqa: BLE001
             failed.append(f"{rel}: {e}")
@@ -149,7 +174,7 @@ if dist.exists():
     ok.append("Montage: editor built")
 elif not CHECK and (REPO / "montage" / "node_modules").exists():
     try:
-        run(["npm", "run", "build"], cwd=REPO / "montage")
+        run([system.program("npm"), "run", "build"], cwd=REPO / "montage")
         done.append("Montage: editor built")
     except Exception as e:  # noqa: BLE001
         failed.append(f"Montage (build): {e}")
@@ -172,7 +197,7 @@ for name in ("real-sfx", "openverse-audio"):
 sfx = USER_SKILLS / "real-sfx"
 if (PROD / "skills" / "real-sfx").exists() and (sfx / "SKILL.md").exists():
     cfg = sfx / "config.json"
-    has_library = cfg.exists() and str(SOUND_LIBRARY) in cfg.read_text()
+    has_library = cfg.exists() and str(SOUND_LIBRARY) in cfg.read_text(encoding="utf-8")
     if has_library and (sfx / "library_index.json").exists():
         ok.append("real-sfx with the repo's CC0 sound library")
     elif not CHECK and ff:
@@ -190,7 +215,7 @@ if (PROD / "skills" / "real-sfx").exists() and (sfx / "SKILL.md").exists():
 # ---------------------------------------------------------------- 6. plugin and MCP servers (the person approves them in Claude Code)
 installed = Path.home() / ".claude" / "plugins" / "installed_plugins.json"
 try:
-    plug = json.loads(installed.read_text())
+    plug = json.loads(installed.read_text(encoding="utf-8"))
     plug = plug.get("plugins", plug)
 except Exception:  # noqa: BLE001
     plug = {}
@@ -204,24 +229,27 @@ notes.append("ElevenLabs (optional, voice): connect the ElevenLabs connector in 
 
 # ---------------------------------------------------------------- 7. Instagram tokens (the person sets them)
 try:
-    accounts = json.loads((PROD / "instagram.json").read_text()).get("accounts", {})
+    accounts = json.loads((PROD / "instagram.json").read_text(encoding="utf-8")).get("accounts", {})
 except Exception:  # noqa: BLE001
     accounts = {}
 for brand_ig, data_ig in accounts.items():
     var = f"{brand_ig.upper().replace('-', '_')}_INSTAGRAM_TOKEN"
-    has = bool(os.environ.get(var))
-    if not has and shutil.which("security"):
-        has = subprocess.run(["security", "find-generic-password", "-s", f"{brand_ig}-instagram", "-a", "token"], capture_output=True).returncode == 0
+    has = bool(os.environ.get(var)) or bool(system.read_secret(f"{brand_ig}-instagram", "token"))
     if has:
         ok.append(f"Instagram token for @{data_ig.get('username', brand_ig)} (posting and reading results)")
     else:
         notes.append(f"No token for @{data_ig.get('username', brand_ig)}: only needed for posting (stage 12). "
-                     f"The creator shares it through a secure link and it is saved with: zsh production/tools/save-token.sh {brand_ig} "
-                     f"(Windows/Linux: variable {var}). See production/INSTAGRAM.md")
+                     f"The creator shares it through a secure link and saves it themselves in their own terminal: {system.PY} production/tools/save_token.py {brand_ig} "
+                     f"(or in the variable {var}). See production/INSTAGRAM.md")
 
-if accounts and MAC and not (Path.home() / "Library/LaunchAgents/com.creator-os.metrics.plist").exists():
-    notes.append("Metrics watcher not installed (optional, asks for permission): saves the metrics on its own at 24 and 72 h. "
-                 "python3 production/tools/instagram.py watcher install")
+if accounts:
+    try:
+        watcher = system.hourly_task("status", "com.creator-os.metrics", PROD / "tools" / "instagram.py", ["watch"], Path.home())
+    except SystemExit:
+        watcher = "not installed"
+    if watcher.startswith("no"):
+        notes.append("Metrics watcher not installed (optional, asks for permission): saves the metrics on its own at 24 and 72 h. "
+                     f"{system.PY} production/tools/instagram.py watcher install")
 
 
 # ---------------------------------------------------------------- summary

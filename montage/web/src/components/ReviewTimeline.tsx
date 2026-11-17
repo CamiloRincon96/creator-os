@@ -5,7 +5,7 @@ import { useStore } from '../state';
 import { usePlayer } from '../engine/player';
 import { clock } from '../clock';
 import type { Marker, Media, Note } from '../types';
-import { STATES, clamp, cx } from '../util';
+import { CMD, STATES, clamp, cx } from '../util';
 import { RangeControls } from './Controls';
 import { startNote } from './NotesPanel';
 
@@ -321,7 +321,7 @@ export function ReviewTimeline({ media, duration, fps, notes, markers, onSelectN
             value={zMax > 1 ? Math.round((Math.log(zoom) / Math.log(zMax)) * 1000) : 0}
             disabled={zMax <= 1}
             aria-label="Timeline zoom"
-            title="Zoom (Cmd + wheel)"
+            title={`Zoom (${CMD} + wheel)`}
             onChange={(e) => applyZoom(Math.exp((Number(e.target.value) / 1000) * Math.log(zMax)))}
           />
           <button className="ico" title="Fit to width" aria-label="Fit to width" onClick={() => (setZoom(1), setScroll(0))}>

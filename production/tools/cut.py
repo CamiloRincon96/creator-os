@@ -1,5 +1,5 @@
 """Stage 3: builds the voice cut so the creator can hear it before anything is animated.
-Usage: production/.venv/bin/python production/tools/cut.py <piece>
+Usage: python3 production/tools/cut.py <piece>
 
 Reads <piece>/cut.json: {"phrases": ["T01-01", "T01-02", "T03", ...], "corrections": {"T05-01": {"0": "Example"}}}.
 Phrases go in the piece's order; a bare "T03" means every phrase of that take. Corrections replace a
@@ -12,6 +12,10 @@ Consecutive phrases of the same take stay in a single segment, with their natura
 Each cut goes where the voice has already dropped to the background noise, with a margin, never at the transcriber's timing.
 Leaves voice/cut-vN.mp4 (the raw takes cut together, with the original audio leveled) and voice/cut-vN.json
 (the map: segments, frames and words with their time in the piece)."""
+import system
+
+system.prepare(venv=True, args=1)
+
 import glob, os, re, sys
 import numpy as np
 from common import FPS, envelope, ff, level, load, loudness, piece, read, save

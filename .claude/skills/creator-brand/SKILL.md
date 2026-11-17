@@ -20,7 +20,7 @@ The reference shape is `brands/example/`. A new brand copies that shape, and no 
 **Rules:**
 - **Nothing is written while you are talking it through.** The draft is shown in the chat, with the changes marked, and it is written with the creator's yes.
 - **Every change carries a date and a reason**, in the "History" section at the end of the file that changes. That way everyone knows where each rule came from.
-- **Secrets never go in the repo or in the chat:** tokens, keys and passwords. The creator saves them in the keychain (`production/tools/save-token.sh`). Claude does not write them.
+- **Secrets never go in the repo or in the chat:** tokens, keys and passwords. The creator saves them in their own terminal with `python3 production/tools/save_token.py` (macOS Keychain, Windows Credential Manager or secret-tool on Linux). Claude does not write them.
 - The real niche is not the generic category. You find it in the product and in the people. For example: "people who don't know where their money goes and live out of Nequi (a Colombian digital wallet)", not "financial education".
 
 ## 0. What they want to do (AskUserQuestion, with options)
@@ -79,7 +79,7 @@ Iterate until the creator says yes.
    Then: `cd montage && npm run build && npm test`.
 4. **`MAP.md`:** add the brand to the map, in one line.
 5. **Instagram:**
-   - The creator saves the token: `zsh production/tools/save-token.sh <id>`;
+   - The creator saves the token: `python3 production/tools/save_token.py <id>`;
    - Claude connects the account: `python3 production/tools/instagram.py connect <id>`;
    - and checks it: `instagram.py test <id>`.
 

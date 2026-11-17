@@ -19,7 +19,12 @@ const { validateTimeline } = await import('../server/export.mjs');
 const IMAGE = path.join(ROOT, 'web', 'public', 'brand', 'app-icon-1024.png'); // it is in git: the test runs on a fresh clone
 
 before(() => fs.mkdirSync(process.env.MONTAGE_PROJECTS, { recursive: true }));
-after(() => fs.rmSync(tmp, { recursive: true, force: true }));
+// Versions are read-only; if the system will not delete them, the temp folder stays and that is fine.
+after(() => {
+  try {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  } catch {}
+});
 
 test('project, cloned versions and numbering', async () => {
   const p = await data.createProject({ id: 'test', name: 'Test', brand: 'example', type: 'image' });

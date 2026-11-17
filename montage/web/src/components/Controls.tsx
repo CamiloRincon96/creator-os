@@ -27,7 +27,7 @@ import { readableTime, timecode } from '../../../shared/time.js';
 import { setStore, getStore, useStore, type Tool } from '../state';
 import { usePlayer } from '../engine/player';
 import { clock } from '../clock';
-import { cx } from '../util';
+import { CMD, cx } from '../util';
 
 const TOOLS: { id: Tool; icon: React.ReactNode; name: string; key: string }[] = [
   { id: 'pointer', icon: <MousePointer2 size={17} />, name: 'Pointer', key: 'V' },
@@ -65,7 +65,7 @@ export function Tools() {
         <button key={c} className={cx('swatch', color === c && 'active')} style={{ background: c }} title="Drawing color" aria-label={`Color ${c}`} aria-pressed={color === c} onClick={() => setStore({ color: c })} />
       ))}
       <span className="tool-sep" />
-      <button className="tool" title="Undo stroke (Cmd+Z)" aria-label="Undo stroke" disabled={!hasShapes} onClick={undoShape}>
+      <button className="tool" title={`Undo stroke (${CMD}+Z)`} aria-label="Undo stroke" disabled={!hasShapes} onClick={undoShape}>
         <Undo2 size={17} />
       </button>
       <button className="tool" title="Clear drawing" aria-label="Clear drawing" disabled={!hasShapes} onClick={() => draft && setStore({ draft: { ...draft, shapes: [] } })}>

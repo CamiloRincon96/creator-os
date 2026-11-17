@@ -26,7 +26,8 @@ W = 1600
 
 
 def ff(args):
-    r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-nostdin"] + args, capture_output=True, text=True, errors="replace")
+    r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-nostdin"] + args, capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
     if r.returncode:
         sys.exit("ffmpeg failed:\n" + r.stderr[-1500:])
 

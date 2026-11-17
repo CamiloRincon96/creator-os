@@ -25,14 +25,15 @@ GREEN = "format=rgb24,colorchannelmixer=rr=0.29:gg=0.87:bb=0.5"
 
 def ff(args):
     r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-nostdin"] + [str(a) for a in args], capture_output=True,
-                       text=True, errors="replace")
+                       text=True, encoding="utf-8", errors="replace")
     if r.returncode:
         sys.exit("ffmpeg failed:\n" + r.stderr[-1200:])
 
 
 def has_audio(path):
     r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "a", "-show_entries", "stream=codec_type",
-                        "-of", "csv=p=0", str(path)], capture_output=True, text=True)
+                        "-of", "csv=p=0", str(path)], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
     return "audio" in r.stdout
 
 

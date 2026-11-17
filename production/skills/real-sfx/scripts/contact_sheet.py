@@ -15,6 +15,7 @@ What to read in a picture (this is how a sound is "heard" without ears):
   * the label gives id, role, length, library and name; loud sounds are not drawn louder, all are normalised.
 """
 import argparse
+import os
 import subprocess
 import sys
 import tempfile
@@ -29,17 +30,20 @@ H = H_BAR + H_WAVE + H_SPEC
 
 
 def find_font():
-    for p in ("C:/Windows/Fonts/arial.ttf", "C:/Windows/Fonts/segoeui.ttf", "C:/Windows/Fonts/calibri.ttf",
+    win = (os.environ.get("WINDIR") or "C:/Windows").replace("\\", "/") + "/Fonts/"
+    for p in (win + "arial.ttf", win + "segoeui.ttf", win + "calibri.ttf",
               "/System/Library/Fonts/Supplemental/Arial.ttf", "/Library/Fonts/Arial.ttf",
-              "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", "/usr/share/fonts/dejavu/DejaVuSans.ttf"):
+              "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", "/usr/share/fonts/dejavu/DejaVuSans.ttf",
+              "/usr/share/fonts/TTF/DejaVuSans.ttf"):
         if Path(p).exists():
             return p
     return None
 
 
 def esc(path):
-    """Escape a path for use inside an ffmpeg filter argument."""
-    return str(path).replace("\\", "/").replace(":", "\\:").replace("'", "\\'")
+    """A path as the value of a single-quoted ffmpeg filter option (fontfile='...'): forward slashes, the drive colon
+    escaped (C\\:/Windows/Fonts/arial.ttf), a quote escaped for the option and closed and reopened for the graph."""
+    return str(path).replace("\\", "/").replace(":", "\\:").replace("'", "\\'").replace("'", "'\\''")
 
 
 def one_row(src, label, out_png, font, tmp, peak_db=None):
@@ -60,7 +64,7 @@ def one_row(src, label, out_png, font, tmp, peak_db=None):
     cmd = ["ffmpeg", "-v", "error", "-y", "-nostdin", "-t", "8", "-i", str(src)]
     for flag in ("-/filter_complex", "-filter_complex_script"):
         r = subprocess.run(cmd + [flag, str(gs), "-map", "[row]", "-frames:v", "1", str(out_png)],
-                           capture_output=True, text=True, errors="replace")
+                           capture_output=True, text=True, encoding="utf-8", errors="replace")
         if r.returncode == 0:
             return True
     return False
@@ -97,7 +101,7 @@ def render_sheet(records, out, cols=2, taste=None):
             cmd += ["-filter_complex",
                     "".join(f"[{i}:v]" for i in range(n)) + f"xstack=inputs={n}:layout={lay}:fill=0x101418[o]",
                     "-map", "[o]", "-frames:v", "1", str(out)]
-        r = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
+        r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
         if r.returncode:
             sys.exit("ffmpeg failed:\n" + r.stderr[-1200:])
     return out

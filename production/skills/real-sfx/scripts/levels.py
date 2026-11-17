@@ -32,7 +32,8 @@ SILENT = -60.0
 def momentary(path):
     """[(t, M LUFS)] every 100 ms: the loudness of the 400 ms that ENDS at t. Silence is -200."""
     r = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-nostdin", "-i", str(path), "-vn", "-af",
-                        "ebur128=framelog=info", "-f", "null", "-"], capture_output=True, text=True, errors="replace")
+                        "ebur128=framelog=info", "-f", "null", "-"], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
     out = []
     for m in re.finditer(r"t:\s*([\d.]+)\s+TARGET:\s*-?\d+\s+LUFS\s+M:\s*(-?[\d.]+|-inf)", r.stderr):
         v = -200.0 if m.group(2) == "-inf" else float(m.group(2))

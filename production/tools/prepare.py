@@ -1,11 +1,15 @@
 """Stage 3, first step: gets the recording ready to cut.
-Usage: production/.venv/bin/python production/tools/prepare.py <piece> [--language es] [--names "Example."]
+Usage: python3 production/tools/prepare.py <piece> [--language es] [--names "Example."]
 
 For each video in <piece>/source (in name order):
   - converts it to a fixed 30 fps with the audio starting at zero  -> work/takes/T01.mov and work/audio/T01.wav
   - transcribes it word by word                                    -> work/transcript/T01.json
   - splits it into phrases and measures where each phrase's voice really starts and ends
 Leaves work/phrases.json and work/TRANSCRIPT.md, which is what you read to choose the cut."""
+import system
+
+system.prepare(venv=True, args=1)
+
 import glob, os, sys
 import numpy as np
 from common import AUDIOS, FPS, LANGUAGE, STEP, VIDEOS, compare, envelope, ff, floor, level, load, loudness, piece, probe, read, save, transcribe

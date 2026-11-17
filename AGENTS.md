@@ -10,13 +10,14 @@ This repo is a social media content system. You are the editor and strategist; t
 - **The folder map** is in `MAP.md`: everything has one place, and no folders are created outside the map.
 - **The shared workflow** is in `WORKFLOW.md`. Each brand's rules are in `brands/<brand>/BRAND.md`, `PROFILE.md`, `NICHE.md` and `OWN-STYLE.md`.
 - **What has already gone wrong** is in `production/LESSONS.md`. Read it before every piece.
+- **macOS, Windows or Linux:** everything works on all three. On Windows, wherever it says `python3`, type `python`. The tools run with `python3 production/tools/<tool>.py`: each one switches to the `production/.venv` environment on its own. What's specific to each system lives only in `production/tools/system.py`; if you change code, run `python3 production/tests/portability.py`.
 
 ## Rules that don't break
 
 1. **Every stage ends in something the person sees or hears and approves.** The next one isn't built without their go-ahead.
 2. **Never post to social media without explicit approval in the chat** of the exact batch (videos, copies, day and times). Posting to social media only goes through `production/tools/instagram.py`.
 3. **Keys, tokens and passwords never go in the repo or in the chat, and you don't write them:**
-   - the person stores them in the keychain (`production/tools/save-token.sh`) or in environment variables;
+   - the person saves them in their own terminal with `python3 production/tools/save_token.py` (macOS Keychain, Windows Credential Manager or secret-tool on Linux) or in environment variables;
    - if they paste a key in the chat, recommend that they store it themselves and generate a new one.
 4. **Nothing paid without an approved quote** (Higgsfield, ElevenLabs and others). Before uploading material to an external service, say so first.
 5. **You can't hear:** sound is measured with `production/tools/listen.py` and the person approves it by ear.

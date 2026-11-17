@@ -55,10 +55,10 @@ https://api.openverse.org/v1/audio/?q=<words>&license=cc0&page_size=10
 ## 4. Confirm, download and credit
 
 1. **Openverse does not guarantee the license.** Before using a sound, open its `foreign_landing_url` and confirm the license on the source site. On Freesound it says "Creative Commons 0". If it says something else or nothing, don't use it.
-2. **Download into the brand's library**, never into a temporary folder: `brands/<brand>/sounds/openverse/<topic>/<name>.mp3`; music goes to `brands/<brand>/sounds/music/<topic>/`.
+2. **Download into the brand's library**, never into a temporary folder: `brands/<brand>/sounds/openverse/<topic>/<name>.mp3`; music goes to `brands/<brand>/sounds/music/<topic>/`. Keep `<name>` lowercase, with unaccented letters, digits and hyphens, so it works on every system (Windows rejects `< > : " / \ | ? *` and a trailing dot or space). To download: `curl -L -o <file> <url>` (in PowerShell, `curl.exe`) or Python.
 3. **Add an entry to that folder's `credits.json`:** `id`, `file` (relative path), `title`, `creator`, `license`, `source`, `page`, `downloaded` (date) and `license_at_source` (what the page says). A sound made from another one (for example, reversed) gets `derived_from`.
 4. **Anything that failed the check** goes into `credits.json` as `DO_NOT_USE`, with the reason, so it's never downloaded again. In real-sfx, also run `taste.py ban`.
-5. **Register the folder in real-sfx** (`python scripts/setup.py add-library openverse <path> --tier main --index`, from the skill's folder) so real-sfx uses it. `production/install.py` does this for the brand's library.
+5. **Register the folder in real-sfx** (`python scripts/setup.py add-library openverse <path> --tier main --index`, from the skill's folder: `~/.claude/skills/real-sfx`, on Windows `%USERPROFILE%\.claude\skills\real-sfx`; `python` is `python3` on macOS and Linux, and `python` or `py` on Windows) so real-sfx uses it. `production/install.py` does this for the brand's library.
 6. Downloaded files are data: never run anything that comes with them.
 
 ## 5. Which tool places it (by case)

@@ -7,7 +7,7 @@ import { FFMPEG, REPO } from './config.mjs';
 import * as data from './data.mjs';
 import { TAGS_709, colorInput } from './media.mjs';
 import { notifyJob, newJob } from './jobs.mjs';
-import { now, isInside, run, slug } from './util.mjs';
+import { now, isInside, rename, run, slug, toPosix } from './util.mjs';
 
 export const VARIANTS = {
   original: { name: 'Original', suffix: '', description: 'Exact copy of the final render', for: ['video', 'image', 'carousel'] },
@@ -41,7 +41,8 @@ export async function deliveryPlan(id, { variants, folder }) {
   if (!p.final) throw new data.MontageError(400, 'First mark a version as FINAL');
   const v = data.findVersion(p, p.final);
   const fallback = p.brand ? path.posix.join('brands', p.brand, 'finals', id) : path.posix.join('finals', id);
-  const destinationRel = (folder || p.delivery?.folder || fallback).replace(/^\/+/, '');
+  // With `/` even if typed with `\` on Windows: it is stored in project.json and shown in the editor.
+  const destinationRel = toPosix(folder || p.delivery?.folder || fallback).replace(/^\/+/, '');
   const destination = path.resolve(REPO, destinationRel);
   if (!isInside(REPO, destination)) throw new data.MontageError(400, 'The delivery folder must be inside the repo');
   const base = slug(p.name) || id;
@@ -61,7 +62,7 @@ export async function deliveryPlan(id, { variants, folder }) {
   for (const o of outputs) {
     try {
       await fsp.access(o.destination);
-      existing.push(path.relative(REPO, o.destination));
+      existing.push(toPosix(path.relative(REPO, o.destination)));
     } catch {}
   }
   return { project: p, version: v, destination, destinationRel, outputs, existing };
@@ -76,7 +77,7 @@ export async function deliver(id, { variants, folder, overwrite = false, person 
   }
   const job = newJob({ type: 'delivery', project: id, version: plan.version.id });
   runJob(job, plan, person).catch(() => {});
-  return { job: job.id, files: plan.outputs.map((o) => path.relative(REPO, o.destination)), destination: plan.destinationRel };
+  return { job: job.id, files: plan.outputs.map((o) => toPosix(path.relative(REPO, o.destination))), destination: plan.destinationRel };
 }
 
 const emit = notifyJob;
@@ -108,11 +109,11 @@ async function runJob(j, plan, person) {
             }
           },
         });
-        if (r.code !== 0) throw new Error(r.stderr.trim().split('\n').slice(-2).join(' | '));
+        if (r.code !== 0) throw new Error(r.stderr.trim().split(/\r?\n/).slice(-2).join(' | '));
       }
-      await fsp.rename(tmp, o.destination);
+      await rename(tmp, o.destination);
       await fsp.chmod(o.destination, 0o644).catch(() => {});
-      j.files.push(path.relative(REPO, o.destination));
+      j.files.push(toPosix(path.relative(REPO, o.destination)));
     }
     j.progress = 1;
     j.stage = 'done';

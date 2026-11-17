@@ -113,7 +113,7 @@ Where everything else is:
 - **The diagnosis comes from the finished video and its data, not from the script.** On paper "Sin anotar" opened well. Once posted, 59 % skipped in the first 3 s, because «Seamos honestos» ("Let's be honest") takes 2.7 s and the topic arrives at 2.8 s.
 - **No empty frame in the first 3 s of a re-edit.** In the v4 draft, the pause fell on the transition and left half a second of empty screen; it was fixed with `freeze_at`.
 - **The API doesn't add Instagram music or trending songs.** The music goes inside the video, from the licensed library.
-- **Claude only posts batches approved in the chat,** with what the creator said saved in the batch (`instagram.py approve`). The token lives in the Mac keychain, never in the repo or in the chat.
+- **Claude only posts batches approved in the chat,** with what the creator said saved in the batch (`instagram.py approve`). The token lives in the system's secure store (Keychain, Credential Manager or secret-tool), never in the repo or in the chat.
 - **Cleanup comes after the variations.** In "Sin anotar" it was cleaned up before, and the variations had to come out of the final video, with no way to change texts inside the scenes.
 - **Variations improve the video; they don't trim it.** Most get a new hook made in Remotion (`remotion_hook`) and at most 2 rearrange content, built in Remotion with a swipe and sound. The creator, Nov 15, 2026: the trims of the final video "were really badly edited".
 - **During recording (stage 2), record 2 or 3 extra openings:** another phrase, another shot or another place. That way the variations have their own material and don't depend on reordering the only take.
@@ -154,6 +154,12 @@ Where everything else is:
 - **In zsh, `$var[...]` inside an ffmpeg filter is a subscript:** write `${var}[vo]`. It has already broken three commands.
 - `@remotion/video-matting` and similar packages are loaded through their ESM entry (`package.json`), not through the internal path.
 - VFR takes from the phone: convert them to 30 fps CFR with the audio aligned to zero (`aresample=async=1:first_pts=0`).
-- **Meta token in the keychain:** with `save-token.sh`, never with a bare `security ... -w`, because it cuts at 128 characters and the token is about 200 long. Tokens start with EA (EAA, EAB…). It happened while connecting @example, Nov 15, 2026.
+- **Meta token in the Keychain:** with `save_token.py`, never with a bare `security ... -w`, because it cuts at 128 characters and the token is about 200 long. Tokens start with EA (EAA, EAB…). It happened while connecting @example, Nov 15, 2026.
 - **A tool's tests are never run on real folders** (`finals/`, batches, Montage). On Nov 14, 2026 a test of `variations.py` overwrote a draft `batch.json`. Now the script keeps the previous one and never touches an approved one.
 - Disk: check the free space before long renders (`df -h`) and warn if less than 10 GB is left.
+- **Everything has to run on macOS, Windows and Linux.** On Nov 16, 2026 someone downloaded the public repo, found it "Mac-only" and had to adapt it to Windows themselves. Since then:
+  - what's specific to each system (Keychain, launchd, Chrome, cache, detached processes) lives only in `production/tools/system.py`;
+  - every tool starts with `system.prepare(...)` and is documented as `python3 production/tools/x.py`, never with `.venv/bin/python`;
+  - no `zsh`, no `npx` from Python, no fixed paths to `/Applications` and no file paths inside an ffmpeg filter;
+  - `python3 production/tests/portability.py` checks all of that;
+  - GitHub tests every change on Windows, macOS and Linux (`.github/workflows/tests.yml`).

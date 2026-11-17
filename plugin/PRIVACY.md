@@ -20,7 +20,7 @@ The workspace is open source and runs on your computer. Your brands, ideas, vide
 - ScrapeCreators, through the last30days plugin, for niche research;
 - ElevenLabs, Higgsfield and Adobe, paid tools that are never used without a quote you approved.
 
-Keys and tokens are saved by you in your keychain or environment variables; Creator OS never writes them into its files.
+Keys and tokens are saved by you in your system's secure store (macOS Keychain, Windows Credential Manager, secret-tool on Linux) or in environment variables; Creator OS never writes them into its files.
 
 ## Contact
 

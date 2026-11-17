@@ -6,6 +6,24 @@ import path from 'node:path';
 
 export const now = () => new Date().toISOString();
 
+/** Path with `/` (what goes to the browser, to the JSON files and to URLs). No change on macOS and Linux. */
+export const toPosix = (file) => String(file).split(path.sep).join('/');
+
+/**
+ * Renames. On Windows a file held open by another process (antivirus, indexer, a reader) gives
+ * EPERM/EBUSY/EACCES for a moment: retry briefly before giving up.
+ */
+export async function rename(source, destination) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fsp.rename(source, destination);
+    } catch (e) {
+      if (process.platform !== 'win32' || !['EPERM', 'EBUSY', 'EACCES'].includes(e.code) || attempt >= 10) throw e;
+      await new Promise((r) => setTimeout(r, 50 * (attempt + 1)));
+    }
+  }
+}
+
 export function hash(text, length = 16) {
   return crypto.createHash('sha1').update(text).digest('hex').slice(0, length);
 }
@@ -31,7 +49,12 @@ export async function writeAtomic(file, content) {
   } finally {
     await fh.close();
   }
-  await fsp.rename(tmp, file);
+  try {
+    await rename(tmp, file);
+  } catch (e) {
+    await fsp.rm(tmp, { force: true }).catch(() => {});
+    throw e;
+  }
 }
 
 export const writeJSON = (file, data) => writeAtomic(file, JSON.stringify(data, null, 2) + '\n');
@@ -70,12 +93,16 @@ export function withLock(key, fn) {
 /**
  * Clones with clonefile (APFS): the copy takes no extra space. Node does not really clone on
  * macOS (COPYFILE_FICLONE makes a full copy), so we use `cp -c` and, if that fails (another
- * volume), we copy normally.
+ * volume), we copy normally. On Linux COPYFILE_FICLONE clones where it can (btrfs, XFS) and
+ * copies otherwise; on Windows it copies normally.
  */
 export async function clone(source, destination) {
   await fsp.mkdir(path.dirname(destination), { recursive: true });
-  const r = await run('/bin/cp', ['-c', source, destination]);
-  if (r.code !== 0) await fsp.copyFile(source, destination);
+  if (process.platform === 'darwin') {
+    const r = await run('/bin/cp', ['-c', source, destination]);
+    if (r.code === 0) return;
+  }
+  await fsp.copyFile(source, destination, fs.constants.COPYFILE_FICLONE);
 }
 
 /**
@@ -84,7 +111,8 @@ export async function clone(source, destination) {
  */
 export function run(cmd, args, { onLine, binary = false, signal } = {}) {
   return new Promise((resolve) => {
-    const child = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'], signal });
+    // windowsHide: without it, every ffmpeg opens a console window on Windows.
+    const child = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'], signal, windowsHide: true });
     const output = [];
     let error = '';
     let rest = '';
@@ -94,7 +122,7 @@ export function run(cmd, args, { onLine, binary = false, signal } = {}) {
         rest += d.toString();
         let i;
         while ((i = rest.indexOf('\n')) >= 0) {
-          onLine(rest.slice(0, i));
+          onLine(rest.slice(0, i).replace(/\r$/, ''));
           rest = rest.slice(i + 1);
         }
       } else output.push(d);

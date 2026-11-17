@@ -2,7 +2,7 @@ import { EventEmitter } from 'node:events';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { CACHE, CACHE_MAX_BYTES, FFMPEG, FFPROBE } from './config.mjs';
-import { withLock, run, writeJSON, hash, readJSON, dirSize } from './util.mjs';
+import { withLock, rename, run, writeJSON, hash, readJSON, dirSize } from './util.mjs';
 
 /** Emits 'media' with the public state of a media file every time its preparation moves forward. */
 export const mediaEvents = new EventEmitter();
@@ -241,7 +241,7 @@ async function prepareMedia(info) {
 
 async function ffmpeg(args, options) {
   const r = await run(FFMPEG, ['-nostdin', '-y', '-hide_banner', '-loglevel', 'error', ...args], options);
-  if (r.code !== 0) throw new Error(`ffmpeg: ${r.stderr.trim().split('\n').slice(-3).join(' | ')}`);
+  if (r.code !== 0) throw new Error(`ffmpeg: ${r.stderr.trim().split(/\r?\n/).slice(-3).join(' | ')}`);
   return r;
 }
 
@@ -324,14 +324,14 @@ async function generatePreview(file, meta, dir, onProgress) {
       if (m) onProgress(Math.min(0.99, Number(m[1]) / total));
     },
   });
-  await fsp.rename(tmpVideo, path.join(dir, 'preview.mp4'));
-  if (meta.hasAudio) await fsp.rename(tmpAudio, path.join(dir, 'audio.flac'));
+  await rename(tmpVideo, path.join(dir, 'preview.mp4'));
+  if (meta.hasAudio) await rename(tmpAudio, path.join(dir, 'audio.flac'));
 }
 
 async function generateAudio(file, dir) {
   const tmp = path.join(dir, 'audio.tmp.flac');
   await ffmpeg(['-i', file, '-map', '0:a:0', '-c:a', 'flac', '-sample_fmt', 's16', '-ac', '2', '-ar', '48000', tmp]);
-  await fsp.rename(tmp, path.join(dir, 'audio.flac'));
+  await rename(tmp, path.join(dir, 'audio.flac'));
 }
 
 /** Deletes the least used entries if the cache goes past the limit. */

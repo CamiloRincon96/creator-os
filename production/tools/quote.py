@@ -7,6 +7,10 @@ Each block is one job: Higgsfield bills at least 4 s and at most 30 s per job, i
 
 The rates are the ones the connector gave on Nov 13, 2026 (video editing with Seedance 2.5). Before
 generating, Claude confirms the real price of each job with get_cost; if it changed, RATES is updated."""
+import system
+
+system.prepare(args=1)
+
 import json, math, os, sys
 
 RATES = {  # credits per second

@@ -1,5 +1,5 @@
 """Listens to an audio or a video of the piece, by measuring. Claude cannot hear: this is what it can check.
-Usage: production/.venv/bin/python production/tools/listen.py <piece> <file> [--cut N]
+Usage: python3 production/tools/listen.py <piece> <file> [--cut N]
 
 Reports, against the cut map (voice/cut-vN.json):
   - overall loudness and peak;
@@ -7,6 +7,10 @@ Reports, against the cut map (voice/cut-vN.json):
   - how loud whatever sits between phrases is (noise, music or effects) compared with the voice;
   - whether what is said is still understood: it transcribes again and compares word by word.
 Use it on the voice alone, on each enhanced version and on the final mix with music and effects."""
+import system
+
+system.prepare(venv=True, args=2)
+
 import glob, os, re, subprocess, sys, tempfile
 import numpy as np
 from common import compare, envelope, level, load, loudness, piece, read, transcribe

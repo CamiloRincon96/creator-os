@@ -26,25 +26,33 @@ import sys
 import tempfile
 from pathlib import Path
 
+for _s in (sys.stdout, sys.stderr):      # a piped stdout on Windows is cp1252: a non-Latin name would stop the script
+    if hasattr(_s, "reconfigure"):
+        _s.reconfigure(encoding="utf-8", errors="replace")
+
 W_TILE, H_TILE, PER_ROW, H_SPEC = 240, 135, 8, 72
 
 
 def find_font():
-    for p in ("C:/Windows/Fonts/arial.ttf", "C:/Windows/Fonts/segoeui.ttf", "C:/Windows/Fonts/calibri.ttf",
+    win = (os.environ.get("WINDIR") or "C:/Windows").replace("\\", "/") + "/Fonts/"
+    for p in (win + "arial.ttf", win + "segoeui.ttf", win + "calibri.ttf",
               "/System/Library/Fonts/Supplemental/Arial.ttf", "/Library/Fonts/Arial.ttf",
-              "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", "/usr/share/fonts/dejavu/DejaVuSans.ttf"):
+              "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", "/usr/share/fonts/dejavu/DejaVuSans.ttf",
+              "/usr/share/fonts/TTF/DejaVuSans.ttf"):
         if Path(p).exists():
             return p
     return None
 
 
 def esc(path):
-    return str(path).replace("\\", "/").replace(":", "\\:").replace("'", "\\'")
+    """A path as the value of a single-quoted ffmpeg filter option (fontfile='...'): forward slashes, the drive colon
+    escaped (C\\:/Windows/Fonts/arial.ttf), a quote escaped for the option and closed and reopened for the graph."""
+    return str(path).replace("\\", "/").replace(":", "\\:").replace("'", "\\'").replace("'", "'\\''")
 
 
 def ff(args):
     r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-nostdin"] + [str(a) for a in args], capture_output=True,
-                       text=True, errors="replace")
+                       text=True, encoding="utf-8", errors="replace")
     if r.returncode:
         sys.exit("ffmpeg failed:\n" + r.stderr[-1500:])
 
@@ -52,7 +60,7 @@ def ff(args):
 def probe(video):
     r = subprocess.run(["ffprobe", "-v", "error", "-show_entries",
                         "format=duration:stream=codec_type,duration,r_frame_rate", "-of", "json", str(video)],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8", errors="replace")
     j = json.loads(r.stdout or "{}")
     kinds = [s["codec_type"] for s in j.get("streams", [])]
     if "video" not in kinds:

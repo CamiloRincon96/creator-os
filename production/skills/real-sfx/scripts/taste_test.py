@@ -280,7 +280,7 @@ def cmd_plan(a):
 # ------------------------------------------------------------------------------------------------ render
 def ffrun(args):
     r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-nostdin"] + [str(x) for x in args], capture_output=True,
-                       text=True, errors="replace")
+                       text=True, encoding="utf-8", errors="replace")
     if r.returncode:
         raise RuntimeError(r.stderr[-300:])
 

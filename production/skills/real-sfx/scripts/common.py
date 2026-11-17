@@ -10,9 +10,10 @@ import sys
 import unicodedata
 from pathlib import Path
 
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8")
-    sys.stderr.reconfigure(encoding="utf-8")
+# a piped stdout on Windows is cp1252: one Russian file name or an arrow in a print would stop the script there
+for _s in (sys.stdout, sys.stderr):
+    if hasattr(_s, "reconfigure"):
+        _s.reconfigure(encoding="utf-8", errors="replace")
 
 SKILL_DIR = Path(__file__).resolve().parent.parent
 AUDIO_EXT = {".wav", ".mp3", ".flac", ".aif", ".aiff", ".ogg", ".m4a", ".aac", ".opus"}
@@ -63,7 +64,8 @@ def channel_count(path):
     if k not in _CH_CACHE:
         try:
             r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries",
-                                "stream=channels", "-of", "csv=p=0", k], capture_output=True, text=True)
+                                "stream=channels", "-of", "csv=p=0", k], capture_output=True, text=True,
+                               encoding="utf-8", errors="replace")
             _CH_CACHE[k] = int(r.stdout.strip().split(",")[0])
         except Exception:
             _CH_CACHE[k] = 2
@@ -257,7 +259,7 @@ def measure_loudness(path):
     """Integrated loudness (LUFS), loudness range (LU) and true peak (dBFS) of an audio file via ebur128."""
     r = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-nostdin", "-i", str(path), "-vn",
                         "-af", "ebur128=peak=true", "-f", "null", "-"], capture_output=True, text=True,
-                       errors="replace")
+                       encoding="utf-8", errors="replace")
     tail = r.stderr.split("Summary:")[-1]
     def grab(label):
         m = re.search(label + r":\s+(-?[\d.]+|-inf)", tail)
@@ -408,7 +410,8 @@ def native_peak_db(path):
     """Sample peak (dBFS) of the whole file at its own rate and all channels, as ffmpeg's volumedetect sees it.
     A 16 kHz look under-reads the peak of a click by up to 7 dB."""
     r = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-nostdin", "-i", str(path), "-vn",
-                        "-af", "volumedetect", "-f", "null", "-"], capture_output=True, text=True, errors="replace")
+                        "-af", "volumedetect", "-f", "null", "-"], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
     m = re.search(r"max_volume:\s*(-?[\d.]+) dB", r.stderr)
     return float(m.group(1)) if m else None
 
@@ -419,7 +422,7 @@ def voice_share(path):
     lis = Path(__file__).parent / "listen.py"
     try:
         r = subprocess.run([sys.executable, str(lis), "voice", str(path)], capture_output=True, text=True,
-                           timeout=300)
+                           encoding="utf-8", errors="replace", timeout=300)
         out = r.stdout.strip().splitlines()
         if r.returncode == 0 and out and out[-1].startswith("{"):
             return json.loads(out[-1])
@@ -512,7 +515,7 @@ def mono_drop(path):
     st = measure_loudness(path).get("lufs")
     r = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-nostdin", "-i", str(path), "-vn", "-af",
                         "pan=stereo|c0=0.5*c0+0.5*c1|c1=0.5*c0+0.5*c1,ebur128", "-f", "null", "-"],
-                       capture_output=True, text=True, errors="replace")
+                       capture_output=True, text=True, encoding="utf-8", errors="replace")
     m = re.search(r"I:\s+(-?[\d.]+) LUFS", r.stderr.split("Summary:")[-1])
     if st is None or not m:
         return None

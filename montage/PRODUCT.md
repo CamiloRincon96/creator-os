@@ -13,7 +13,7 @@ web
   - review the versions Claude produces (After Effects via MCP, Higgsfield, HTML engines and ffmpeg);
   - point to the exact frame and zone of each change, comment and send the list to Claude;
   - verify what was resolved and decide the FINAL version.
-- Scene: long sessions in low light, like an edit suite, in Chrome on a Mac, keyboard-heavy.
+- Scene: long sessions in low light, like an edit suite, in a Chrome or Edge app window on macOS, Windows or Linux, keyboard-heavy.
 
 ## Product Purpose
 

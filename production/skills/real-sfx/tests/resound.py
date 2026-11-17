@@ -34,6 +34,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+for _s in (sys.stdout, sys.stderr):      # a piped stdout on Windows is cp1252: a non-Latin name would stop the script
+    if hasattr(_s, "reconfigure"):
+        _s.reconfigure(encoding="utf-8", errors="replace")
+
 SKILL = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(SKILL / "scripts"))
 
@@ -44,7 +48,7 @@ TOLS = (0.05, 0.10, 0.15)
 
 
 def run(cmd, check=True):
-    r = subprocess.run([str(c) for c in cmd], capture_output=True, text=True, errors="replace")
+    r = subprocess.run([str(c) for c in cmd], capture_output=True, text=True, encoding="utf-8", errors="replace")
     if check and r.returncode:
         sys.exit("failed: " + " ".join(str(c) for c in cmd)[:200] + "\n" + r.stderr[-600:])
     return r

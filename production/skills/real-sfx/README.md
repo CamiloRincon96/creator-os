@@ -9,16 +9,20 @@ frame, keeps your music and voice, and hands you a new MP4 plus a separate SFX t
 Copy this folder to your Claude Code skills folder and restart Claude Code:
 
 - Windows: `%USERPROFILE%\.claude\skills\real-sfx`
-- macOS: `~/.claude/skills/real-sfx`
+- macOS and Linux: `~/.claude/skills/real-sfx`
 
 Or install the `.skill` package from the Claude app (Save skill).
 
 ## Needs
 
-- Python 3.9+ and FFmpeg (with ffprobe) in PATH.
-  - Windows: `winget install Python.Python.3.12` and `winget install Gyan.FFmpeg`.
+- Python 3.9+ and FFmpeg (with ffprobe) in PATH. The commands below say `python`: on macOS and Linux that is
+  `python3`; on Windows `python` (or `py`), since `python3` there is often missing or only opens the Microsoft Store.
+  - Windows: `winget install Python.Python.3.12` and `winget install Gyan.FFmpeg`, then open a new terminal. Gyan's
+    builds (full and essentials) include `drawtext`.
   - macOS: `brew install ffmpeg-full` and put it first in PATH (`export PATH="$(brew --prefix ffmpeg-full)/bin:$PATH"`).
-    The plain `ffmpeg` formula has no `drawtext` and `rubberband` filters, which the frame sheets and pitch shifts use.
+    The plain `ffmpeg` formula has no `drawtext` (libfreetype), which the frame sheets (`look.py`, `contact_sheet.py`)
+    use for their labels.
+  - Linux: the distribution's `ffmpeg` (Debian/Ubuntu: `sudo apt install ffmpeg`) has `drawtext`.
 - Node.js only for the optional UI-sound package.
 
 ## Add your sounds

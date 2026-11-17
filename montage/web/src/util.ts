@@ -3,6 +3,9 @@ import type { NoteState, NoteType } from './types';
 
 export const cx = (...classes: (string | false | null | undefined)[]) => classes.filter(Boolean).join(' ');
 
+/** Shortcut key in labels: Cmd on Mac, Ctrl on Windows and Linux (the shortcuts accept both). */
+export const CMD = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? 'Cmd' : 'Ctrl';
+
 export function ago(date: string | number | null | undefined) {
   if (!date) return '';
   const s = (Date.now() - new Date(date).getTime()) / 1000;

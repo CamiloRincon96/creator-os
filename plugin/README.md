@@ -29,7 +29,7 @@ After that, the workspace's own `/creator-start` checks your computer and instal
 
 ## Requirements
 
-Claude Code on your computer (macOS, Windows or Linux), git and about 6 GB of disk. In a claude.ai chat alone it can only explain the system: making the videos needs an agent that runs commands on your computer.
+Claude Code on your computer (macOS, Windows 10/11 or Linux), git and about 6 GB of disk. On Windows, Claude Code brings Git for Windows; install the rest with `winget` (the setup gives you each command), reopen the terminal after each install, and keep the folder out of OneDrive (for example `C:\Users\<you>\creator-os`). In a claude.ai chat alone it can only explain the system: making the videos needs an agent that runs commands on your computer.
 
 ## License
 

@@ -7,11 +7,15 @@
 
 # Creator OS
 
+[![tests](https://github.com/CamiloRincon96/creator-os/actions/workflows/tests.yml/badge.svg)](https://github.com/CamiloRincon96/creator-os/actions/workflows/tests.yml)
+
 **by Dirac Core** · **Your AI content team for growing on social media.** An open system for Claude Code, Codex, Gemini or Grok: it decides what to post, produces reels at editor quality and learns from your metrics.
 
 A system so your AI helps you **grow on social media**: decide what to post, produce reels at editor quality (voice-based cuts, word-by-word captions, motion graphics, measured sound), test variations and learn from your own metrics. It is built to work **in stages, with your approval at each one**: the AI prepares, you decide.
 
 It works with agents that read and edit files and run commands on your computer: **Claude Code**, **Codex CLI** (ChatGPT), **Gemini CLI**, **Grok CLI** or any other that reads `AGENTS.md`. With a chat-only AI (ChatGPT or Claude in the browser) it works as a guide, but it can't produce the videos.
+
+**macOS, Windows 10/11 and Linux.** It works the same on all three. Every change is tested on the three systems by GitHub Actions ([`.github/workflows/tests.yml`](.github/workflows/tests.yml)): the install, every tool, the secret store, the hourly metrics task, Montage and the Remotion kit.
 
 **Use it in your language.** The repo is in English, but the AI talks to you, asks you things and walks you through every setup step (logins, connections, approvals) in whatever language you write to it in.
 
@@ -56,6 +60,8 @@ Then type **`/creator-os:start`**. It asks where to put the folder, clones the r
 2. Type **`/creator-start`**, or ask it to "read `GETTING-STARTED.md` and walk me through it". It takes you step by step.
 3. Create your brand with **`/creator-brand`** and plan the week with **`/creator-ideas`**.
 
+**On Windows:** type `python` where the docs say `python3`, close and reopen the terminal and Claude Code after any `winget install`, and keep the repo out of OneDrive (for example `C:\Users\<you>\creator-os`). Details in [`GETTING-STARTED.md`](GETTING-STARTED.md#on-windows).
+
 **You don't need to know how to code.** Ask your AI to walk you through the installation and to explain what each command does before it runs it. The skills come with the repo: in Claude Code they show up as the `/creator-…` commands, and Codex, Gemini and Grok find them through `AGENTS.md`. Nothing gets installed or paid for without your yes.
 
 What's required and what's optional, in detail: [`GETTING-STARTED.md`](GETTING-STARTED.md). The folder map: [`MAP.md`](MAP.md).
@@ -81,7 +87,7 @@ Every video, image or carousel the AI makes lands in Montage as a new version (`
 - **Every stage ends in something you see or hear and approve.** Nothing is posted without your explicit approval.
 - **The AI can't hear:** sound is measured (LUFS, intelligibility) and you approve it by ear.
 - **Nothing paid without a quote.** After Effects, Higgsfield and ElevenLabs are optional and are never used without asking you.
-- **Keys and tokens never go in the repo or in the chat.** They go in your system keychain or in environment variables.
+- **Keys and tokens never go in the repo or in the chat.** You save them yourself in your system's secure store (macOS Keychain, Windows Credential Manager, secret-tool on Linux) or in environment variables.
 - **Music only with a verified license:** CC0 with its credit. Commercial songs never go inside the file.
 - What goes wrong is written down in `production/LESSONS.md` so it doesn't happen again.
 

@@ -16,6 +16,10 @@ import sys
 import zipfile
 from pathlib import Path
 
+for _s in (sys.stdout, sys.stderr):      # a piped stdout on Windows is cp1252: a non-Latin name would stop the script
+    if hasattr(_s, "reconfigure"):
+        _s.reconfigure(encoding="utf-8", errors="replace")
+
 SKILL = Path(__file__).resolve().parent.parent
 SKIP_DIRS = {"__pycache__", "venv", "models", "styles", "dist", ".git", "node_modules"}
 SKIP_FILES = {"library_index.json", "taste.json", "config.json", "library_embeddings.bin", "library_embeddings.json",

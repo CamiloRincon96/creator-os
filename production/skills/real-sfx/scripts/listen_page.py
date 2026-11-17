@@ -80,7 +80,7 @@ def duration_of(path):
     """Seconds of a media file by ffprobe, 0.0 when it cannot be told."""
     try:
         r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)],
-                           capture_output=True, text=True, errors="replace")
+                           capture_output=True, text=True, encoding="utf-8", errors="replace")
         return float(r.stdout.strip().splitlines()[0])
     except (OSError, ValueError, IndexError):
         return 0.0
@@ -90,7 +90,8 @@ def probe_stream(path, fields, stream="v:0"):
     """Fields of the first video (or audio) stream by ffprobe, as a dict; {} when it cannot be told."""
     try:
         r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", stream, "-show_entries", f"stream={fields}",
-                            "-of", "json", str(path)], capture_output=True, text=True, errors="replace")
+                            "-of", "json", str(path)], capture_output=True, text=True,
+                           encoding="utf-8", errors="replace")
         return (json.loads(r.stdout).get("streams") or [{}])[0]
     except (OSError, ValueError, IndexError):
         return {}
@@ -100,7 +101,7 @@ def video_md5(path):
     """MD5 of the packets of the first video stream (copied, not decoded): files with the same picture share it."""
     try:
         r = subprocess.run(["ffmpeg", "-v", "error", "-nostdin", "-i", str(path), "-map", "0:v:0", "-c", "copy",
-                            "-f", "md5", "-"], capture_output=True, text=True, errors="replace")
+                            "-f", "md5", "-"], capture_output=True, text=True, encoding="utf-8", errors="replace")
     except OSError:
         return ""
     last = (r.stdout.strip().splitlines() or [""])[-1]
@@ -118,7 +119,8 @@ def make_picture(src, dst, height=PICTURE_HEIGHT):
     else:
         v = ["-c:v", "copy"]
     r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-nostdin", "-i", str(src), "-map", "0:v:0", "-an", *v,
-                        "-movflags", "+faststart", str(dst)], capture_output=True, text=True, errors="replace")
+                        "-movflags", "+faststart", str(dst)], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
     return r.returncode == 0 and Path(dst).exists()
 
 
@@ -129,7 +131,8 @@ def extract_audio(src, dst):
         return False
     a = ["-c:a", "copy"] if codec == "aac" else ["-c:a", "aac", "-b:a", "192k"]
     r = subprocess.run(["ffmpeg", "-v", "error", "-y", "-nostdin", "-i", str(src), "-map", "0:a:0", "-vn", *a,
-                        "-movflags", "+faststart", str(dst)], capture_output=True, text=True, errors="replace")
+                        "-movflags", "+faststart", str(dst)], capture_output=True, text=True,
+                       encoding="utf-8", errors="replace")
     return r.returncode == 0 and Path(dst).exists()
 
 
@@ -143,7 +146,7 @@ def cut_moment(src, t, out, dur=3.0, pre=1.0):
     else:
         cmd = ["ffmpeg", "-v", "error", "-y", "-nostdin", "-ss", f"{t0:.3f}", "-t", f"{dur:.3f}", "-i", str(src),
                "-c:a", "aac", "-b:a", "160k", str(out)]
-    r = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
+    r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
     return r.returncode == 0 and Path(out).exists()
 
 

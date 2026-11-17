@@ -1,6 +1,6 @@
 """The library of own footage: everything the creator records is cataloged so it can be used in any piece.
 
-    production/.venv/bin/python production/tools/library.py add [files…]   # no files: whatever is in library/inbox/
+    python3 production/tools/library.py add [files…]   # no files: whatever is in library/inbox/
     python3 production/tools/library.py tag <id> --what "…" --tags "a,b" [--brand example] [--use broll|on-camera|ambience|screen]
     python3 production/tools/library.py search "<words>" [--brand example] [--vertical]
     python3 production/tools/library.py list [--untagged]
@@ -14,6 +14,10 @@ the material in library/inbox/ (or pass the paths) and `add`:
 Then Claude looks at each sheet and tags it (what is seen, tags, brand, use). Videos and sheets do not go into git;
 library/index.json does: that way any computer knows what exists, even if the video is on another one.
 """
+import system
+
+system.prepare(venv=True)
+
 import datetime as dt
 import hashlib
 import json

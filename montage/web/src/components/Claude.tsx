@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import { notify, useStore } from '../state';
 import type { Note } from '../types';
-import { TO_SEND, cx, useClickOutside } from '../util';
+import { CMD, TO_SEND, cx, useClickOutside } from '../util';
 
 /** Claude's avatar: terracotta is reserved for it. */
 export function ClaudeAvatar({ size = 20 }: { size?: number }) {
@@ -162,7 +162,7 @@ export function SendButton({ project, notes }: { project: string; notes: Note[] 
 
   return (
     <div className="popover-wrap" ref={ref}>
-      <button className={cx('btn send', toSend ? 'primary' : 'no-notes')} onClick={() => setOpen(!open)} title="Send notes to Claude (Cmd+Enter)">
+      <button className={cx('btn send', toSend ? 'primary' : 'no-notes')} onClick={() => setOpen(!open)} title={`Send notes to Claude (${CMD}+Enter)`}>
         <Send size={15} /> Send to Claude{toSend > 0 && <span className="badge">{toSend}</span>}
       </button>
       {open && (

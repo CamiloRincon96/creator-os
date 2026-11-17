@@ -4,14 +4,18 @@ A local editor to review and edit this repo's videos and images with Claude. Eve
 
 **Install with Claude:** in Claude Code, inside the repo, type `/creator-install-montage` or "install Montage". Claude checks what's missing (Node.js, ffmpeg, Chrome), explains what each thing is for, asks for permission and installs it.
 
-**Install by hand** (once per computer, with Node 22.12+ and ffmpeg):
-- `cd montage && npm run install-app`. Installs the dependencies, builds the interface and creates the **Montage** app (`~/Applications/Montage.app` on macOS, a Desktop shortcut on Windows, a launcher on Linux).
+**Install by hand** (once per computer, with Node 22.12+ and ffmpeg 7+):
+- `cd montage && npm run install-app`. Installs the dependencies, builds the interface and creates the **Montage** app:
+  - macOS: `~/Applications/Montage.app`.
+  - Windows 10/11: a **Montage** shortcut on the Desktop and in the Start menu (search for it with the Windows key). When it opens, a minimized console shows for a moment and closes by itself.
+  - Linux: a launcher in the applications menu.
+- On Windows, install whatever is missing from PowerShell: `winget install OpenJS.NodeJS.LTS` and `winget install Gyan.FFmpeg`. Then open a new terminal so they show up on the PATH. Montage uses Chrome if it's installed and Microsoft Edge otherwise, which comes with Windows.
 - To remove the app: `node montage/install.mjs --remove` (it doesn't delete projects).
 
 **Open:**
-- The Montage app (Launchpad, Spotlight or the Dock). It opens as its own Chrome window.
+- The Montage app: on macOS from Launchpad, Spotlight or the Dock; on Windows with the shortcut on the Desktop or in the Start menu. It opens as its own Chrome window (on Windows, an Edge window if there's no Chrome).
 - In Claude Code: `/creator-montage`. Starts the server, opens the window and leaves Claude listening.
-- Without Claude: double-click `montage/open.command` or run `node montage/cli.mjs open`.
+- Without Claude: `node montage/cli.mjs open`, on any system. On macOS you can also double-click `montage/open.command`; that file is macOS-only.
 - Address: http://localhost:38420 (if it's taken, Montage uses the next free port up to 38429).
 
 **Stop and quit:**
@@ -62,7 +66,7 @@ Press `?` inside a project to see every shortcut.
 ## Where things are
 
 - `projects/<id>/`: `project.json` (versions), `notes/`, `captures/`, `versions/vN/`, `timeline.json` and `image.json`.
-  - Versions are APFS clones: they take no extra space and are read-only.
+  - Versions are read-only. On macOS they are APFS clones and take no extra space; on Windows they are copies, and on Linux, clones when the disk supports it.
 - `.cache/`: previews, thumbnails and waveforms. Delete them with `node montage/cli.mjs clear-cache`; they regenerate on their own.
 - `cli.mjs`: commands for Claude. See `node montage/cli.mjs help`.
 - Development:

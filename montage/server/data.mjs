@@ -6,7 +6,7 @@ import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { PROJECTS, REPO } from './config.mjs';
 import { probe } from './media.mjs';
-import { clone, isInside, now, readJSON, slug, withLock, writeAtomic, writeJSON } from './util.mjs';
+import { clone, isInside, now, readJSON, slug, toPosix, withLock, writeAtomic, writeJSON } from './util.mjs';
 
 export const NOTE_STATES = ['draft', 'sent', 'in_progress', 'question', 'resolved', 'approved', 'reopened'];
 export const NOTE_TYPES = ['add', 'remove', 'change', 'fix', 'idea'];
@@ -31,9 +31,9 @@ export function validateId(id) {
   if (!/^[a-z0-9][a-z0-9-]{0,80}$/.test(String(id))) throw error(400, `Invalid project id: ${id}`);
 }
 
-/** Path relative to the repo when it is inside it (for display), absolute otherwise. */
+/** Path relative to the repo when it is inside it (for display, always with `/`), absolute otherwise. */
 export function readablePath(file) {
-  return isInside(REPO, file) ? path.relative(REPO, file) : file;
+  return isInside(REPO, file) ? toPosix(path.relative(REPO, file)) : file;
 }
 
 // ---------------------------------------------------------------- projects
@@ -241,6 +241,8 @@ export async function archiveVersions(id, { keep = [], dryRun = false, person = 
   await updateProject(id, async (p) => {
     for (const v of p.versions) {
       if (!plan.some((x) => x.version === v.id)) continue;
+      // On Windows the version's 0o444 is the "read-only" attribute: clear it before deleting.
+      if (process.platform === 'win32') for (const a of v.files) await fsp.chmod(filePath(id, a), 0o644).catch(() => {});
       await fsp.rm(path.join(projectDir(id), 'versions', v.id), { recursive: true, force: true });
       v.files = v.files.map((a) => ({ ...a, archived: true }));
       v.archived = now();
@@ -484,7 +486,7 @@ export async function saveContext(id, text, { author = 'person', name = 'Team' }
 
 /** Brand rule documents that exist in the repo (for Claude to read). */
 export function brandRules(brand) {
-  const candidates = brand ? [path.join('brands', brand, 'BRAND.md'), path.join('brands', brand, 'PROFILE.md')] : [];
+  const candidates = brand ? [path.posix.join('brands', brand, 'BRAND.md'), path.posix.join('brands', brand, 'PROFILE.md')] : [];
   candidates.push('WORKFLOW.md');
   return candidates.filter((r) => {
     try {

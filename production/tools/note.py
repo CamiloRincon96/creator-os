@@ -18,6 +18,10 @@ render:
     all at -14 LUFS. The effects come from brands/<brand>/sounds/openverse (CC0, with credits);
   - checks the cover (faces.py) and leaves 3 candidates.
 """
+import system
+
+system.prepare()
+
 import json
 import re
 import shutil
@@ -94,12 +98,10 @@ def render(draft=False):
     output.mkdir(exist_ok=True)
     n = 1 + max([int(m.group(1)) for p in output.glob("explainer-v*.mp4") if (m := re.search(r"-v(\d+)", p.name))] or [0])
     raw = output / f"_explainer-v{n}-raw.mp4"
-    cmd = ["npx", "remotion", "render", "Explainer", str(raw), f"--props={json.dumps({'data': f'pieces/{P.name}/explainer.json'})}", "--log=error"]
+    cmd = [*system.remotion(reel), "render", "Explainer", str(raw), f"--props={json.dumps({'data': f'pieces/{P.name}/explainer.json'})}", "--log=error"]
     if draft:
         cmd.append("--scale=0.5")
-    chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-    if Path(chrome).exists():
-        cmd.append(f"--browser-executable={chrome}")
+    cmd += system.remotion_browser()
     r = subprocess.run(cmd, cwd=reel, capture_output=True, text=True)
     if r.returncode:
         sys.exit(f"Remotion: {r.stderr[-1200:]}")
@@ -142,8 +144,8 @@ def render(draft=False):
     raw.unlink(missing_ok=True)
     mix.unlink(missing_ok=True)
     print(f"{final.relative_to(REPO) if final.is_relative_to(REPO) else final} · {total:.1f} s · {len(spec['scenes'])} scenes · {lufs(final):.1f} LUFS")
-    py = REPO / "production" / ".venv" / "bin" / "python"
-    if py.exists():
+    py = system.venv_python()
+    if py:
         subprocess.run([str(py), str(REPO / "production" / "tools" / "faces.py"), "cover", str(final), "--n", "3", "--until", "6"])
     return final
 

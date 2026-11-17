@@ -11,11 +11,15 @@ import { parseTime, readableTime } from './shared/time.js';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(ROOT, '..');
-const STATE = path.join(ROOT, '.state');
-const PROJECTS = path.join(ROOT, 'projects');
+const STATE = process.env.MONTAGE_STATE || path.join(ROOT, '.state'); // tests point this at a temporary folder
+const PROJECTS = process.env.MONTAGE_PROJECTS || path.join(ROOT, 'projects');
 const SERVER_FILE = path.join(STATE, 'server.json');
 const BASE_PORT = Number(process.env.MONTAGE_PORT) || 38420;
 const CLI = 'node montage/cli.mjs';
+const WINDOWS = process.platform === 'win32';
+
+// On Windows npm is npm.cmd and Node only runs it through a shell; the (fixed) arguments go in the same string.
+const npm = (args, options) => (WINDOWS ? spawnSync(`npm ${args.join(' ')}`, { ...options, shell: true }) : spawnSync('npm', args, options));
 
 /** Port of the server that is running (it writes it on startup), or the default one. */
 function knownPort() {
@@ -65,14 +69,34 @@ async function health() {
   }
 }
 
+/** Chrome or, if missing, Edge (it ships with Windows 10 and 11), in the folders where they get installed. */
+function windowsBrowser() {
+  const e = process.env;
+  const candidates = [
+    [e.ProgramFiles, 'Google', 'Chrome', 'Application', 'chrome.exe'],
+    [e['ProgramFiles(x86)'], 'Google', 'Chrome', 'Application', 'chrome.exe'],
+    [e.LOCALAPPDATA, 'Google', 'Chrome', 'Application', 'chrome.exe'],
+    [e['ProgramFiles(x86)'], 'Microsoft', 'Edge', 'Application', 'msedge.exe'],
+    [e.ProgramFiles, 'Microsoft', 'Edge', 'Application', 'msedge.exe'],
+  ];
+  for (const [base, ...rest] of candidates) {
+    if (!base) continue;
+    const file = path.join(base, ...rest);
+    if (fs.existsSync(file)) return file;
+  }
+  return null;
+}
+
 /** Opens Montage as an app window (Chrome without tabs); without Chrome, the default browser. */
 function openBrowser(url) {
   if (process.platform === 'darwin') {
     if (fs.existsSync('/Applications/Google Chrome.app')) spawnSync('open', ['-na', 'Google Chrome', '--args', `--app=${url}`]);
     else spawnSync('open', [url]);
-  } else if (process.platform === 'win32') {
-    const r = spawnSync('cmd', ['/c', 'start', '', 'chrome', `--app=${url}`], { windowsHide: true });
-    if (r.status !== 0) spawnSync('cmd', ['/c', 'start', '', url], { windowsHide: true });
+  } else if (WINDOWS) {
+    // No `start chrome`: if Chrome is missing, Windows shows an error dialog instead of returning a code.
+    const exe = windowsBrowser();
+    if (exe) spawn(exe, [`--app=${url}`], { detached: true, stdio: 'ignore' }).on('error', () => {}).unref();
+    else spawnSync('cmd', ['/c', 'start', '', url], { windowsHide: true });
   } else {
     // No waiting: if Chrome was not open, the process lives as long as the window is open.
     const chrome = spawn('google-chrome', [`--app=${url}`], { detached: true, stdio: 'ignore' });
@@ -98,10 +122,10 @@ function ensureInterface() {
   if (fs.existsSync(index) && fs.statSync(index).mtimeMs >= latest) return;
   if (!fs.existsSync(path.join(ROOT, 'node_modules'))) {
     console.error('Installing Montage dependencies…');
-    spawnSync('npm', ['install'], { cwd: ROOT, stdio: ['ignore', 'ignore', 'inherit'] });
+    npm(['install'], { cwd: ROOT, stdio: ['ignore', 'ignore', 'inherit'] });
   }
   console.error('Building the interface…');
-  const r = spawnSync('npm', ['run', 'build'], { cwd: ROOT, stdio: ['ignore', 'ignore', 'pipe'] });
+  const r = npm(['run', 'build'], { cwd: ROOT, stdio: ['ignore', 'ignore', 'pipe'] });
   if (r.status !== 0) {
     const detail = String(r.stderr || '').split('\n').filter((l) => /error|Error/.test(l)).slice(0, 3).join('\n');
     // With a previous build the server still serves; better that than leaving it down.
@@ -120,6 +144,7 @@ async function ensureServer() {
     detached: true,
     stdio: ['ignore', log, log],
     env: process.env,
+    windowsHide: true, // on Windows, no console window for the server
   });
   child.unref();
   for (let i = 0; i < 60; i++) {
@@ -146,6 +171,12 @@ async function stopServer() {
   if (!s) return false;
   process.kill(s.pid, 'SIGTERM');
   for (let i = 0; i < 25 && (await health()); i++) await sleep(200);
+  // On Windows SIGTERM ends the process without running its cleanup: remove its server.json here.
+  if (WINDOWS) {
+    try {
+      if (JSON.parse(fs.readFileSync(SERVER_FILE, 'utf8')).pid === s.pid) fs.rmSync(SERVER_FILE, { force: true });
+    } catch {}
+  }
   return true;
 }
 
@@ -215,7 +246,7 @@ function pendingText(data) {
     l.push(`Last version: ${p.last || '—'} · Final: ${p.final || '—'} · Folder: ${p.dir}`);
     if (p.rules?.length) l.push(`Brand rules (read them if you do not have them in mind): ${p.rules.join(', ')}`);
     if (p.context?.trim()) {
-      const lines = p.context.trim().split('\n');
+      const lines = p.context.trim().split(/\r?\n/);
       l.push('', '**Project context:**', ...lines.slice(0, 60), ...(lines.length > 60 ? [`… (full: ${CLI} context ${p.id})`] : []));
     }
     for (const nt of g.notes) l.push('', noteText(nt));

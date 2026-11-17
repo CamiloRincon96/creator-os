@@ -124,7 +124,7 @@ def cues_from_events(specs, kinds_user=None):
             km = Path(tmp) / "kinds.json"                       # a file: a JSON argument is mangled by PowerShell
             km.write_text(json.dumps(kinds_user, ensure_ascii=False), encoding="utf-8")
             cmd += ["--map", str(km)]
-        r = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
+        r = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
         if r.returncode or not cp.exists():
             sys.exit("from_cues could not route those events:\n" + (r.stdout + r.stderr)[-700:])
         for ln in r.stdout.splitlines():

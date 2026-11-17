@@ -38,7 +38,7 @@ It goes in the piece's `brief.md`, with the references (`production/references/`
 | 11 | Delivery and cleanup | Final folder `brands/<brand>/finals/<project>/` with video, copy, cover and posting time; variants per network; then frees up the disk | Marks FINAL, posts and says yes to the cleanup | Skills `ig-caption` and `ig-human`; `clean.py`, `montage archive` |
 | 12 | Variations | 12a plan of 4 to 6 hooks (one principle each, the week's trend, licensed music) · 12b production · 12c batch · 12d posting as trial reels · 12e results that refine the prompt | The plan and then the exact batch (videos, copies, day and times), in the chat | `production/variations/` (PROMPT, MUSIC, CALENDAR, LEARNED); `variations.py`, `instagram.py` |
 
-The repo's own tools are in `production/tools/` and run with `production/.venv/bin/python`.
+The repo's own tools are in `production/tools/` and run with `python3 production/tools/<tool>.py` (on Windows, `python`): each one switches to the `production/.venv` environment on its own if it needs it. What changes between macOS, Windows and Linux lives in one file, `production/tools/system.py`, and `production/tests/portability.py` checks that nothing specific to one system slips in anywhere else.
 
 An **animated** piece has no stages 2, 3, 6 or 8, and the stage 4 voice is the brand's ElevenLabs voice.
 
@@ -142,7 +142,7 @@ In both, the new shot is generated: check that lips and face stay the same.
 Decided by the creator (Nov 13, 2026): visual retouches are done in CapCut, which they have in the paid version. CapCut has no official programmatic interface; community projects only write drafts, don't touch the retouch and leave the export to be done by hand. It's driven through the screen, in one of three ways:
 
 1. **Claude with computer use** (what the creator prefers). It's done by a session of the Claude desktop app, opened on this repo in the code tab, with Computer use turned on (Settings → This computer; it's off by default). VS Code has no computer use, but the VS Code session can hand the task to the desktop app session, which shows up as another session on this computer, and check the files it leaves. What's needed only once: turn on Computer use in the app and give CapCut permission when it asks.
-2. **Codex with its computer use.** Codex is installed with the ChatGPT app and has computer use and image generation turned on. Claude hands it the task in writing with `production/tools/codex.sh` and reads its reply. The first time, with the creator watching.
+2. **Codex with its computer use.** Codex is installed with the ChatGPT app and has computer use and image generation turned on. Claude hands it the task in writing with `production/tools/codex.py` and reads its reply. The first time, with the creator watching.
 3. **The creator, by hand.**
 
 In all three cases: the blocks come from `image/to-capcut/`, the creator's saved retouch preset is applied (always the same one) and they're exported with the same name to `image/from-capcut/`: 1080 × 1920, 30 fps, no text or music. Claude checks frames and duration. That's four or five short clips per piece.
@@ -153,7 +153,7 @@ In all three cases: the blocks come from `image/to-capcut/`, the creator's saved
 .claude/skills/creator-reel/   the /creator-reel command
 production/
   REELS-WORKFLOW.md       this document
-  tools/                  install.py (in production/), variations.py, instagram.py, piece.py, prepare.py, cut.py, voice.py, match_timbre.py, listen.py, visual_script.py, clean.py, mockup.py, blocks.py, cutout-person.mjs, quote.py, codex.sh
+  tools/                  install.py (in production/), variations.py, instagram.py, piece.py, prepare.py, cut.py, voice.py, match_timbre.py, listen.py, visual_script.py, clean.py, mockup.py, blocks.py, cutout-person.mjs, quote.py, codex.py, save_token.py, system.py (what's specific to each operating system)
   templates/              brief.md, script.md, STATUS.md
   styles/<style>/         the style library: one STYLE.md each
   references/             reference reels and their analysis

@@ -1,13 +1,17 @@
 """Stage 4: versions of the voice so the creator can choose by ear.
 Usage:
-  production/.venv/bin/python production/tools/voice.py <piece> [--cut N]
+  python3 production/tools/voice.py <piece> [--cut N]
       "local" version: cleans each take (peaks, bass, noise), matches the tone between takes and levels phrase by phrase.
       Also leaves voice/cut-vN-to-enhance.wav, which is what gets uploaded to an external enhancer.
-  production/.venv/bin/python production/tools/voice.py <piece> --external <name> <file.wav> [--cut N]
+  python3 production/tools/voice.py <piece> --external <name> <file.wav> [--cut N]
       Brings in what an external enhancer returned (ElevenLabs, Adobe Podcast, CapCut), levels it the same way and builds its video.
 
 Each version is saved as voice/cut-vN-voice-<name>.wav and .mp4 (the same picture as the cut) and is measured with listen.py.
 Leveling phrase by phrase is what corrects the mic having been closer or farther."""
+import system
+
+system.prepare(venv=True, args=1)
+
 import os, sys
 import numpy as np
 import soundfile as sf
@@ -97,7 +101,9 @@ clean, balance = {}, {}
 for t in used:
     src, out = f"{P}/work/audio/{t}.wav", f"{P}/voice/takes/{t}-clean.wav"
     mix = 0.8 if noise[t] > -32 else 0.65
-    ff("-i", src, "-af", f"adeclip=threshold=8,volume=-6dB,highpass=f=75:p=2,arnndn=m={RNNOISE}:mix={mix}", "-c:a", "pcm_s24le", out)
+    # the model goes by name and ffmpeg runs in its folder: a Windows path (C:\…) would split the filter at the ":"
+    ff("-i", src, "-af", f"adeclip=threshold=8,volume=-6dB,highpass=f=75:p=2,arnndn=m={os.path.basename(RNNOISE)}:mix={mix}",
+       "-c:a", "pcm_s24le", out, cwd=os.path.dirname(RNNOISE))
     x, sr = read(out)
     clean[t] = out
     balance[t] = bands(np.concatenate([x[int(f["voice_start"] * sr):int(f["voice_end"] * sr)] for f in phrases_of[t]]), sr)
