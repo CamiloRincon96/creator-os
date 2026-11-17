@@ -256,6 +256,159 @@ def _all():
         finally:
             run([node, cli, "stop"], env=env, cwd=REPO, timeout=60)
 
+    # ---- what a person does by hand: only on GitHub's clean machines. On someone's own computer these would
+    # overwrite their real ScrapeCreators key, their Montage app and their metrics watcher.
+    ON_CI = bool(os.environ.get("CI"))
+
+    @test("save_token.py: the pasted token lands in the system's store and instagram.py reads it back")
+    def _save_token():
+        if not ON_CI:
+            return "skipped here (runs on GitHub only)"
+        import getpass
+        import importlib
+        st = importlib.import_module("save_token")
+        token = "EA" + "smoketoken" * 20
+
+        class Terminal:  # what the person's own terminal looks like to the tool
+            def isatty(self):
+                return True
+
+        old_stdin, old_getpass = sys.stdin, getpass.getpass
+        sys.stdin, getpass.getpass = Terminal(), (lambda prompt="": " " + token + "\n")  # pasted with stray spaces
+        env_file = Path.home() / ".config" / "last30days" / ".env"
+        old_env = env_file.read_text(encoding="utf-8") if env_file.exists() else None
+        try:
+            if system.LINUX and not shutil.which("secret-tool"):
+                try:
+                    st.instagram("smoke-test")
+                except SystemExit as e:
+                    if "INSTAGRAM_TOKEN" not in str(e):
+                        raise RuntimeError(f"without a store it should explain the environment variable: {e}")
+                else:
+                    raise RuntimeError("without a store it should save nothing and explain the environment variable")
+                where = "no store on this Linux: it explains SMOKE_TEST_INSTAGRAM_TOKEN"
+            else:
+                try:
+                    st.instagram("smoke-test")
+                except SystemExit as e:
+                    raise RuntimeError(f"save_token.py stopped: {e}")
+                ig = importlib.import_module("instagram")
+                if ig.token("smoke-test") != token:
+                    raise RuntimeError("instagram.py read a different token")
+                where = system.read_secret("smoke-test-instagram", "token") and "saved and read back"
+            getpass.getpass = lambda prompt="": "sc_" + "smokekey" * 4
+            try:
+                st.scrapecreators()
+            except SystemExit as e:
+                raise RuntimeError(f"--scrapecreators stopped: {e}")
+            if system.MAC:
+                user = os.environ.get("USER") or getpass.getuser()
+                ok = system.read_secret("last30days-SCRAPECREATORS_API_KEY", user) == "sc_" + "smokekey" * 4
+            else:
+                ok = "SCRAPECREATORS_API_KEY=sc_" + "smokekey" * 4 in env_file.read_text(encoding="utf-8")
+            if not ok:
+                raise RuntimeError("the ScrapeCreators key is not where last30days looks for it")
+            return f"{where}; ScrapeCreators key where last30days reads it"
+        finally:
+            sys.stdin, getpass.getpass = old_stdin, old_getpass
+            system.delete_secret("smoke-test-instagram", "token")
+            if system.MAC:
+                system.delete_secret("last30days-SCRAPECREATORS_API_KEY", os.environ.get("USER") or getpass.getuser())
+            elif old_env is None:
+                env_file.unlink(missing_ok=True)
+            else:
+                env_file.write_text(old_env, encoding="utf-8")
+
+    @test("the metrics watcher: instagram.py watcher install, the system runs it, it logs, remove")
+    def _watcher():
+        if not ON_CI:
+            return "skipped here (runs on GitHub only)"
+        ig = [sys.executable, TOOLS / "instagram.py", "watcher"]
+        log = system.logs_dir("creator-os") / "creator-os-metrics.log"
+        log.unlink(missing_ok=True)
+        try:
+            rc, out = run([*ig, "install"], timeout=120)
+            if rc:
+                raise RuntimeError(f"install: {out[-500:]}")
+            rc, status = run([*ig, "status"], timeout=60)
+            if rc or status.strip().startswith("not"):
+                raise RuntimeError(f"status after installing: {status[-300:]}")
+            if not system.LINUX:  # launchd runs it at load and Task Scheduler on install; cron waits for the hour
+                for _ in range(120):
+                    if log.exists():
+                        break
+                    time.sleep(0.5)
+                else:
+                    raise RuntimeError(f"the system never ran it (no log at {log})")
+                time.sleep(3)
+                text = log.read_text(encoding="utf-8", errors="replace")
+                if "Traceback" in text:
+                    raise RuntimeError(f"it ran with an error: {text[-500:]}")
+        finally:
+            run([*ig, "remove"], timeout=60)
+        rc, status = run([*ig, "status"], timeout=60)
+        if not status.strip().startswith("not"):
+            raise RuntimeError(f"still installed after remove: {status[-200:]}")
+        return status.strip().splitlines()[0] + " after remove; it ran and logged" + (" (cron: at the hour)" if system.LINUX else "")
+
+    @test("Montage's app or shortcut: npm run install-app creates it, --remove takes it away")
+    def _montage_app():
+        if not ON_CI:
+            return "skipped here (runs on GitHub only)"
+        node = shutil.which("node")
+        rc, out = run([node, REPO / "montage" / "install.mjs"], cwd=REPO / "montage", timeout=900)
+        if rc:
+            raise RuntimeError(f"install: {out[-800:]}")
+        if system.WINDOWS:
+            ps = ("@([Environment]::GetFolderPath('Desktop'), [Environment]::GetFolderPath('Programs')) | "
+                  "ForEach-Object { Test-Path (Join-Path $_ 'Montage.lnk') }")
+            found = lambda: run(["powershell", "-NoProfile", "-Command", ps])[1].split()  # noqa: E731
+            if found() != ["True", "True"]:
+                raise RuntimeError(f"Montage.lnk is not on the Desktop and in the Start menu: {found()} · {out[-400:]}")
+            where = "Montage.lnk on the Desktop and in the Start menu"
+        else:
+            app = Path.home() / ("Applications/Montage.app" if system.MAC else ".local/share/applications/montage.desktop")
+            found = app.exists
+            if not found():
+                raise RuntimeError(f"{app} was not created: {out[-400:]}")
+            where = str(app)
+        rc, out = run([node, REPO / "montage" / "install.mjs", "--remove"], cwd=REPO / "montage", timeout=120)
+        still = found() if not system.WINDOWS else "True" in found()
+        if rc or still:
+            raise RuntimeError(f"--remove left it there: {out[-300:]}")
+        return where
+
+    @test("every install command the docs give for this system names a real package")
+    def _install_commands():
+        if not ON_CI:
+            return "skipped here (runs on GitHub only)"
+        import re
+        text = "\n".join(f.read_text(encoding="utf-8", errors="replace") for f in REPO.rglob("*")
+                         if f.suffix in (".md", ".py") and f.is_file() and "node_modules" not in f.parts and ".git" not in f.parts)
+        bad = []
+        if system.WINDOWS:
+            ids = sorted(set(re.findall(r"winget install (?:--id )?([A-Za-z0-9][\w.\-]+\.[\w.\-]+)", text)))
+            for i in ids:
+                rc, out = run(["winget", "show", "--id", i, "-e", "--accept-source-agreements", "--disable-interactivity"], timeout=180)
+                if rc or "No package found" in out:
+                    bad.append(f"winget {i}: {out.strip()[-200:]}")
+            names = ids
+        elif system.MAC:
+            names = sorted(set(m.group(1) + m.group(2) for m in re.finditer(r"brew install (--cask )?([a-z0-9][\w@.+\-]*)", text)))
+            for n in names:
+                rc, out = run(["brew", "info", *n.split()], timeout=180)
+                if rc:
+                    bad.append(f"brew {n}: {out.strip()[-200:]}")
+        else:
+            names = sorted({w for m in re.finditer(r"sudo apt(?:-get)? install (?:-y )?([a-z0-9][a-z0-9.+\- ]*)", text) for w in m.group(1).split()})
+            for n in names:
+                rc, out = run(["apt-cache", "show", n], timeout=120)
+                if rc:
+                    bad.append(f"apt {n}: {out.strip()[-200:]}")
+        if bad:
+            raise RuntimeError("\n    ".join(bad))
+        return ", ".join(names)
+
 
 _all()
 shutil.rmtree(TMP, ignore_errors=True)

@@ -36,7 +36,13 @@ jobs:
       - name: ffmpeg
         run: |
           case "$RUNNER_OS" in
-            Windows) choco install ffmpeg -y --no-progress ;;
+            Windows)
+              # the same command GETTING-STARTED.md gives; winget puts it in WinGet\Links, which a new terminal sees
+              winget --version
+              winget install --id Gyan.FFmpeg -e --silent --accept-source-agreements --accept-package-agreements --disable-interactivity
+              links="$(cygpath -u "$LOCALAPPDATA")/Microsoft/WinGet/Links"
+              echo "$(cygpath -w "$links")" >> "$GITHUB_PATH"
+              export PATH="$links:$PATH" ;;
             macOS)   brew install ffmpeg ;;
             Linux)   sudo apt-get update -q && sudo apt-get install -y -q ffmpeg ;;
           esac
