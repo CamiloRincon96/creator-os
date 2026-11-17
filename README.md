@@ -30,6 +30,7 @@ It works with agents that read and edit files and run commands on your computer:
 |---|---|
 | `/creator-start` | The first time: checks your computer, tells you what's required and what's optional, and sets it up step by step |
 | `/creator-brand` | Create or edit a brand: its real niche (from your product's repo or website), its tone and its content wheel |
+| `/creator-connect` | Connect Instagram, Facebook, YouTube and TikTok step by step, with the official page for each step; keys go to your system's secure store |
 | `/creator-ideas` | What to post: researches what's trending in your niche this week and crosses it with your metrics. It proposes ideas by network and format (reel, story, carousel) and you iterate together |
 | `/creator-reel` | Produce a reel in stages: script, voice cut, voice, visual script, animation (Remotion), sound, review and variations. It has an **express mode** for the daily reel from a voice note |
 | `/creator-pulse` | How it's going: metrics for everything you've posted (stories too), the card for each reel and your **own style**, drawn from what worked |
@@ -40,7 +41,7 @@ Python and Node tools live in `production/tools/`. Among others:
 - local transcription (Whisper);
 - variations with 540p drafts;
 - automatic check that nothing covers the face, and an automatic cover;
-- posting through the official Instagram API;
+- posting through the official APIs: Instagram, Facebook and YouTube, plus TikTok drafts you finish on your phone;
 - the metrics watcher.
 
 ## Getting started

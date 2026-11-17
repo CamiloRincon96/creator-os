@@ -26,6 +26,9 @@ Everything has one place. No folders are created outside this map: a new brand c
 │   ├── REELS-WORKFLOW.md       the stages, from the idea to the post
 │   ├── LESSONS.md              what has already gone wrong and how to avoid it
 │   ├── INSTAGRAM.md            connecting Instagram through the API, giving access, the metrics watcher
+│   ├── FACEBOOK.md             connecting the Facebook Page (Reels)
+│   ├── YOUTUBE.md              connecting the YouTube channel (Shorts)
+│   ├── TIKTOK.md               connecting TikTok (drafts from the computer)
 │   ├── SOUNDS.md               which effect goes at each moment
 │   ├── DISTRIBUTION.md         what goes on each account and the plan (template)
 │   ├── variations/             variations of a video: PROMPT, MUSIC, CALENDAR, LEARNED
@@ -36,7 +39,7 @@ Everything has one place. No folders are created outside this map: a new brand c
 │
 ├── montage/                    the local review editor (http://localhost:38420)
 │
-└── .claude/skills/             the commands: /creator-start, /creator-brand, /creator-ideas, /creator-reel, /creator-pulse, /creator-notes, /creator-montage
+└── .claude/skills/             the commands: /creator-start, /creator-brand, /creator-connect, /creator-ideas, /creator-reel, /creator-pulse, /creator-notes, /creator-montage
     (.agents/skills points here, for other agents)
 ```
 

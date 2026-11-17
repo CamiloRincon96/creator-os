@@ -17,10 +17,11 @@ Nothing. The Creator OS plugin has no telemetry, no analytics, no hooks, no MCP 
 The workspace is open source and runs on your computer. Your brands, ideas, videos and metrics stay in that folder. Some optional features talk to third-party services only when you turn them on and approve them, and each one is under that service's own policy:
 
 - the Instagram Graph API, to read metrics and publish the batches you approve;
+- Facebook Pages (the same Meta app), the YouTube Data and Analytics APIs (Google) and TikTok's Content Posting and Display APIs, to post the videos you approve and read their metrics. You connect each one yourself, with your own app on that service, from `/creator-connect` or `/creator-os:connect`;
 - ScrapeCreators, through the last30days plugin, for niche research;
 - ElevenLabs, Higgsfield and Adobe, paid tools that are never used without a quote you approved.
 
-Keys and tokens are saved by you in your system's secure store (macOS Keychain, Windows Credential Manager, secret-tool on Linux) or in environment variables; Creator OS never writes them into its files.
+Keys and tokens go in your system's secure store (macOS Keychain, Windows Credential Manager, secret-tool on Linux) or in environment variables. You save them yourself in your own terminal, or, for YouTube and TikTok, the tool saves them there when you log in with the browser. Creator OS never writes them into its files.
 
 ## Contact
 

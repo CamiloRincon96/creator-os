@@ -52,7 +52,7 @@ def run(cmd, **kw):
 def _help():
     bad = []
     for f in sorted(TOOLS.glob("*.py")):
-        if f.name in ("system.py", "common.py"):
+        if f.name in ("system.py", "common.py", "oauth.py", "networks.py"):
             continue
         rc, out = run([sys.executable, f, "--help"])
         if rc != 0 or "Traceback" in out or len(out.strip()) < 20:
@@ -62,7 +62,7 @@ def _help():
             bad.append(f"{f.name} without arguments: {out.strip()[-300:]}")
     if bad:
         raise RuntimeError("\n    ".join(bad))
-    return f"{len(list(TOOLS.glob('*.py'))) - 2} tools"
+    return f"{len(list(TOOLS.glob('*.py'))) - 4} tools"
 
 
 @test("the Python environment (production/.venv) and its libraries")
@@ -139,6 +139,182 @@ print(f"{{common.loudness(x, sr):.1f}} LUFS")
     if rc:
         raise RuntimeError(out[-600:])
     return out.strip().splitlines()[-1]
+
+
+def fake_server():
+    """Imitates the TikTok, YouTube and Meta APIs (and their sign-in pages) on 127.0.0.1, to test
+    connect -> test -> upload -> metrics without real accounts. Returns (base_url, what_it_received, stop)."""
+    import threading
+    import urllib.parse
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    seen = {"chunks": [], "uploads": 0}
+
+    class Fake(BaseHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+        def reply(self, data, code=200, headers=None):
+            body = json.dumps(data).encode("utf-8")
+            self.send_response(code)
+            for k, v in (headers or {}).items():
+                self.send_header(k, v)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def body(self):
+            n = int(self.headers.get("Content-Length") or 0)
+            return self.rfile.read(n) if n else b""
+
+        def do_GET(self):  # noqa: N802
+            u = urllib.parse.urlsplit(self.path)
+            q = dict(urllib.parse.parse_qsl(u.query))
+            ok = {"error": {"code": "ok"}}
+            if u.path in ("/tt/auth", "/yt/auth"):  # the "sign-in page": accepts and comes back with the code
+                target = q["redirect_uri"] + ("&" if "?" in q["redirect_uri"] else "?") + urllib.parse.urlencode({"code": "code-1", "state": q["state"]})
+                seen[u.path] = q
+                self.send_response(302)
+                self.send_header("Location", target)
+                self.end_headers()
+            elif u.path == "/tt/v2/user/info/":
+                self.reply({"data": {"user": {"display_name": "Test", "username": "test", "follower_count": 7, "video_count": 1}}, **ok})
+            elif u.path.endswith("/me/accounts"):
+                self.reply({"data": [{"id": "pg1", "name": "Test page", "tasks": ["CREATE_CONTENT", "ANALYZE"]}]})
+            elif u.path.endswith("/pg1"):
+                self.reply({"access_token": "page-token", "name": "Test page", "followers_count": 3})
+            elif u.path.endswith("/pg1/video_reels"):
+                self.reply({"data": [{"id": "fbv1", "description": "hello", "created_time": "2026-11-16T10:00:00+0000"}]})
+            elif u.path.endswith("/fbv1/video_insights"):
+                self.reply({"data": [{"name": "fb_reels_total_plays", "values": [{"value": 12}]}]})
+            elif u.path.endswith("/fbv1"):
+                self.reply({"status": {"video_status": "ready"}, "permalink_url": "/reel/fbv1"})
+            elif u.path == "/yt/api/channels":
+                self.reply({"items": [{"id": "UC1", "snippet": {"title": "Test channel"}, "statistics": {"subscriberCount": "5"},
+                                       "contentDetails": {"relatedPlaylists": {"uploads": "UU1"}}}]})
+            elif u.path == "/yt/api/playlistItems":
+                self.reply({"items": [{"contentDetails": {"videoId": "ytv1"}}]})
+            elif u.path == "/yt/api/videos":
+                self.reply({"items": [{"id": "ytv1", "snippet": {"title": "Test", "publishedAt": "2026-11-16T10:00:00Z"}, "statistics": {"viewCount": "9"}}]})
+            elif u.path == "/yt/analytics":
+                self.reply({"columnHeaders": [{"name": "video"}, {"name": "views"}, {"name": "averageViewDuration"}], "rows": [["ytv1", 9, 4]]})
+            else:
+                self.reply({"error": f"undefined fake route: {u.path}"}, 404)
+
+        def do_POST(self):  # noqa: N802
+            u = urllib.parse.urlsplit(self.path)
+            data = self.body()
+            ok = {"error": {"code": "ok"}}
+            base = f"http://127.0.0.1:{self.server.server_port}"
+            if u.path == "/tt/v2/oauth/token/":
+                form = dict(urllib.parse.parse_qsl(data.decode()))
+                seen.setdefault("tt_token", []).append(form)
+                self.reply({"access_token": "tt-a", "refresh_token": "tt-r", "open_id": "o1", "expires_in": 7200, "refresh_expires_in": 15552000,
+                            "scope": "user.info.basic,user.info.profile,user.info.stats,video.upload,video.list"})
+            elif u.path == "/tt/v2/post/publish/inbox/video/init/":
+                seen["tt_init"] = json.loads(data)
+                self.reply({"data": {"publish_id": "p1", "upload_url": f"{base}/upload/tt"}, **ok})
+            elif u.path == "/tt/v2/post/publish/status/fetch/":
+                self.reply({"data": {"status": "SEND_TO_USER_INBOX"}, **ok})
+            elif u.path == "/tt/v2/video/list/":
+                self.reply({"data": {"videos": [{"id": "t1", "create_time": 1763300000, "title": "hello", "view_count": 11}]}, **ok})
+            elif u.path == "/yt/token":
+                form = dict(urllib.parse.parse_qsl(data.decode()))
+                seen.setdefault("yt_token", []).append(form)
+                self.reply({"access_token": "yt-a", "refresh_token": "yt-r", "expires_in": 3600, "scope": " ".join(
+                    "https://www.googleapis.com/auth/" + x for x in ("youtube.upload", "youtube.readonly", "yt-analytics.readonly"))})
+            elif u.path == "/yt/upload":
+                seen["yt_meta"] = json.loads(data)
+                self.reply({}, 200, {"Location": f"{base}/upload/yt"})
+            elif u.path.endswith("/pg1/video_reels"):
+                form = dict(urllib.parse.parse_qsl(data.decode()))
+                seen.setdefault("fb", []).append(form)
+                self.reply({"video_id": "fbv1", "upload_url": f"{base}/upload/fb"} if form.get("upload_phase") == "start" else {"success": True})
+            elif u.path == "/upload/fb":
+                seen["uploads"] += 1
+                seen["fb_bytes"] = len(data)
+                self.reply({"success": True})
+            else:
+                self.reply({"error": f"undefined fake route: {u.path}"}, 404)
+
+        def do_PUT(self):  # noqa: N802
+            data = self.body()
+            if self.path == "/upload/tt":
+                seen["chunks"].append((self.headers.get("Content-Range"), len(data)))
+                self.reply({}, 201)
+            elif self.path == "/upload/yt":
+                seen["uploads"] += 1
+                seen["yt_bytes"] = len(data)
+                self.reply({"id": "ytv1"}, 201)
+            else:
+                self.reply({}, 404)
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), Fake)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    return f"http://127.0.0.1:{srv.server_port}", seen, srv.shutdown
+
+
+@test("the networks with a fake server: connect, test, upload and metrics on TikTok, YouTube and Facebook")
+def _networks():
+    import oauth
+    base, seen, stop = fake_server()
+    brand = "smoke-networks"
+    env = dict(os.environ, SECRETS_TEST=str(TMP / "secrets"), NETWORKS_CONFIG_TEST=str(TMP / "networks.json"),
+               NETWORKS_LOG_TEST=str(TMP / "brands"), OAUTH_BROWSER_TEST="1",
+               TIKTOK_AUTH_TEST=f"{base}/tt/auth", TIKTOK_API_TEST=f"{base}/tt", TIKTOK_REDIRECT_TEST=f"http://127.0.0.1:{oauth.free_port()}/callback/",
+               YOUTUBE_AUTH_TEST=f"{base}/yt/auth", YOUTUBE_TOKEN_TEST=f"{base}/yt/token", YOUTUBE_API_TEST=f"{base}/yt/api",
+               YOUTUBE_UPLOAD_TEST=f"{base}/yt/upload", YOUTUBE_ANALYTICS_TEST=f"{base}/yt/analytics",
+               IG_GRAPH_TEST=base, IG_TOKEN_TEST="instagram-token")
+    video = TMP / "test reel.mp4"
+    video.write_bytes(os.urandom(300_000))
+    client = TMP / "client_secret test.json"
+    client.write_text(json.dumps({"installed": {"client_id": "cid", "client_secret": "csecret"}}), encoding="utf-8")
+    (TMP / "secrets").mkdir(exist_ok=True)
+    (TMP / "secrets" / f"{brand}-tiktok-app--oauth").write_text(json.dumps({"client_key": "ckey1234", "client_secret": "tt-long-secret-1234"}), encoding="utf-8")
+
+    def step(tool, *args):
+        rc, out = run([sys.executable, TOOLS / tool, *args], env=env, timeout=120)
+        if rc or "Traceback" in out:
+            raise RuntimeError(f"{tool} {' '.join(map(str, args[:2]))}: {out[-700:]}")
+        return out
+
+    try:
+        step("tiktok.py", "connect", brand)
+        step("tiktok.py", "test", brand)
+        step("tiktok.py", "upload", brand, video, "--approved", "yes, upload it (test)", "--copy", "Text «test» ñ")
+        step("tiktok.py", "videos", brand, "5")
+        step("youtube.py", "connect", brand, "--client", client)
+        step("youtube.py", "test", brand)
+        step("youtube.py", "upload", brand, video, "--title", "Test ñ", "--privacy", "unlisted", "--approved", "yes (test)")
+        step("youtube.py", "videos", brand, "5")
+        step("facebook.py", "connect", brand)
+        step("facebook.py", "test", brand)
+        step("facebook.py", "upload", brand, video, "--approved", "yes (test)", "--copy", "hello")
+        step("facebook.py", "reels", brand, "5")
+        status = step("connect.py", "status", brand)
+        rc, out = run([sys.executable, TOOLS / "youtube.py", "upload", brand, video, "--title", "x", "--privacy", "public"], env=env)
+        if rc == 0 or "approved" not in out:
+            raise RuntimeError("youtube.py uploaded without --approved")
+    finally:
+        stop()
+    tt = seen.get("tt_token", [{}])[0]
+    import hashlib
+    if hashlib.sha256(tt.get("code_verifier", "").encode()).hexdigest() != seen.get("/tt/auth", {}).get("code_challenge"):
+        raise RuntimeError("TikTok: the PKCE challenge is not the hexadecimal SHA-256 of the verifier")
+    if seen["chunks"] != [(f"bytes 0-{300_000 - 1}/300000", 300_000)]:
+        raise RuntimeError(f"TikTok: chunks sent wrong: {seen['chunks']}")
+    if seen.get("yt_bytes") != 300_000 or seen.get("fb_bytes") != 300_000:
+        raise RuntimeError(f"the whole video did not arrive: YouTube {seen.get('yt_bytes')}, Facebook {seen.get('fb_bytes')}")
+    if seen.get("yt_meta", {}).get("status", {}).get("privacyStatus") != "unlisted":
+        raise RuntimeError(f"YouTube: privacy sent wrong: {seen.get('yt_meta')}")
+    if [f.get("upload_phase") for f in seen.get("fb", [])] != ["start", "finish"]:
+        raise RuntimeError(f"Facebook: phases sent wrong: {seen.get('fb')}")
+    log = (TMP / "brands" / brand / "pulse" / "uploads.jsonl").read_text(encoding="utf-8").splitlines()
+    if len(log) != 3 or not all("approved" in json.loads(x) for x in log):
+        raise RuntimeError(f"the upload log did not record the 3 with their approval: {log}")
+    if status.count("✓") != 3:
+        raise RuntimeError(f"connect.py status does not see the 3 networks connected:\n{status}")
+    return "TikTok (PKCE hex, draft), YouTube (resumable upload, privacy), Facebook (start -> upload -> finish), log and status"
 
 
 @test("piece.py creates and lists a piece (test brand, deleted afterwards)")

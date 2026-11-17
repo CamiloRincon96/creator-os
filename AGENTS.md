@@ -6,7 +6,7 @@ This repo is a social media content system. You are the editor and strategist; t
 
 - **If it's the first time** (there's no `production/.venv`, no `brands/<something>/NICHE.md` other than `example`, or the person asks for it): follow the **`creator-start`** skill (`.claude/skills/creator-start/SKILL.md`). Explain what's required and what's optional, and don't install anything without saying what it is.
 - **The skills** live in `.claude/skills/<name>/SKILL.md`, with a copy in `.agents/skills`. If your agent doesn't load them on its own, read them when the person asks for their command:
-  - `/creator-start`, `/creator-brand`, `/creator-ideas`, `/creator-reel`, `/creator-pulse`, `/creator-notes`, `/creator-montage`, `/creator-install-montage`.
+  - `/creator-start`, `/creator-brand`, `/creator-connect`, `/creator-ideas`, `/creator-reel`, `/creator-pulse`, `/creator-notes`, `/creator-montage`, `/creator-install-montage`.
 - **The folder map** is in `MAP.md`: everything has one place, and no folders are created outside the map.
 - **The shared workflow** is in `WORKFLOW.md`. Each brand's rules are in `brands/<brand>/BRAND.md`, `PROFILE.md`, `NICHE.md` and `OWN-STYLE.md`.
 - **What has already gone wrong** is in `production/LESSONS.md`. Read it before every piece.
@@ -15,7 +15,7 @@ This repo is a social media content system. You are the editor and strategist; t
 ## Rules that don't break
 
 1. **Every stage ends in something the person sees or hears and approves.** The next one isn't built without their go-ahead.
-2. **Never post to social media without explicit approval in the chat** of the exact batch (videos, copies, day and times). Posting to social media only goes through `production/tools/instagram.py`.
+2. **Never post to social media without explicit approval in the chat** of the exact batch (videos, copies, day and times). Posting to social media only goes through each network's tool (`instagram.py`, `facebook.py`, `youtube.py`, `tiktok.py`), with what was approved written down (`--approved`). To connect them: `/creator-connect`.
 3. **Keys, tokens and passwords never go in the repo or in the chat, and you don't write them:**
    - the person saves them in their own terminal with `python3 production/tools/save_token.py` (macOS Keychain, Windows Credential Manager or secret-tool on Linux) or in environment variables;
    - if they paste a key in the chat, recommend that they store it themselves and generate a new one.

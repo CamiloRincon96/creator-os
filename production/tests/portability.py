@@ -55,7 +55,7 @@ DOC_FORBIDDEN = [
     (r"\bzsh production/|save-token\.sh|codex\.sh", "there are no zsh scripts anymore: they are Python"),
     (r"security (add|find)-generic-password", "use `save_token.py`, which saves to each system's store"),
 ]
-DOC_NEEDS_WINDOWS = re.compile(r"brew install|~/Library|LaunchAgents|\blaunchd\b|/Applications/|\bopen -a\b|\bpbcopy\b|\bpbpaste\b|xcode-select")
+DOC_NEEDS_WINDOWS = re.compile(r"brew install|~/Library|LaunchAgents|\blaunchd\b|/Applications/|\bopen -a\b|`open [<\"~/\w]|\bpbcopy\b|\bpbpaste\b|xcode-select")
 INVALID = re.compile(r'[<>:"|?*]|[. ]$')
 RESERVED = re.compile(r"^(con|prn|aux|nul|com\d|lpt\d)(\..*)?$", re.I)
 
@@ -139,14 +139,14 @@ def check():
 
         if ext == ".py":
             uses_prepare = "system.prepare(" in text
-            if in_tools and Path(rel).name != "common.py":
+            if in_tools and Path(rel).name not in ("common.py", "oauth.py", "networks.py"):
                 i_prep = next((i for i, x in enumerate(lines) if "system.prepare(" in x), None)
                 i_third = next((i for i, x in enumerate(lines) if re.match(r"(import|from) ", x) and THIRD_PARTY.search(x)), None)
                 if i_prep is None:
                     bad(rel, 1, lines[0] if lines else "", "the tool does not start with `system.prepare(...)`")
                 elif i_third is not None and i_third < i_prep:
                     bad(rel, i_third + 1, lines[i_third], "imports libraries before `system.prepare(...)`")
-            if not uses_prepare and Path(rel).name != "common.py":
+            if not uses_prepare and Path(rel).name not in ("common.py", "oauth.py", "networks.py"):
                 for i, line in enumerate(lines):
                     code = line.split("#", 1)[0]
                     if re.search(r"\.read_text\(\s*\)|\.write_text\([^)]*\)\s*$", code) and "encoding" not in code:

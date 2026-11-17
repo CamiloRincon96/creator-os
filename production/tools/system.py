@@ -152,8 +152,18 @@ def _windows_credentials():
     return ctypes, CREDENTIAL, advapi
 
 
+def _test(service, account):
+    """Only in the tests (SECRETS_TEST=<temp folder>): one file per secret, so the real store is never touched."""
+    folder = os.environ.get("SECRETS_TEST")
+    return Path(folder) / f"{service}--{account}" if folder else None
+
+
 def save_secret(service, account, value):
     """Saves a secret in the system's store. Returns where it went, or None if this system has no store."""
+    if _test(service, account):
+        _test(service, account).parent.mkdir(parents=True, exist_ok=True)
+        _test(service, account).write_text(value, encoding="utf-8")
+        return "the test store"
     if MAC:
         r = subprocess.run(["security", "add-generic-password", "-U", "-s", service, "-a", account, "-w", value], capture_output=True, text=True)
         if r.returncode:
@@ -179,6 +189,9 @@ def save_secret(service, account, value):
 
 def read_secret(service, account):
     """The stored secret, or None."""
+    if _test(service, account):
+        f = _test(service, account)
+        return f.read_text(encoding="utf-8") if f.exists() else None
     try:
         if MAC:
             r = subprocess.run(["security", "find-generic-password", "-s", service, "-a", account, "-w"], capture_output=True, text=True)
@@ -203,7 +216,9 @@ def read_secret(service, account):
 
 def delete_secret(service, account):
     """Removes the secret, if it was there. The tests use it."""
-    if MAC:
+    if _test(service, account):
+        _test(service, account).unlink(missing_ok=True)
+    elif MAC:
         subprocess.run(["security", "delete-generic-password", "-s", service, "-a", account], capture_output=True)
     elif WINDOWS:
         ctypes, _, advapi = _windows_credentials()

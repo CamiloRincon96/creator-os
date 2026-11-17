@@ -212,12 +212,19 @@ Then publish to Montage. Each of the creator's notes goes back to its stage (a c
 
 ## Stage 11 · Delivery
 
-When the creator calls the video done (they say it in the chat or mark FINAL), build **the final folder** `brands/<brand>/finals/<project>/`. It is the only place where they look for the video. Give them the path and open it for them (`open <folder>`).
+When the creator calls the video done (they say it in the chat or mark FINAL), build **the final folder** `brands/<brand>/finals/<project>/`. It is the only place where they look for the video. Give them the path and open it for them (macOS `open <folder>`, Windows `start "" <folder>`, Linux `xdg-open <folder>`).
 - **The video to publish,** with a clear name (`<name>.mp4`). If there is a version without music, it goes next to it (`<name>-no-music.mp4`).
 - **`copy.txt`:** the description, with `instagram-agent:ig-caption`, reviewed with `ig-human` and `caption.py`. **Short: two lines and no hashtags** (the creator, 14 Nov 2026). One sentence that names the problem in the words people search for, and the call to the link in bio. No links in the text. When the copy is not in English, `caption.py`'s "no call to action" warning is a false alarm.
 - **`suggested-cover.jpg`:** a sharp frame with the key text and the face looking at the camera.
 - **`PUBLISH.md`:** which file to upload, when (day and time in the audience's time zone, with the reason), what to check first (the link in bio), and replying to comments in the first hour. While the account has no data of its own, the time is a general recommendation (weekdays 12:30 p.m. or 7:00 p.m.). If the topic names a day, that day. After that, the time comes from Insights.
 - With FINAL marked, Montage also generates the per-network variants (deliver). It is recorded in the brand's `BRAND.md`.
+
+**Other networks.** If the brand has Facebook, YouTube or TikTok connected (`python3 production/tools/connect.py status <brand>`), offer to upload the FINAL there. It goes with the creator's yes for each network, the privacy and the time, and what they said goes in `--approved`:
+- `facebook.py upload <brand> <video> --copy "…" [--schedule <time>]`;
+- `youtube.py upload <brand> <video> --title "…" --privacy public|unlisted|private [--schedule <time>]`;
+- `tiktok.py upload <brand> <video> --copy "…"`: it lands in drafts and the creator posts it from their phone, with the sound they want.
+
+If a network isn't connected, `/creator-connect`.
 
 After stage 12 (variations), the **cleanup** (the creator's rule: the computer must not fill up):
 1. `python3 production/tools/clean.py <piece>` shows what it would delete and what stays: the piece's text and code, the final voice, the raw takes and the FINAL.

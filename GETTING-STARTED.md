@@ -58,7 +58,10 @@ All of that lives in one file, `production/tools/system.py`.
 
 | What | What for | Cost | How |
 |---|---|---|---|
-| **Instagram via API** | Post scheduled batches, trial reels and automatic metrics (`/creator-pulse`) | Free | Meta app and a system user: `production/INSTAGRAM.md` |
+| **Instagram via API** | Post scheduled batches, trial reels and automatic metrics (`/creator-pulse`) | Free | `/creator-connect` walks you through it step by step: `production/INSTAGRAM.md` |
+| **Facebook (Page)** | Reels on the Page, scheduled by Facebook, and metrics | Free | `/creator-connect`, with the same app as Instagram: `production/FACEBOOK.md` |
+| **YouTube** | Public or scheduled Shorts, and metrics | Free (100 uploads a day) | `/creator-connect`: `production/YOUTUBE.md` |
+| **TikTok** | The video lands in your TikTok drafts and you post it from your phone with the sound you want; metrics | Free | `/creator-connect`: `production/TIKTOK.md` |
 | **last30days** (plugin) | See what's trending in your niche on TikTok, Instagram, YouTube and Reddit (`/creator-ideas`) | Free. TikTok and Instagram need a ScrapeCreators key (10,000 free requests) | Declared in `.claude/settings.json`. You save the key yourself with `python3 production/tools/save_token.py --scrapecreators`; see the `creator-ideas` skill |
 | **marketingskills** (plugin) | Strategy, the psychology of why people share, formats per network | Free | Declared in `.claude/settings.json` |
 | **instagram-agent** (plugin) | Hooks, copies, profile, stories and carousels | Free | Declared in `.claude/settings.json` |

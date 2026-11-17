@@ -33,6 +33,7 @@ Where everything else is:
 - **Labels like "Coming soon" only if the creator asks for them.** They decide how something that doesn't exist yet is shown ("I'm the one in charge here").
 - **What you promise has to exist:** if the piece says "pre-register", the link leads there.
 - **The hook is designed in the script:** what's seen and what's heard at frame 0. In v13, "the zero hook".
+- **On the personal account, the script comes from what the creator lived through, not from what's trending:** the problem, the hard part, the outcome (that it works, with its real number) and a genuine piece of advice at the end. No "comment X", no "let's see if this one lands" and no "do this" tutorials. On Nov 16, 2026, three rounds built from trends felt generic to them: "I'm not going to beg for your like".
 
 ## Stage 2 · Recording
 

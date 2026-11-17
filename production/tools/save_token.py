@@ -3,12 +3,14 @@ The person runs it in their own terminal: Claude neither writes nor sees secrets
 
     python3 production/tools/save_token.py <brand>            # the brand's Instagram token
     python3 production/tools/save_token.py --scrapecreators   # the ScrapeCreators key (last30days)
+    python3 production/tools/save_token.py --tiktok <brand>   # the TikTok app's key and secret
 
 On Windows: `python` instead of `python3`, in PowerShell or Windows Terminal (not in Git Bash, which does not allow hidden pasting).
 
 Where it goes:
 - the Instagram token: the keychain on macOS, the Credential Manager on Windows and secret-tool on Linux
   (without secret-tool, the environment variable <BRAND>_INSTAGRAM_TOKEN);
+- the TikTok app's key and secret (Credentials, on developers.tiktok.com): in the same store;
 - the ScrapeCreators key, where last30days looks for it: the keychain on macOS; on Windows and Linux, ~/.config/last30days/.env.
 A bare `security add-generic-password -w` cuts what you paste at 128 characters, and a Meta token is about 200: hence this tool.
 """
@@ -66,12 +68,29 @@ def scrapecreators():
     print(f"Saved in {where}. last30days reads it from there.")
 
 
+def tiktok(brand):
+    import json
+    import oauth
+    key = ask("the TikTok app's \"Client key\" (Credentials)")
+    secret = ask("the same app's \"Client secret\"")
+    if len(key) < 8 or len(secret) < 16:
+        sys.exit("That does not look like TikTok's key and secret (they are in App details -> Credentials, in Sandbox mode). Nothing was saved.")
+    where = oauth.save_keys(f"{brand}-tiktok-app", {"client_key": key, "client_secret": secret})
+    if json.loads(system.read_secret(f"{brand}-tiktok-app", "oauth") or "{}").get("client_key") != key:
+        sys.exit(f"It was saved in {where}, but reading it back did not match. Try again.")
+    print(f"Saved in {where}. Next: {system.PY} production/tools/tiktok.py connect {brand}")
+
+
 def main():
     args = sys.argv[1:]
     if not args or args[0] in ("-h", "--help"):
         sys.exit(__doc__)
     if args[0] == "--scrapecreators":
         scrapecreators()
+    elif args[0] == "--tiktok":
+        if len(args) < 2:
+            sys.exit(__doc__)
+        tiktok(args[1])
     else:
         instagram(args[0])
 

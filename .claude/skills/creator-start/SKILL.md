@@ -51,7 +51,7 @@ The required items are in `GETTING-STARTED.md` §1:
 
 Ask what they want to turn on now (AskUserQuestion, multiple choice). Explain each option with the table in `GETTING-STARTED.md` §3, **making it clear what is paid**: After Effects, Higgsfield and ElevenLabs. For each one:
 
-- **Instagram via the API:** walk them through `production/INSTAGRAM.md`:
+- **The networks (Instagram, Facebook, YouTube, TikTok):** follow the `creator-connect` skill (`/creator-connect`), which takes each step with its official page. For Instagram, in short (`production/INSTAGRAM.md`):
   - the Meta app;
   - the system user;
   - the token, which the creator saves in their own terminal with `python3 production/tools/save_token.py <brand>` (on Windows, `python …` in PowerShell): it goes in the Keychain, the Credential Manager or secret-tool, depending on the system;

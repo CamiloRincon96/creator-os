@@ -2,18 +2,47 @@
 
 With this, Claude uploads the reels and their copies at the batch's times. `production/tools/instagram.py` uses Meta's official API. Claude only posts batches the creator approves in the chat.
 
-## What the creator does only once (about 20 minutes)
+## What the creator does only once (about 25 minutes)
 
-1. **Professional account and page.** In Instagram, set @example to "Professional account" (business or creator) and link it to the Example Facebook page: Accounts Center → Accounts.
-2. **Meta app.**
-   1. At developers.facebook.com → My Apps → Create App, type "Business".
-   2. Add the "Instagram" product → "API setup with Facebook login".
-   3. The app stays in development mode; to post to your own accounts you don't need Meta's review.
-3. **A token that doesn't expire (recommended).** The normal token lasts 60 days.
-   1. At business.facebook.com → Business Settings → System Users → Add, with the admin role.
-   2. Assign it the app and the Example page.
-   3. "Generate token" with these permissions: `instagram_basic`, `instagram_content_publish`, `instagram_manage_insights`, `pages_show_list`, `pages_read_engagement` and `business_management`.
-4. **Save the token in the system's secure store.** Never in the repo or in the chat. In your own terminal, inside the repo folder (`cd <repo>`):
+`/creator-connect` does these steps with the person, one by one. For each step, `python3 production/tools/connect.py open <step>` opens the exact page. Checked on Nov 16, 2026 against Meta's official documentation (sources at the end).
+
+**Why this path.** It's the one Meta calls "Instagram API with Facebook Login", with a system user.
+- **It uploads the video from the computer.** The other path, "with Instagram Login", needs the video hosted on a public server.
+- **The key doesn't expire.**
+- **The same key also posts to the Facebook Page** (`production/FACEBOOK.md`).
+- **It doesn't need Meta's review** to post to your own accounts: standard access is enough.
+
+1. **Professional account.**
+   - Open: `connect.py open instagram-professional`.
+   - In the Instagram app: Profile → ☰ → **For professionals** → **Account type and tools** → **Switch to professional account** → category → **Creator** or **Business**.
+2. **Link the Facebook Page to Instagram.**
+   - Open: `connect.py open facebook-link`.
+   - On a computer, switch to the Page (your photo → **See all profiles** → the Page).
+   - Then: the Page's photo → **Settings & privacy** → **Settings** → **Linked accounts** → **Instagram** → **Connect account**.
+   - It's not Accounts Center: that one links personal profiles.
+3. **The business portfolio.**
+   - Open: `connect.py open meta-portfolio`.
+   - In Meta Business Suite → **Settings** → **Accounts**, add the Page (**Pages** → **Add**) and the Instagram account (**Instagram accounts** → **Add**).
+   - An Instagram account can only be in one portfolio.
+4. **The Meta app.**
+   - Open: `connect.py open meta-app`.
+   - Name and email → **Next**.
+   - Use case: **Manage messaging & content on Instagram** → **Next**.
+   - The portfolio from step 3 → **Next** → **Go to dashboard**.
+   - In **Use cases** → that use case → **Customize** → **API setup with Facebook Login** → **Add all required permissions**.
+   - In **Permissions and features**, also add `instagram_manage_insights`.
+   - An app uses a single type of login: if you picked the Instagram one, create another app.
+5. **The system user and its key.** A key that doesn't expire.
+   1. Open: `connect.py open meta-system-user`. Go to **Settings** → **Users** → **System users** → **Add new system user**, with the **Admin** role → **Create system user**.
+   2. **Assign assets:**
+      - the app, with **Full control**;
+      - the Page and the Instagram account, with **Content** and **Insights** (and **Community Activity** if comments will be answered).
+   3. **Generate new token** → the app → expiration **Never** → these permissions:
+      - `instagram_basic`, `instagram_content_publish`, `instagram_manage_insights`, `pages_show_list`, `pages_read_engagement` and `business_management`;
+      - if you'll also post to Facebook, add these now: `pages_manage_posts`, `read_insights` and `pages_manage_engagement`.
+   4. Copy the key: Meta shows it only once.
+   5. If posting gives a permissions error, generate the key again adding `ads_read`: Meta sometimes asks for it when the permission over the Page comes through the portfolio.
+6. **Save the key in the system's secure store.** Never in the repo or in the chat. In your own terminal, inside the repo folder (`cd <your repo folder>`):
    - macOS (the Terminal app): `python3 production/tools/save_token.py example`. It goes in the Keychain.
    - Windows (PowerShell or Windows Terminal, not Git Bash): `python production/tools/save_token.py example`. It goes in the Credential Manager.
    - Linux: `python3 production/tools/save_token.py example`. It goes in secret-tool (package `libsecret-tools`); if you don't have it, use the `EXAMPLE_INSTAGRAM_TOKEN` environment variable.
@@ -22,7 +51,9 @@ With this, Claude uploads the reels and their copies at the batch's times. `prod
    - When it asks, and only then, copy the token in the browser with the copy button, paste it and press Enter. It isn't shown.
    - Don't save it by hand with macOS's `security` command: it cuts what you paste at 128 characters, and the token is about 200 long. Nor with a command copied from the chat that reads the clipboard: the clipboard ends up holding the command, not the token.
    - The tool checks that what you pasted is a Meta token (it starts with EA and is long) and that it can be read back.
-5. **Tell Claude "done".** It runs `instagram.py connect example` and `instagram.py test example`, which show the account, the followers and the day's quota.
+7. **Tell Claude "done".** It runs `instagram.py connect example` and `instagram.py test example`, which show the account, the followers and the day's quota.
+
+**So it doesn't switch off:** Meta deactivates an app that goes 90 days without calls, and all its keys with it. The metrics watcher (below) keeps it active.
 
 ## How it's used (stage 12 of /creator-reel)
 
@@ -36,20 +67,16 @@ With this, Claude uploads the reels and their copies at the batch's times. `prod
 
 - **It doesn't add music from Instagram's library or trending songs.** The music goes inside the video: Claude picks it from the licensed library. A trending song can only be added by hand from the app.
 - **It doesn't schedule on Instagram's side:** that's why the computer has to stay on.
-- At most 100 posts through the API in 24 hours.
+- How many posts the API allows in 24 hours is shown by `instagram.py test` (Meta gives it in `quota_total`; its documentation says 100 on one page and 50 on another).
 
 ## Giving access to someone else on the team
 
 Whoever clones the repo can schedule posts if they have a token. The token is the key to the account: it can post, read insights and reply to comments on @example. It doesn't expire.
 
-**Recommended: one token per person.** That way, if someone leaves the team, access is removed for that person only.
-1. The creator, at business.facebook.com → System Users → Add: `example-<name>`, admin role.
-2. Assign it the same assets as `publisher`: the Example page, the Example app and the @example account, with content, community and insights.
-3. "Generate token": Example app, expiration "Never" and the 8 permissions (the ones from the section above plus `instagram_manage_comments` and `read_insights`).
-4. Send it through a secure, self-deleting link from a password manager (1Password, Bitwarden Send). **Never by WhatsApp, email or the chat.**
-5. To remove access: System Users → `example-<name>` → "Revoke tokens".
-
-**Quick (less secure): the creator's own token.** It's sent the same way, through a secure link. If it leaks it has to be revoked and everyone has to save a new one.
+**One key per person, from the same system user.** With standard access, Meta allows only one system user per portfolio (plus one admin).
+1. The creator, in the system user (step 5), clicks **Generate new token** again, with the same permissions. Each time it's a different key, and the earlier ones keep working.
+2. They send it through a secure, self-deleting link from a password manager (1Password, Bitwarden Send). **Never by WhatsApp, email or the chat.**
+3. If someone leaves the team: in the system user → **Revoke tokens** removes every key, and the creator generates a new one for each person who stays.
 
 **What the other person does, once:**
 1. Clone the repo, open Claude Code there and type `/creator-reel`. Whatever is missing gets installed: `python3 production/install.py`.
@@ -63,7 +90,7 @@ Whoever clones the repo can schedule posts if they have a token. The token is th
 **Rules for several people:**
 - **Only one computer schedules each batch.** If two run `schedule` with the same batch, it goes out twice.
 - Only a batch the creator approved in the chat is posted.
-- The quota of 100 posts a day belongs to the account, not to each person.
+- The daily posting quota belongs to the account, not to each person.
 
 ## Metrics without Claude waiting
 
@@ -79,3 +106,14 @@ It doesn't use Claude. If the computer is off, it fetches them the next time it 
 - If the repo moves to another folder, run `watcher install` again: the task stores the script's path.
 
 Installed on the creator's computer on Nov 15, 2026.
+
+## Official sources (checked on Nov 16, 2026)
+
+- The Instagram API's paths: https://developers.facebook.com/documentation/instagram-platform/overview
+- Publishing content and uploading from the computer (only with Facebook Login): https://developers.facebook.com/documentation/instagram-platform/content-publishing/resumable-uploads
+- App review (not needed for your own accounts): https://developers.facebook.com/documentation/instagram-platform/app-review
+- Creating the app with use cases: https://developers.facebook.com/documentation/development/create-an-app/instagram-use-case
+- System users: https://www.facebook.com/business/help/503306463479099
+- Linking the Page to Instagram: https://www.facebook.com/help/1148909221857370
+- Professional account: https://help.instagram.com/502981923235522
+- Reels metrics: https://developers.facebook.com/documentation/instagram-platform/reference/instagram-media/insights

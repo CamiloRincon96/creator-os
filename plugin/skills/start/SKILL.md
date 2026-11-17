@@ -1,11 +1,11 @@
 ---
 name: start
-description: Sets up Creator OS, an open-source content studio for Claude Code (each brand's real niche, ideas from what the niche is sharing, reels with motion graphics and real sound, review on the exact frame, Instagram trial reels, weekly metrics). Use it when the person says "set up Creator OS", "install Creator OS", "start Creator OS", or asks for a Creator OS command (/creator-start, /creator-brand, /creator-ideas, /creator-reel, /creator-pulse, /creator-notes, /creator-montage) in a folder that isn't a Creator OS workspace yet.
+description: Sets up Creator OS, an open-source content studio for Claude Code (each brand's real niche, ideas from what the niche is sharing, reels with motion graphics and real sound, review on the exact frame, Instagram trial reels, weekly metrics). Use it when the person says "set up Creator OS", "install Creator OS", "start Creator OS", or asks for a Creator OS command (/creator-start, /creator-brand, /creator-connect, /creator-ideas, /creator-reel, /creator-pulse, /creator-notes, /creator-montage) in a folder that isn't a Creator OS workspace yet.
 ---
 
 # Creator OS: set up the workspace
 
-Creator OS isn't one prompt. It's a folder, the workspace, with eight skills, Python and Node tools, a local review editor (Montage), an example brand and a library of CC0 sounds. This plugin brings that folder to the person's computer and hands over to `/creator-start`. Source: https://github.com/CamiloRincon96/creator-os (MIT).
+Creator OS isn't one prompt. It's a folder, the workspace, with nine skills, Python and Node tools, a local review editor (Montage), an example brand and a library of CC0 sounds. This plugin brings that folder to the person's computer and hands over to `/creator-start`. Source: https://github.com/CamiloRincon96/creator-os (MIT).
 
 Speak the person's language: every question, instruction and summary goes in the language they write to you in. Commands, code and file names stay in English. Explain each step in one line before running it.
 
