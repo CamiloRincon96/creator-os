@@ -46,6 +46,7 @@ Each brand or each person picks their identity: colors, type, the shape of the p
    - The color is even from take to take, and archive material gets fine grain.
 9. **The voice says what it has to say.** A word said wrong is fixed in the voice without moving it (`LESSONS.md`, stage 7), and the person approves it by ear.
 10. **Reviewed in full** with `review.py`, looking at every image, with "## Visual floor" resolved and "## What I saw" written.
+11. **Sounds like the niche:** about 7 real effects every 10 s, a full hook, no synthesized interface sounds or dings, and each effect at the voice's level measured in the final mix with the music in (`effects.py`, recipe in `production/SOUNDS.md`). With fewer or quieter ones it was "bland"; with many interface sounds, "laser beams".
 
 ## 2 · The knobs (they change from piece to piece without lowering the floor)
 
@@ -142,3 +143,4 @@ Each one cost a round of changes. The first version already avoids them:
 ## History
 
 - **Nov 17, 2026:** created when the picture of the first approved piece was closed (v27). The floor came from the standard in `REELS-WORKFLOW.md`, which now points here.
+- **Nov 17, 2026:** point 11, the sound, when that piece's sound was closed (v33, "exactly that").

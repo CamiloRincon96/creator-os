@@ -322,27 +322,37 @@ Claude checks that each file has the same frames and duration, copies it as `B01
 
 ## Stage 9 · Sound
 
-Say: "I'm adding the effects and the music. I can't hear: I measure, and you approve by ear."
+Say: "I'm adding the effects and the music. I can't hear: I measure against your voice and against the most-viewed reels in your niche, and you approve by ear."
 
-**The order** (how the first full reel made in "glass" came out, Nov 17, 2026):
-1. The effects with `real-sfx`, from the code's list of moments (not guessed from the video) and in self-critique rounds.
-2. Compare word by word the voice alone against the mix (Whisper). No effect may cover a word.
-3. A listening test with 3 or 4 trending Instagram songs (`instagram.py audios`, see `production/variations/MUSIC.md`). The creator chooses and the reel is posted with the song added through the API.
-4. The version with CC0 music for TikTok and YouTube.
+**Why this way** (the first full reel made in "glass", Nov 17, 2026): with 106 interface sounds the creator heard "laser beams"; with 19 measured before the music went in, "you can't hear anything, bland"; with 41 real ones at the voice's level, measured in the final mix, "exactly that, finally". The full recipe, with the vocabulary and the levels: `production/SOUNDS.md`.
 
-- Effects with the `real-sfx` skill (which sound for which moment and where to get it: `openverse-audio`; in HyperFrames projects, `hyperframes:media-use`) (list of moments from the map). Which sound goes at each moment and which ones we do not use: `production/SOUNDS.md`. Music only with a verified license: the `openverse-audio` skill, credits next to the file.
-- Rules: a sound on everything that moves; none in the emotional part; they must be heard on a phone without covering the voice.
-- Levels and hook: follow "Sound rules" in `production/REELS-WORKFLOW.md`. Summary:
-  - effects about 5 dB below the voice (`balance` around −5);
-  - a hit on frame 0;
-  - a riser before the big hit;
-  - music with its own 2:1 ducking (about 3 dB), never `--duck-music`, and no automatic swells at the end;
-  - a sheet with the sounds per file.
+**The order:**
+1. **The niche.** If the brand has no `brands/<brand>/sounds/study/style.json`, the study comes first (once per brand):
+   - `sound_study.py search <brand> "<what the audience searches>"`: 1 ScrapeCreators credit per query;
+   - `download <brand>`: it says the size; with the person's yes, `--yes`;
+   - `separate <brand>`: the first time it asks to install Demucs, about 830 MB, free, with `--install --yes` and the person's yes;
+   - `measure`, `listen` (the listening-test video goes to Montage as a separate project) and `style`;
+   - when done, `clean --yes`.
+   The person picks by ear which creator sounds the way they want.
+2. **The sheet** (`output/sound/effects-vN-sheet.json`), from the moments in the animation's code, not guessed from the video:
+   - about 7 sounds every 10 s, a full hook and one on frame 0;
+   - a whoosh on the big changes, hits with body on the words that land, real objects where they're seen;
+   - a level per effect (`hook`, `hit`, `transition`, `object`, `small`, `rise`, `layer`);
+   - no synthesized interface sounds, dings, sparkles or coin (`effects.py` won't let them through);
+   - the music goes in `"music"`: the trending Instagram song (preview from `instagram.py audios`) to listen, or a CC0 one for TikTok and YouTube. In HyperFrames projects, sounds and music can also come from `hyperframes:media-use`.
+3. **`python3 production/tools/effects.py mix <piece> output/sound/effects-vN-sheet.json`:**
+   - it mixes with the voice and the music inside and brings each effect to its level against the voice, measured in the final mix, in up to 6 rounds;
+   - it leaves `-with-music.mp4` and `-no-music.mp4`. On Instagram the no-music one is posted and the Audio API adds the song.
+   What it warns about (weak hook, gaps, repeats, "short") gets fixed in the sheet before going on.
+4. **`effects.py review <piece> --name effects-vN`:**
+   - real-sfx's critique against the niche style, `verify`, the mix picture and the hook zoom (both get looked at);
+   - Whisper word by word with the window test: "really covered" or "only the transcriber"; a covered word is fixed with `"adjust"` or a shorter whoosh.
+   The critique's `speech` and `low_end` axes stay low on purpose: the effects sit at the voice's level, in the gaps, over the music. The word test decides.
+5. `listen.py`, `review.py` on the video (with "What I saw" and the "Visual floor") and to Montage with markers on the hook and the hits.
 
-  All of `critique.py`'s axes scoring 9 does not mean the creator will like it: in v13 everything was at 9 or 10 and they said nothing could be heard.
-- Also deliver the video at 1.08× and 1.12× (`setpts` + `atempo`) if the voice sounds monotone, and a version without music so the trending song can be added from Instagram. With the speeds, the question is "Which speed stays?": normal, 1.08× or 1.12×.
-- `python3 production/tools/listen.py <piece> <mix>`: the mix must be understood as well as the voice alone (same percentage of words) and land at −14 LUFS. Tell them what was measured, not a verdict: "Measured: −14 LUFS, and the same percentage of words is understood as with the voice alone. Your ear is what's left."
-- **Approves, by ear:** the mix. **Check:** on speakers and with headphones (and on the phone, if they can): the voice always understood, every effect heard without covering it, and no music swell at the end.
+- Don't use real-sfx's "ears" (`hear.py`, YAMNet) to decide whether an effect is heard under a continuous voice: they get it wrong and only say "Speech". Tell the person what was measured and which tool was used.
+- Also deliver the video at 1.08× and 1.12× (`setpts` + `atempo`) if the voice sounds monotone. With the speeds, the question is "Which speed stays?": normal, 1.08× or 1.12×.
+- **Approves, by ear:** the mix. **Check:** on headphones and on the phone: the hook lands, every change sounds, nothing is "laser beams" and the voice is always understood.
 
 ## Stage 10 · Review
 

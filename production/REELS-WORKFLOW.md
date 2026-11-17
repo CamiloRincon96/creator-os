@@ -40,7 +40,7 @@ It goes in the piece's `brief.md`, with the references (`production/references/`
 | 6 | Base image | Color and framing of the person's blocks, and separating them from the background for the epic look | Before and after | `blocks.py`, After Effects via MCP, `cutout-person.mjs`, the kit's `Person` piece |
 | 7 | Animation | First the two or three hard moments; then all the scenes | The hard moments and then the edit | Remotion (`remotion-*` skills), After Effects for one-off effects |
 | 8 | AI and retouch (optional) | Reference photo, quote, draft, final and retouch | The photo, the quote, the draft and the retouch | Codex (images), Higgsfield, CapCut |
-| 9 | Sound | Effects, music and mix | The mix, by ear | Skills `real-sfx` and `openverse-audio` (or `hyperframes:media-use` in HyperFrames projects)|
+| 9 | Sound | Effects like the niche's (about 7 every 10 s, at the voice's level), a low music bed and the mix, measured in the final mix | The mix, by ear | `effects.py` (with the `real-sfx` skill), `sound_study.py` (once per brand), skill `openverse-audio` (or `hyperframes:media-use` in HyperFrames projects); `listen.py` |
 | 10 | Review | Mandatory full review (`review.py` and "What I saw"), two passes, publishes the version and sends each note back to its stage | Notes on the frame | `review.py`, Montage, the `creator-notes` skill |
 | 11 | Delivery and cleanup | Final folder `brands/<brand>/finals/<project>/` with video, copy, cover and posting time; variants per network; then frees up the disk | Marks FINAL, posts and says yes to the cleanup | Skills `ig-caption` and `ig-human`; `clean.py`, `montage archive` |
 | 12 | Variations | 12a plan of 4 to 6 hooks (one principle each, the week's trend, licensed music) · 12b production · 12c batch · 12d posting as trial reels · 12e results that refine the prompt | The plan and then the exact batch (videos, copies, day and times), in the chat | `production/variations/` (PROMPT, MUSIC, CALENDAR, LEARNED); `variations.py`, `instagram.py` |
@@ -82,13 +82,15 @@ What it can't know: whether the voice sounds natural, metallic or "robotic", and
 
 ## Sound rules (stage 9)
 
-They come from one of the references and from what happened in "Sin anotar", where the effects were nearly inaudible on the first pass:
+They come from "Sin anotar" (effects nearly inaudible on the first pass) and from the three rounds of the first full reel made in "glass" (Nov 17, 2026): with 106 interface sounds, "laser beams"; with 19 measured before the music, "you can't hear anything"; with 41 real ones at the voice's level, measured in the final mix, "exactly that".
 
-- A sound on everything that moves: a title comes in, a number drops, someone taps.
-- None in the emotional part: the music leads there.
-- They must be heard on the phone without covering the voice. It's measured that the voice stays on top, and the creator confirms it by ear.
+1. **The niche first:** if the brand has no `brands/<brand>/sounds/study/`, make it with `sound_study.py` (search, download with permission, separate, measure, listen, style). It says how many effects they use, of what kind and how loud.
+2. **The sheet** comes from the moments in the animation's code, with a level per effect: the recipe and the vocabulary are in `production/SOUNDS.md` (about 7 every 10 s, a full hook, no interface sounds or dings).
+3. **`effects.py mix`** mixes with the voice and the music inside and brings each effect to its level against the voice, measured in the final mix.
+4. **`effects.py review`** runs real-sfx's tools (critique against the niche style, verify, the mix picture and the hook zoom, which get looked at) and Whisper word by word, with the window test that tells what an effect covers apart from what only confuses the transcriber.
+5. **The creator approves by ear,** on headphones and on the phone. real-sfx's "ears" (`hear.py`, YAMNet) don't work with a continuous voice on top.
 
-The effect and music levels, the sonic hook and what gets delivered are in `production/LESSONS.md` (stage 9). They came from the creator's corrections to v13 and v14 of "Sin anotar".
+The music levels, the sonic hook and what gets delivered are in `production/LESSONS.md` (stage 9).
 
 ## Tools
 
@@ -188,7 +190,7 @@ Review of Nov 13, 2026, in order of priority:
 
 1. ~~**Automatic mockup (stage 5)**~~: done on Nov 13, 2026 (`visual_script.py`, `mockup.py` and the `Mockup` composition).
 2. **Kit for the scenes-and-cameos style (stage 7):** scene with title, cameo with a swipe, card over the person, captions and word behind. Built in the first piece.
-3. **Mix with music (stage 9):** bring into `production/tools/` the music mix that dips under the voice (it's in `brands/example/brand-edit/tools/mix.sh`).
+3. ~~**Mix with music (stage 9)**~~: done on Nov 17, 2026 (`effects.py`: the low bed with soft ducking, the effects at their level in the final mix and the no-music version for Instagram).
 4. **Cover (stage 10):** choose or compose each reel's cover, different from the previous ones in the grid, and check that the first frame isn't empty.
 5. **Ideas (before stage 0):** an `IDEAS.md` per brand where ideas are jotted down while talking, and where each piece comes from.
 6. **Learning (after posting):** a week later, review how it did with the `ig-audit` skill and write down in the style what to repeat and what not.
