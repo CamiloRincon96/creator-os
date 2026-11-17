@@ -197,7 +197,9 @@ for name in ("real-sfx", "openverse-audio"):
 sfx = USER_SKILLS / "real-sfx"
 if (PROD / "skills" / "real-sfx").exists() and (sfx / "SKILL.md").exists():
     cfg = sfx / "config.json"
-    has_library = cfg.exists() and str(SOUND_LIBRARY) in cfg.read_text(encoding="utf-8")
+    # compare the path normalized: on Windows the JSON stores it with "\\" or with "/" (and case doesn't matter)
+    normal = lambda t: t.replace("\\\\", "/").replace("\\", "/").lower() if WINDOWS else t  # noqa: E731
+    has_library = cfg.exists() and normal(str(SOUND_LIBRARY)) in normal(cfg.read_text(encoding="utf-8"))
     if has_library and (sfx / "library_index.json").exists():
         ok.append("real-sfx with the repo's CC0 sound library")
     elif not CHECK and ff:
