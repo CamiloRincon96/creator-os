@@ -61,3 +61,10 @@ At the creator's request, nothing over the top ("I don't want you to use over-th
 - drum roll.
 
 They're for comedy or drama, and they don't fit the brands' tone. To be reconsidered if a comedy piece ever calls for it.
+
+**Nov 17, 2026, "Tres semanas" v30:** "you put laser beams everywhere… the most childish and nerdy stuff". These don't go either:
+- synthesized interface sounds (the Kenney Interface pack: appear, icon, done, alert, swipe, click);
+- dings, notifications, sparkles and shimmer (`chime/`, `notification/`, `sparkle/`, `shimmer/`);
+- a sound on every little thing that moves.
+
+Ban them in real-sfx (`taste.py ban`). A study of the 12 most-viewed reels in the niche showed how they sound: about 4 effects every 10 s, on 1 of every 4 picture changes; whoosh, a soft low hit and a short pop; almost nothing tonal; and often a low music bed that carries the movement.
