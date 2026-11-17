@@ -54,16 +54,37 @@ def build(name, x, sr):
     report(name, listen(y, sr, cut_map))
 
 
+def stretch(seg, sr, v):
+    """Speeds a piece up v times without changing the timbre (ffmpeg's atempo, the same one cut.py uses)."""
+    a, b = f"{P}/voice/_str_a.wav", f"{P}/voice/_str_b.wav"
+    sf.write(a, seg, sr, subtype="PCM_24")
+    ff("-i", a, "-af", f"atempo={v}", "-c:a", "pcm_s24le", b)
+    y, _ = read(b)
+    os.remove(a); os.remove(b)
+    return y
+
+
 def splice(track_of):
-    """Joins the cut's segments taking the audio of each take, with 12 ms fades."""
+    """Joins the cut taking the audio of each take, the same way cut.py does: the silence before each segment, its
+    pieces (what Silero heard as voice) and the speed of each piece (even pace), with short fades at every join.
+    If the audio didn't follow the same map as the video, the voice would drift (16 Nov 2026: the cut lasted 54 s and
+    this track came out at 93 s, because it only knew the whole segments)."""
     parts = []
     for s in cut_map["segments"]:
         x, sr = track_of[s["take"]]
-        seg = x[int(s["in"] / FPS * sr):int(s["out"] / FPS * sr)].copy()
-        seg = np.pad(seg, (0, max(0, int(s["length"] / FPS * sr) - len(seg))))
-        f = int(0.012 * sr)
-        seg[:f] *= np.linspace(0, 1, f); seg[-f:] *= np.linspace(1, 0, f)
-        parts.append(seg)
+        if s.get("pause_before", 0):
+            parts.append(np.zeros(int(round(s["pause_before"] / FPS * sr))))
+        pieces = s.get("pieces") or [[s["in"], s["out"]]]
+        spd = s.get("speeds") or [1.0] * len(pieces)
+        for (q0, q1), v in zip(pieces, spd):
+            seg = x[int(q0 / FPS * sr):int(q1 / FPS * sr)].copy()
+            if v != 1.0:
+                seg = stretch(seg, sr, v)
+            length = int(round(int(round((q1 - q0) / v)) / FPS * sr))  # the same frames as the video
+            seg = np.pad(seg, (0, max(0, length - len(seg))))[:length]
+            f = int((0.012 if len(pieces) == 1 else 0.006) * sr)
+            seg[:f] *= np.linspace(0, 1, f); seg[-f:] *= np.linspace(1, 0, f)
+            parts.append(seg)
     return np.concatenate(parts), sr
 
 

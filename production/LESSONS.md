@@ -57,6 +57,8 @@ Where everything else is:
 
 ## Stage 4 · Voice
 
+- **The voice follows the same map as the video:** the silence before each segment, its pieces and their speeds. On 16 Nov 2026 `voice.py` assembled the whole segments and the track came out at 93 s for a 54 s cut. Before showing a voice, check that it lasts as long as the cut and doesn't drift.
+
 - **The chosen version always goes through `match_timbre.py`:**
   - it matches the timbre per take, never per phrase;
   - it gives presence: +2.5 dB at 3.5 kHz, de-esser and 3:1 compression.
