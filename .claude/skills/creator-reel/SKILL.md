@@ -85,7 +85,7 @@ Say: "Before recording or editing, let's decide what this reel is: a few questio
 Ask (with options, not open-ended; up to 4 questions per call, so they go in two): type, style, how much the person appears, how much animation, duration, which voice versions to try and what is wanted from stage 8 (nothing, reference photo, light, clothes, angles, retouching). The voice and stage 8 options carry their texts from `production/GUIDING.md` (the voice table and the per-piece decisions table): what each one is for, where it is used and what it costs. Anything paid is said in the option itself. The rest, one line each:
 - **Type** ("What kind of reel is this?"): on camera (you talking; it needs recording) · animated (no camera: a voice note of yours or the brand's ElevenLabs voice, paid, announced first) · mixed (recorded parts and animated parts).
 - **How much the person appears:** little goes first, with "(Recommended)": the hook and cameos of about 2 s, around a third; the rest, animated scenes over their voice (`LESSONS.md`).
-- **Style:** the ones in `production/styles/`, each with one line on how it looks.
+- **Style (identity):** first the one the brand already uses for this type of video ("Identities" in its `BRAND.md`), marked "(Recommended)". Then the others in `production/styles/` and the option to create a new one, each with one line on how it looks. A brand can have several identities, one per type of video.
 
 Gather references: "Do you have a reel you like as a reference? Paste me the link." If they send links, download them with `uvx yt-dlp` (yt-dlp, the one that downloads videos; free) to `production/references/videos/`, make a contact sheet, measure shot changes and transcribe, as in `production/references/2026-11-13-reference-reels.md`. Fill in `brief.md`.
 - **Approves:** the brief. Show it in 3 to 5 lines, with its path (`brands/<brand>/pieces/<piece>/brief.md`): "Does this work?".
@@ -440,7 +440,7 @@ Say when starting: "Express reel: you approve it twice, the script now and the f
 
 ## How this grows
 
-- **New style** ("let's implement this style"): analyze the reference as in stage 0, write `production/styles/<name>/STYLE.md` using the existing one as the template, and build its Remotion kit in the first piece that uses it.
+- **New style** ("let's implement this style"): analyze the reference as in stage 0, write `production/styles/<name>/STYLE.md` using the existing one as the template, and build its Remotion kit in the first piece that uses it. While it's being found, what the creator approves is saved in its `STYLE.md`, scene by scene. When the creator calls it theirs, it's recorded under "Identities" in the brand's `BRAND.md`: which type of video carries that identity.
 - **New rule from the creator:** if it applies to every piece, to `production/REELS-WORKFLOW.md`; if it belongs to a style, to its `STYLE.md`; if it belongs to a brand, to its `BRAND.md`. And to memory if it changes how the work is done.
 - **New tool:** to the table in `production/REELS-WORKFLOW.md` and to the stage it belongs to here.
 - **A stage that is unnecessary or missing:** change it here and in `production/templates/STATUS.md`.

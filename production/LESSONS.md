@@ -118,10 +118,23 @@ Where everything else is:
   - don't go where the phrase is already written large.
 - **What people do by hand is shown the way people do it:** logging expenses is a spreadsheet, not the app.
 - **Hook:** something happens at frame 0, for example the camera dropping with blur and a word behind. Never just the person talking.
+- **Color is even from take to take, always.** Takes from different passes (After Effects, FLUX, another day) jump in color. On Nov 17, 2026 the last takes of a piece came out darker and colder, "as if you hadn't applied it", and the creator saw it before the review did. `match_color.py` brings them to the median skin, and `review.py` measures the color of each take (colors-NN.jpg) and warns about the one that jumps.
+- **More picture than text: glass with video inside, not white cards.** On a personal account, white cards looked "emoji-like" and a list of steps on screen "can't be read in time". What works (Nov 17, 2026) is this:
+  - dark, transparent glass panels with a video playing inside, as in the reference reel;
+  - one or two words per panel, no more;
+  - the warning that matters can be read and the ones behind stay as edges, with no letters piled on top of each other.
+  - `backdrop-filter` doesn't render in Remotion: the frosting is made with a blurred, aligned copy of the take.
+  - **The glass, the size of what it shows:** a big window with a little piece inside looks empty ("a giant transparent thing to show just a little piece"). If there are two things, they go in two panes.
+  - **Don't let them sit still:** the pieces come out from behind the person (their cutout covers them) and the previous one moves back. They don't appear and disappear in place ("more dynamism").
+  - The full style is in `production/styles/glass/STYLE.md`.
 
 ## Stage 8 · AI and retouch
 
 - Higgsfield: quote (`quote.py` + `get_cost`), a 480p draft of a single block, and then the final.
+- **FLUX returns the video at 24 fps and shifts the cuts by one frame.** On Nov 17, 2026:
+  - Convert it to 30 fps by generating in-between frames (`minterpolate`), and always within each piece: across a cut it blends one take into the other or leaves a double exposure. Repeating frames stutters.
+  - Never send FLUX a clip that crosses to another moment of the recording: it fails ("Something went wrong") or brings the change forward.
+  - The same shot isn't run in two batches with different instructions, because the look jumps at the seam.
 - **Real prices measured (Nov 2026):**
   - Topaz (`upscale_video`, 720p to 1080p): 3 credits for 2 s, and it doesn't change the face. It can't be quoted before generating, so check `transactions` right after launching it.
   - FLUX 3 Video Edit: `get_cost` quoted 15 credits for 3 s but charged 3 (1 per second, as its description says). It keeps the gestures, blurs the background and warms the light, but outputs 704x1248 and softens the face a little.
@@ -189,6 +202,7 @@ Where everything else is:
 
 ## Technical (for Claude)
 
+- **`CameraMotionBlur` draws its samples 0.45-0.9 frames ahead** (`Freeze` at `frame - offset + 1`). A number that changes inside the blur runs ahead of the one outside it. On Nov 17, 2026 a warning's counter said 23 while the big number said +15. Inside the blur, count with `Math.floor(frame)`.
 - **ffmpeg: `unsharp` on `gbrp` tints the image magenta.** It only sharpens green. Sharpen in YUV before going to RGB; a glow with `blend` does go in `gbrp`.
 - **After Effects' disk cache grows without warning:** it reached 12 GB with the grain-removal renders. When stage 6 closes: save, quit After Effects and empty the `Disk Cache` folder. It rebuilds itself.
 - **Everything that uses Whisper points to the repo's model** (`download_root=MODELS`). Without it, `faster-whisper` downloads another 2.9 GB copy to `~/.cache/huggingface`; it happened with `cut.py`'s word check.

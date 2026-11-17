@@ -35,7 +35,7 @@ Everything has one place. No folders are created outside this map: a new brand c
 │   ├── variations/             variations of a video: PROMPT, MUSIC, CALENDAR, LEARNED
 │   ├── tools/                  the scripts: cut, voice, listen, variations, note, pulse, library, faces, instagram…
 │   ├── tests/                  portability.py (nothing specific to a single system) and smoke.py (runs everything on this system)
-│   ├── styles/ · templates/    video styles and piece templates
+│   ├── styles/ · templates/    video identities (a brand can have several, one per type of video: today scenes and cameos, and glass) and piece templates
 │   └── install.py              sets up a computer
 │
 ├── montage/                    the local review editor (http://localhost:38420)

@@ -7,6 +7,7 @@ The AI doesn't watch the video playing and doesn't hear. This leaves it the whol
   walkthrough-NN.jpg  the whole video, one frame every 0.5 s with its second, to see it from start to end
   cuts-NN.jpg         every cut: the last frame before and the first one after
   eyes-NN.jpg         the face up close every 0.5 s: is the person looking at the camera?
+  colors-NN.jpg       one face per take, side by side: is the color even? (and it warns about the take that jumps)
   faces.jpg           (when needed) where something covers the face
   REVIEW.md           what was measured: black, frozen frames, cuts, loudness, dead pauses, what is heard
                       (transcribed and compared with the text) and whether a cut lands inside a word
@@ -128,6 +129,44 @@ if eyes:
     eyes = [np.vstack([o, np.zeros((tallest - o.shape[0], o.shape[1], 3), np.uint8)]) for o in eyes]
     eye_sheets = sheets(eyes, 6, "eyes", 36)
 
+# the color from take to take: the skin (or the whole frame, with no face) of each take against the median. A take that
+# jumps is noticed "as if it hadn't been corrected". Leaves colors-NN.jpg: one face per take, side by side.
+takes = list(zip([0.0] + cuts, cuts + [DUR]))
+take_colors, take_faces = [], []
+for a, b in takes:
+    if b - a < 0.2:
+        continue
+    skin, whole, sample = [], [], None
+    for t in np.linspace(a + 0.05, b - 0.05, 6):
+        img = frame(t)
+        lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB).astype(np.float32)
+        whole.append(lab.reshape(-1, 3).mean(0))
+        small = cv2.resize(img, (img.shape[1] // 2, img.shape[0] // 2))
+        found = face_cv.detectMultiScale(cv2.cvtColor(small, cv2.COLOR_BGR2GRAY), 1.1, 6, minSize=(50, 50))
+        if len(found):
+            x, y, w, h = (v * 2 for v in max(found, key=lambda c: c[2] * c[3]))
+            skin.append(lab[y + h // 4:y + 3 * h // 4, x + w // 4:x + 3 * w // 4].reshape(-1, 3).mean(0))
+            if sample is None:
+                sample = img[max(0, y - h // 4):y + h + h // 4, max(0, x - w // 4):x + w + w // 4]
+    take_colors.append((a, b, np.median(skin, 0) if skin else None, np.median(whole, 0)))
+    if sample is not None and sample.size:
+        take_faces.append(thumb(cv2.resize(sample, (220, round(220 * sample.shape[0] / sample.shape[1]))), 220, f"{a:.1f} s"))
+skins = [s for _, _, s, _ in take_colors if s is not None]
+if len(skins) >= 2:
+    med = np.median(skins, 0)
+    for a, b, s, _ in take_colors:
+        if s is None:
+            continue
+        dl, da_, db_ = s[0] - med[0], s[1] - med[1], s[2] - med[2]
+        if abs(dl) > 12 or abs(da_) > 2.5 or abs(db_) > 2.5:
+            warn(a, f"the take from {a:.2f} to {b:.2f} s has a different skin color (brightness {dl:+.0f}, red {da_:+.1f}, yellow {db_:+.1f}): "
+                    "match it with match_color.py")
+color_sheets = []
+if take_faces:
+    tallest = max(c.shape[0] for c in take_faces)
+    take_faces = [np.vstack([c, np.zeros((tallest - c.shape[0], c.shape[1], 3), np.uint8)]) for c in take_faces]
+    color_sheets = sheets(take_faces, 8, "colors", 32)
+
 # something covering the face (faces.py)
 r = subprocess.run([sys.executable, str(HERE / "faces.py"), "check", str(video), "--every", "0.25"], capture_output=True, text=True)
 for m in re.finditer(r"WARNING ([\d.]+)–([\d.]+) s: (.+)", r.stdout):
@@ -186,7 +225,7 @@ if au:
     wav.unlink()
 
 # ── Report ────────────────────────────────────────────────────────────────────────────────────
-images = walkthrough + cut_sheets + eye_sheets + ([out_dir / "faces.jpg"] if (out_dir / "faces.jpg").exists() else [])
+images = walkthrough + cut_sheets + eye_sheets + color_sheets + ([out_dir / "faces.jpg"] if (out_dir / "faces.jpg").exists() else [])
 L = [f"# Review of {video.name}", "",
      f"Made by `review.py` on {datetime.datetime.now():%Y-%m-%d %H:%M}. What is measured below is the floor: the real review "
      "is looking at every image and writing \"What I saw\".", "",
@@ -222,6 +261,7 @@ L += ["", "## Checklist by eye", "",
       "- [ ] Texts can be read, arrive with their word and don't leave the frame or the safe zone.",
       "- [ ] When the person appears, they look at the camera (eyes) and nothing covers their face.",
       "- [ ] Scene changes don't jump oddly (cuts): not one frame of another take, no flicker.",
+      "- [ ] The color is even from take to take (colors): the skin with the same brightness and the same warmth.",
       "- [ ] The start hooks from frame 0 and the end closes cleanly.",
       "- [ ] What the person asked for in their notes is done, and nothing that was already right got broken.",
       "", "## What I saw", "",

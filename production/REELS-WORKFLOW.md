@@ -13,12 +13,15 @@ Before writing anything, four things are chosen. Not every piece is the same.
 | What's chosen | Options |
 |---|---|
 | Type | **On camera** (a person talks) · **Animated** (no person, with the brand voice) · **Mixed** |
+| Identity | The one the brand uses for this type of video (its `BRAND.md`, "Identities"), or a new one |
 | How much the person appears | Hook and 2 s cameos (a third of the piece) · half · almost all of it |
 | How much animation | Sober · medium · high |
 | Voice | Which versions to try: local · ElevenLabs · Adobe Podcast · CapCut |
 | AI and retouch (stage 8) | None · reference photo · light · clothes · angles · retouch in CapCut |
 
 It goes in the piece's `brief.md`, with the references (`production/references/`).
+
+**A brand can have several identities, one per type of video** (the creator, Nov 17, 2026). For example, a personal account uses "glass" for to-camera reels with animation, and another one for its covers. Each identity is a style in `production/styles/<style>/STYLE.md`, with its type, its color, its motion and its kit. The brand says in its `BRAND.md` which one goes with each type of video. An identity is built piece by piece and is written down once the creator says it's already "ours".
 
 ## The stages
 
@@ -155,7 +158,7 @@ production/
   REELS-WORKFLOW.md       this document
   tools/                  install.py (in production/), variations.py, instagram.py, piece.py, prepare.py, cut.py, voice.py, match_timbre.py, listen.py, review.py (the mandatory review of every result), gaze.py (where the person can appear: looks at the lens), visual_script.py, clean.py, mockup.py, blocks.py, cutout-person.mjs, quote.py, codex.py, save_token.py, system.py (what's specific to each operating system)
   templates/              brief.md, script.md, STATUS.md
-  styles/<style>/         the style library: one STYLE.md each
+  styles/<style>/         the library of video identities: one STYLE.md each (a brand can use several)
   references/             reference reels and their analysis
 brands/<brand>/pieces/<date>-<name>/
   brief.md                stage 0

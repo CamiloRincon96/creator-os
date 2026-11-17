@@ -14,7 +14,7 @@ This is the editing part of the system. It owns what defines a brand, which `/cr
 | File | What it defines |
 |---|---|
 | `brands/<brand>/NICHE.md` | Who it is really for, their topics, what it is not, what the product does today, the content wheel and what has already worked |
-| `brands/<brand>/BRAND.md` | The brand's rules: tone, colors and fonts, what can and cannot be shown, how it is named |
+| `brands/<brand>/BRAND.md` | The brand's rules: tone, colors and fonts, what can and cannot be shown, how it is named, and its **identities**: which style from `production/styles/` each type of video uses. A brand can have several (for example, one for to-camera reels and another for covers) |
 | `brands/<brand>/PROFILE.md` | Social accounts, bio, highlights, series and how its lines live together |
 
 The reference shape is `brands/example/`. A new brand copies that shape, and no folders are created outside the map in `MAP.md`.
