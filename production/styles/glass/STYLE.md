@@ -4,7 +4,7 @@ An example identity for **to-camera reels with animation**. A brand can have sev
 
 **Status: approved** (Nov 17, 2026, with v23 of the first stretch of that piece). The creator: "That's our style… we're going to work with that… you can innovate… but more or less like this, I won't accept less than this". It's the floor for to-camera reels with animation; each piece can innovate on top of it. Still to do: the sound.
 
-What it taught became **the standard every identity meets** (`production/REELS-WORKFLOW.md`, "The standard"). To use glass in another brand, keep the structure and the motion and put in the brand's own colors and type; to make your own identity, change the look and keep the standard.
+What it taught became **the floor every identity meets** (`production/REELS-QUALITY.md`: the floor, the knobs, the method, the recipes and the first-version traps). To use glass in another brand, keep the structure and the motion and put in the brand's own colors and type; to make your own identity, change the look and keep the floor.
 
 ## The patterns (what works and what doesn't)
 
@@ -126,7 +126,7 @@ When the person is on camera between steps, the key word goes behind their head 
 
 ## Kit
 
-A generic, brand-neutral version lives in the example brand: `brands/example/reel/src/glass/` (its `README.md` says what each piece is and the part of the standard it serves; the `GlassDemo` composition shows it in motion with no footage). Colors and the main font come from the brand's `src/brand.ts`; the identity's own choices are in `src/glass/theme.ts`.
+A generic, brand-neutral version lives in the example brand: `brands/example/reel/src/glass/` (its `README.md` says what each piece is and the part of the floor it serves; the `GlassDemo` composition shows it in motion with no footage). Colors and the main font come from the brand's `src/brand.ts`; the identity's own choices are in `src/glass/theme.ts`.
 
 | Piece | What it is | In the kit |
 |---|---|---|

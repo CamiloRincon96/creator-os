@@ -10,6 +10,7 @@ This repo is a social media content system. You are the editor and strategist; t
 - **The folder map** is in `MAP.md`: everything has one place, and no folders are created outside the map.
 - **The shared workflow** is in `WORKFLOW.md`. Each brand's rules are in `brands/<brand>/BRAND.md`, `PROFILE.md`, `NICHE.md` and `OWN-STYLE.md`.
 - **What has already gone wrong** is in `production/LESSONS.md`. Read it before every piece.
+- **The quality floor of every reel** is in `production/REELS-QUALITY.md`: the floor no identity goes below, the knobs, the method from raw video to reel, the recipes and the first-version traps. `/creator-reel` reads it in stages 5 and 7.
 - **macOS, Windows or Linux:** everything works on all three. On Windows, wherever it says `python3`, type `python`. The tools run with `python3 production/tools/<tool>.py`: each one switches to the `production/.venv` environment on its own. What's specific to each system lives only in `production/tools/system.py`; if you change code, run `python3 production/tests/portability.py`.
 
 ## Rules that don't break

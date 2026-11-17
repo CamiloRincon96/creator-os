@@ -90,6 +90,7 @@ Every video, image or carousel the AI makes lands in Montage as a new version (`
 - **Nothing paid without a quote.** After Effects, Higgsfield and ElevenLabs are optional and are never used without asking you.
 - **Keys and tokens never go in the repo or in the chat.** You save them yourself in your system's secure store (macOS Keychain, Windows Credential Manager, secret-tool on Linux) or in environment variables.
 - **Music only with a verified license:** CC0 with its credit. Commercial songs never go inside the file.
+- **A quality floor for every reel** (`production/REELS-QUALITY.md`): real material instead of invented screens, the thing itself instead of symbols, something happening every second. Your identity changes the look (colors, type, panels), never the floor.
 - What goes wrong is written down in `production/LESSONS.md` so it doesn't happen again.
 
 ## License

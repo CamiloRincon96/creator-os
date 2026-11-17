@@ -203,7 +203,13 @@ Say: "I'm building a mockup: your voice with gray cards where each animation wil
   - never frames from another moment at the start or end of the take (`visual_script.py` cuts at the piece);
   - if they keep talking and looking at the camera, they're not cut mid-sentence: the cut goes after (`"starts": "<phrase>:<i>:end"`);
   - if they point or make a gesture, the edit follows it: the animation appears where they point.
-- Write `<piece>/scenes.json` from the table in `script.md`: per scene, `shot`, `starts` (phrase and word, e.g. `T03-01:0`), `shows`, `text`, `camera` (`snap`, `slow`, `still`) and `accent` (the word for the push-in). And `voice`: the version chosen in stage 4.
+- Write `<piece>/scenes.json` from the table in `script.md`. It is the **visual plan, phrase by phrase**, with the method and the recipes in `production/REELS-QUALITY.md` (parts 3 and 4). Per scene:
+  - `shot`, `starts` (phrase and word, e.g. `T03-01:0`), `shows`, `text` and `camera` (`snap`, `slow` or `still`);
+  - `recipe`: the kind of phrase, from the recipes table;
+  - `material`: the real file, fact, capture or logo that tells it. If there is none, ask the person for it before inventing anything;
+  - `accent` or `accents`: the key words, where the zoom punch lands.
+
+  And `voice`: the version chosen in stage 4. `visual_script.py` warns about every scene without the person that has no `material`.
 - `python3 production/tools/visual_script.py <piece>` puts in the real timings and leaves `visual-script.md`, `visual-script.json`, `image/blocks.json` and the counts.
 - `visual_script.py` warns when a person scene lands on a piece that isn't fit and when the share drifts more than 10 points from the agreed one. Resolve each warning:
   - change the scene;
@@ -240,8 +246,10 @@ Only the blocks in `image/blocks.json`, with half a second of tail on each side:
 
 Say: "Now I'm animating the reel. First I'll show you the 2 or 3 hardest moments on their own; with your go-ahead, I'll do the rest."
 
+**Build it in sections, each one approved:** the hook, the first stretch of full-screen scenes and the rest. In a long video, one section every 30 to 40 s, with a new visual hook every 20 to 30 s. **Before showing each section**, do the self-critique: the video scene by scene against "## Visual floor" and against the traps in `REELS-QUALITY.md`, and fix whatever fails first.
+
 **Before animating, read three things; they rule over everything below:**
-- the standard in `production/REELS-WORKFLOW.md`, which is the floor of every identity;
+- all of `production/REELS-QUALITY.md` (the floor, the recipes and the first-version traps), which is the floor of every identity;
 - the `STYLE.md` of the brand's identity for this type of video ("Identities" in its `BRAND.md`), with its list of yes and no;
 - its kit in `brands/<brand>/reel/` (for "glass", the generic one is in `brands/example/reel/src/glass/`, with its README).
 
@@ -458,6 +466,6 @@ Say when starting: "Express reel: you approve it twice, the script now and the f
 ## How this grows
 
 - **New style** ("let's implement this style"): analyze the reference as in stage 0, write `production/styles/<name>/STYLE.md` using the existing one as the template, and build its Remotion kit in the first piece that uses it. While it's being found, what the creator approves is saved in its `STYLE.md`, scene by scene. When the creator calls it theirs, it's recorded under "Identities" in the brand's `BRAND.md`: which type of video carries that identity.
-- **New rule from the creator:** if it applies to every piece, to `production/REELS-WORKFLOW.md`; if it belongs to a style, to its `STYLE.md`; if it belongs to a brand, to its `BRAND.md`. And to memory if it changes how the work is done.
+- **New rule from the creator:** if it is about visual quality (what is seen, how it moves), to `production/REELS-QUALITY.md` (the floor, a recipe or a trap); if it is about the process and applies to every piece, to `production/REELS-WORKFLOW.md`; if it belongs to a style, to its `STYLE.md`; if it belongs to a brand, to its `BRAND.md`. And to memory if it changes how the work is done.
 - **New tool:** to the table in `production/REELS-WORKFLOW.md` and to the stage it belongs to here.
 - **A stage that is unnecessary or missing:** change it here and in `production/templates/STATUS.md`.

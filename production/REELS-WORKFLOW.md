@@ -6,40 +6,9 @@ Version 2 (November 13, 2026), to keep refining with the creator. It runs with t
 
 The general rules are still in `WORKFLOW.md`, and each brand's in its `BRAND.md`. **Everything that has already gone wrong, and how to avoid it, is in `production/LESSONS.md`**, by stage: go over it before showing each one.
 
-## The standard (it holds for any identity)
+## Quality (it holds for any identity)
 
-The creator, Nov 17, 2026, approving "glass": "I won't accept less than this". Each brand or each person picks their own identity: colors, type, the shape of the panels. But every identity meets this floor, which came out of the first full reel made in "glass" (`production/styles/glass/STYLE.md`, with the examples):
-
-1. **Real and specific, never invented.** What's on screen comes from the person and their work:
-   - their takes, their `stock/` (photos and timelapses of them working) and captures of the tools they really use;
-   - their numbers (from the repo or said by them), their notes, their files and their team.
-   - Fake screens (windows with lines instead of text, sparkles, clocks) look "generic AI".
-   - Something generic only goes in on purpose, when the script talks about the generic.
-2. **Visual before text: what is named is shown as it is** (the creator, Nov 17, 2026: "show the logos instead of just text… as visual as possible, and take out all the text you can").
-   - An app, an AI or a network is shown with its real logo: Claude, Codex, Gemini, Grok, TikTok, After Effects…
-   - A number carries its icon: scissors for cuts, an eye for views, a book for lessons, "$0" for free.
-   - Logos come from free libraries installed in the brand's reel project (`simple-icons`, CC0, and `@lobehub/icons-static-svg`, MIT) and are copied to `public/logos/`.
-   - Higgsfield comes last, only for an image that doesn't exist, and with an approved quote.
-   - Text is left for what has no image.
-   - **Nothing abstract** (the creator, Nov 17, 2026: "I don't want abstract things… people's brains are fried and they need visual stimuli all the time"). Boxes with a play button, bars, waveforms or little squares that "stand for" something don't hook. Show the thing itself:
-     - a phone with real reels swiped by a finger, instead of two boxes with view counts;
-     - a film strip of the person's takes being cut, instead of a waveform;
-     - the old versions with their mistake, instead of little red squares;
-     - their headphones, instead of a sound bar.
-   - Every scene has something happening in the picture every half second: a finger swiping, a heart, something falling or being cut.
-   - **Understandable without knowing the tool** (the creator, Nov 17, 2026: "it makes sense to someone who has already used it, but if they've already used it, they aren't watching this video"). An action is shown the way anyone would do it: pause, a pen that circles, and the note. A loose box isn't enough.
-   - **Not everything is the person** (the creator: "very me-centric… not everything has to be my photo"). Supporting material (example reels, photos, sound) uses material from the brand or from their work, without their face. The face appears only when it adds something, for example one second of one of their reels.
-   - **Zoom with intent:** a short zoom punch on each key word, and a slow push-in in each scene. On a capture (an editor, a page) the camera moves in to the part that matters and travels along it.
-3. **Few words, and big:** one word per scene, in the identity's type. Nothing that can't be read in time: what doesn't fit is said with shapes (✓ ✕, counters, bars), and a phrase already written big on screen gets no caption.
-4. **Panels the size of what they show,** with video inside when possible. A big window with a little piece inside looks empty.
-5. **Always moving:** the camera pushes in, pulls back or goes through; something new every 0.5 to 1 s, on the word that names it; pieces come from somewhere (from behind the person, from their gesture) and the previous one leaves.
-6. **The person rules:** they appear where they look at the lens; nothing covers their face or blurs it; if they point, the animation is born there; they're never cut in the middle of a gesture.
-7. **One world:** full-screen scenes go over their own footage, blurred, never over a background from somewhere else; nothing that looks like home unless the brand wants it; even color from take to take and fine grain.
-8. **Reviewed in full** with `review.py`, as in every piece.
-
-**The type hooks:** wide or heavy and legible, no joined cursive or tightly tracked letters (the creator, Nov 17, 2026). Each identity picks its own.
-
-Picking another identity changes the look, not this floor. The brand's Remotion project has a kit that serves it (`brands/example/reel/src/glass/`, with its README and its `Logo` piece for the logos in `public/logos/`).
+The floor no piece goes below, the knobs that change from piece to piece, the method from the raw videos to the reel, the recipes (what to show for what is said) and the first-version traps are in **`production/REELS-QUALITY.md`**. It came out of the first full reel made in "glass" (v17 to v27, Nov 17, 2026): "I won't accept less than this". Picking another identity changes the look, not that floor. The brand's Remotion project has a kit that serves it (`brands/example/reel/src/glass/`, with its README and its `Logo` piece for the logos in `public/logos/`).
 
 ## Stage 0: what piece is it
 

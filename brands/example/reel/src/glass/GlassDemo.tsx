@@ -1,6 +1,6 @@
 // A 7-second demo of the glass kit that renders with nothing but this project: the colored tiles and the dark
 // gradient stand in for the person's own material only to show the motion. In a real piece every slot carries real
-// material (their takes, their stock/, captures of their tools), as the standard asks.
+// material (their takes, their stock/, captures of their tools), as the floor asks (production/REELS-QUALITY.md).
 //   npx remotion studio            → GlassDemo
 //   npx remotion still GlassDemo out.png --frame=120
 // With `world`, a photo or timelapse of your own (relative to public/) becomes the blurred world behind.

@@ -1,6 +1,6 @@
 // The «glass» identity's look. Colors and the main font come from the brand (src/brand.ts): change the brand there.
 // What belongs to the identity (the display face, the glass tint, the motion curves) is here: change it to make the
-// identity yours. What doesn't change is the standard (production/REELS-WORKFLOW.md, «The standard»).
+// identity yours. What doesn't change is the floor (production/REELS-QUALITY.md).
 import { loadFont as loadMono } from "@remotion/google-fonts/JetBrainsMono";
 import { loadFont as loadDisplay } from "@remotion/google-fonts/Unbounded";
 import type { CSSProperties } from "react";

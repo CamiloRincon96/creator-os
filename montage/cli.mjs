@@ -279,8 +279,8 @@ const COMMANDS = {
   server [--stop | --restart]             starts / stops the server
   new <id> --name "…" --brand <b> --type video|image|carousel [--origin "…"]
   publish <project> <file…> [--note "…"] [--resolves 4,5] [--origin "…"] [--markers "0:Hook,2.5:Logo"] [--author creator] [--date file|ISO]
-      An AI's video needs its review first (production/tools/review.py) with "What I saw" written;
-      --skip-review "why" skips it and leaves the why in the note.
+      An AI's video needs its review first (production/tools/review.py) with "What I saw" written and every
+      "Visual floor" line ticked [x] or marked "n/a" with why; --skip-review "why" skips it and leaves the why in the note.
   pending [--project id] [--all]          notes sent by the creator (with capture paths)
   note <project> <n>                      detail of one note
   view <project> [--v vN] [--t 1.2,4.4 | --frames 30,132 | --sheet 12] [--page N]
@@ -414,6 +414,10 @@ Timeline (video editor): montage/projects/<id>/timeline.json. Times in seconds, 
           fail(`${path.basename(r)} hasn't been reviewed (or it changed after the review).\n  1. ${run}\n  2. Look at every image it leaves and read the report.\n  3. Write in "## What I saw" what you reviewed, what you found and what you fixed.`);
         const seen = (fs.readFileSync(report, 'utf8').split('## What I saw')[1] || '').replace(/<!--[\s\S]*?-->/g, '').trim();
         if (!seen) fail(`The review of ${path.basename(r)} has no "## What I saw" written: ${report}`);
+        // The visual floor (production/REELS-QUALITY.md): if the review has the list, each line is ticked or says "n/a".
+        const floor = (fs.readFileSync(report, 'utf8').split('## Visual floor')[1] || '').split('\n## ')[0].replace(/<!--[\s\S]*?-->/g, '');
+        const unresolved = floor.split('\n').filter((l) => /^- \[ \]/.test(l.trim()) && !/\bn\/a\b|not applicable/i.test(l));
+        if (unresolved.length) fail(`The review of ${path.basename(r)} has ${unresolved.length} unresolved "## Visual floor" line(s) (tick them [x] after looking, or write "n/a" and why): ${report}`);
       }
     }
     const markers = op.markers

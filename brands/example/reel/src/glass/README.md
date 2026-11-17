@@ -1,19 +1,19 @@
 # The glass kit
 
-The Remotion pieces of the «glass» identity (`production/styles/glass/STYLE.md`): dark, transparent glass with video inside, pieces that come out from behind the person, few words and big. They're brand-neutral: colors and the main font come from `src/brand.ts`, and the identity's own choices (the display face, the glass tint, the curves) are in `theme.ts`. **Change the look there; keep the standard.**
+The Remotion pieces of the «glass» identity (`production/styles/glass/STYLE.md`): dark, transparent glass with video inside, pieces that come out from behind the person, few words and big. They're brand-neutral: colors and the main font come from `src/brand.ts`, and the identity's own choices (the display face, the glass tint, the curves) are in `theme.ts`. **Change the look there; keep the floor.**
 
-The standard is the floor every identity meets (`production/REELS-WORKFLOW.md`, «The standard»): real and specific material, never invented screens; visual before text; few words, and big; panels the size of what they show; always moving; the person rules; one world; reviewed in full with `review.py`. Each piece below says which part it serves.
+The floor every identity meets is in `production/REELS-QUALITY.md` (part 1, with the recipes and the first-version traps): real and specific, never invented screens; the thing itself, not a symbol; visual before text; understood by someone who has never seen it; constant stimulus; each thing the size of what it shows; the person rules, but isn't everything; one world; the voice says what it has to say; reviewed in full with `review.py`. Each piece below says which part it serves.
 
 ## The pieces
 
-| Piece | What it is | The standard it serves |
+| Piece | What it is | The part of the floor it serves |
 |---|---|---|
-| `GlassPanel` | A glass panel at x, y, w, h. With `footage`, the frosting is the same take, blurred, darkened and aligned with the frame behind it (`backdrop-filter` doesn't render in Remotion). Gradient, 1.5 px border, highlight on top, large shadow. | Panels the size of what they show, with video inside. Size it to its content: a big pane with a little piece inside looks empty. |
-| `GlassWindow` | A `GlassPanel` that comes in pulling focus (blurred and slightly larger → sharp) and then gets a slow push-in. `focusIn()` gives that entrance to anything else. | Always moving. Enter in the pause after the word, never inside it. |
+| `GlassPanel` | A glass panel at x, y, w, h. With `footage`, the frosting is the same take, blurred, darkened and aligned with the frame behind it (`backdrop-filter` doesn't render in Remotion). Gradient, 1.5 px border, highlight on top, large shadow. | Each thing the size of what it shows, with video inside. Size it to its content: a big pane with a little piece inside looks empty. |
+| `GlassWindow` | A `GlassPanel` that comes in pulling focus (blurred and slightly larger → sharp) and then gets a slow push-in. `focusIn()` gives that entrance to anything else. | Constant stimulus. Enter in the pause after the word, never inside it. |
 | `glassStyle()` | Just the glass surface, for panels over footage that's already blurred (full-screen scenes over `World`). | |
 | `World` | The world behind every full-screen scene: a photo or timelapse of the person's own, very blurred and dark, drifting slowly. Without footage, the brand's dark gradient. | One world: never a background from somewhere else. |
-| `ComeFromBehind` | Wraps any piece: it starts small behind the person's head and springs out to its place with a 3D turn. With `until`, it moves back (smaller, blurred) when the next one arrives. It also keeps the frosted footage inside it in sync. | Always moving: pieces come from somewhere and the previous one leaves. |
-| `BigWord` | One word in the display face (wide, heavy, uppercase, normal tracking) that focuses in and blurs out. 150 px or less. | Few words, and big. Behind the head with the kit's `Person` (`behind` prop), or at y ≈ 250-300 on full-screen scenes. Hide the captions while it's on screen. |
+| `ComeFromBehind` | Wraps any piece: it starts small behind the person's head and springs out to its place with a 3D turn. With `until`, it moves back (smaller, blurred) when the next one arrives. It also keeps the frosted footage inside it in sync. | Constant stimulus: pieces come from somewhere and the previous one leaves. |
+| `BigWord` | One word in the display face (wide, heavy, uppercase, normal tracking) that focuses in and blurs out. 150 px or less. | Visual before text: one word, big. Behind the head with the kit's `Person` (`behind` prop), or at y ≈ 250-300 on full-screen scenes. Hide the captions while it's on screen. |
 | `NumberWord` | A number and its word, both in the display face («4–5 HOURS»). With `count`, it climbs to the value. | Real and specific: the person's real numbers. It counts with `Math.floor(frame)`, so two numbers on screen never disagree inside the motion blur. |
 | `GlassPill` | One or two words in glass under the chin, in the display face. | The person rules: it reads in full and never covers the face. |
 | `Logo` | A real logo from `public/logos/`: colored SVGs (names ending in «-color») as they are, one-color SVGs painted with `color`. | Visual before text: what's named is shown as it is, not written. |
