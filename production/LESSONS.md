@@ -150,6 +150,9 @@ Where everything else is:
 
 ## Stage 9 · Sound
 
+- **An effect over a word erases it, even if the self-critique gives it an 8.** On Nov 17, 2026 a whoosh on a cut covered the first word after it: Whisper heard it at 0.30 in the mix and 0.996 in the voice alone. Compare word by word the voice alone against the mix, and remove the effect or move it to the pause.
+- **Instagram's trending music is possible, through the Audio API** (`instagram.py audios`). The list changes with every call: download each song by its `audio_id`. It used to be believed there was no API (MUSIC.md said so).
+
 - **Effects you can hear without covering:**
   - the typical event sits about 5 dB below the voice (`balance` around −5, not −10);
   - `--voice-safe --voice-depth light`;
@@ -207,6 +210,8 @@ Where everything else is:
 - **Only a piece the creator called finished gets cleaned up.** The others (other brands, highlights without a FINAL) aren't touched, even if they have intermediate renders.
 
 ## Technical (for Claude)
+
+- **`git add` of a whole folder takes another session's work.** On Nov 17, 2026, adding a whole source folder put into a commit the files another session was still making; it was undone before pushing. Add file by file what you changed, and look at `git status` before committing.
 
 - **To capture Montage with a project open** (without the "Who is reviewing?" screen), use Playwright: `localStorage.setItem('montage:person', '<name>')`, reload on `#/p/<project>` and then take the capture. Headless Chrome (`--headless --screenshot`) doesn't keep that value.
 - **Frame sheets from a Remotion render are pulled with ffmpeg (`select=eq(n,N)`, `-fps_mode passthrough`), not with `cv2.CAP_PROP_POS_FRAMES`.** OpenCV seeks badly in those mp4s and the sheet showed frames from another moment.

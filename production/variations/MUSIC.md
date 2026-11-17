@@ -5,11 +5,16 @@
 ## The reality (November 2026)
 
 - **Commercial songs aren't downloaded to put them in the video.** Instagram matches every video against a song database and detects them even when the content isn't an ad. It mutes the audio or blocks the video (sometimes only in some countries) and, if it keeps happening, removes features or suspends the account. On top of that, every song has two rights: the composition and the recording.
-- **The API can't add audio from Instagram's library** to the reels it posts: the music has to come inside the file.
-- **There's no official "trending audio" API.** What exists are public trackers updated every week.
+- **There is a trending-audio API (Meta's Audio API, checked on Nov 17, 2026).** `instagram.py audios <brand>` lists the trending music authorized for third parties and the viral original sounds. In a batch, `"audio"` adds it when posting: the license is Instagram's and the song doesn't go inside the file. Only with Facebook Login, which is the one this repo uses. What the app has and the API doesn't (the commercial hits) is added by hand from the app.
 - **Business accounts have a trimmed library:** mostly royalty-free music, not the hits of the moment.
 
 ## What we do
+
+0. **First, Instagram's trend through the API.**
+   - `instagram.py audios <brand>` (and `--type original_sound`): pick 3 or 4 that fit the piece, for example "Before and After" for a before-and-after story.
+   - Download their previews and build a listening test: the reel's opening with each one, at a fixed level about 15 LU under the voice, which is how Instagram mixes it.
+   - The creator chooses by ear. The reel is posted without music, with `"audio"` in the batch.
+   - For TikTok and YouTube, where it doesn't apply, the version with CC0 music goes out (below).
 
 1. **Read the trend, use the style.** For each batch, Claude looks up the audio dominating this week and notes its style (genre, energy, BPM, whether it's in Spanish). Then it searches Openverse for a **CC0** track in a similar style and confirms the license on the source page. It uses the `openverse-audio` skill, and the credits go in `brands/<brand>/sounds/music/credits.json`.
 2. **Each variation can have a different track**, with its hit aligned to the key moment (`align`) and the usual gentle ducking: about 3 dB under the voice, with no rises. The music plays about 15 LU below the voice, because on the phone speaker it sounds louder.

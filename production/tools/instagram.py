@@ -3,6 +3,8 @@
     python3 production/tools/instagram.py connect <brand>        # once: finds the Instagram account
     python3 production/tools/instagram.py test <brand>           # account, followers and the day's quota
     python3 production/tools/instagram.py reels <brand> [n]      # the last n reels with their metrics (for /creator-ideas)
+    python3 production/tools/instagram.py audios <brand> [--type music|original_sound] [--search "…"] [--n 20] [--download <folder>] [--raw]
+                                                                 # trending Instagram audio (Audio API, read-only)
     python3 production/tools/instagram.py preview <batch.json>   # what would be posted and when (does not post)
     python3 production/tools/instagram.py approve <batch.json> --message "<what the creator said>"
     python3 production/tools/instagram.py schedule <batch.json>  # leaves the day's posting running
@@ -24,6 +26,10 @@ Setup (once per computer, done by the creator; see production/INSTAGRAM.md):
         python3 production/tools/save_token.py <brand>
     (it asks you to paste it; Claude neither writes nor sees it).
 It uses the resumable upload (graph.facebook.com + rupload.facebook.com): it uploads the file from the computer, without hosting it.
+Instagram audio (Meta's Audio API, only with Facebook Login, which is the one this repo uses): `audios` lists what is
+trending (without --search) or searches; in a batch, a post with "audio": {"id": "…", "volume": 20, "video_volume": 100}
+goes out with that audio from Instagram's library on it (the license is Instagram's). Instagram does not let you preview it:
+the `download_url` is a temporary preview (about 36 h) to mix a local test and approve it by ear, not to put in the video.
 Meta's limit: 100 API posts in 24 hours.
 """
 import system
@@ -116,6 +122,10 @@ def upload_and_publish(brand, d, p, log):
     tok, c = token(brand), account(brand)
     video = REPO / p["video"]
     data = {"media_type": "REELS", "upload_type": "resumable", "caption": p.get("copy", ""), "thumb_offset": str(p.get("cover_ms", 0))}
+    if p.get("audio"):  # an audio from Instagram's library (Audio API): Instagram adds the song, it is not in the file
+        a = p["audio"]
+        data["audio_configuration"] = json.dumps({"audio_id": str(a["id"]), "audio_volume": int(a.get("volume", 20)),
+                                                  "video_volume": int(a.get("video_volume", 100))})
     if d.get("trial", True):
         data["trial_params"] = json.dumps({"graduation_strategy": d.get("graduation", "MANUAL")})
     r = api("POST", f"{c['ig_id']}/media", tok, data)
@@ -186,6 +196,33 @@ def main():
         c["accounts"][arg] = {"ig_id": chosen["id"], "username": chosen.get("username")}
         CONFIG.write_text(json.dumps(c, indent=1), encoding="utf-8")
         print(f"Connected @{chosen.get('username')} for {arg} ({CONFIG.relative_to(REPO)}).")
+
+    elif command == "audios":
+        # what is playing on Instagram: without --search, what is trending (Meta's Audio API, read-only)
+        tok, c = token(arg), account(arg)
+        op = lambda k, d=None: sys.argv[sys.argv.index(k) + 1] if k in sys.argv else d
+        data = {"audio_type": op("--type", "music"), "user_id": c["ig_id"]}
+        if op("--search"):
+            data["search_query"] = op("--search")
+        r = api("GET", "ig_audio", tok, data)
+        rows = (r.get("audio") or r.get("data") or [])[: int(op("--n", 20))]
+        if "--raw" in sys.argv:
+            print(json.dumps(rows, indent=1, ensure_ascii=False)[:4000])
+        for i, a in enumerate(rows, 1):
+            dur = a.get("duration_in_ms") or a.get("duration")
+            who = a.get("display_artist") or (f"@{a['ig_username']}" if a.get("ig_username") else "")
+            print(f"{i:2}. {a.get('title') or '?'} · {who} · id {a.get('audio_id') or a.get('id')}"
+                  + (f" · {int(dur) / 1000:.0f} s" if dur and str(dur).isdigit() else "")
+                  + (f" · {a['on_platform_audio_preview_link']}" if a.get("on_platform_audio_preview_link") else ""))
+        if op("--download"):  # the temporary preview, for a local test mix (it does not go in the video)
+            dest = Path(op("--download")); dest.mkdir(parents=True, exist_ok=True)
+            for a in rows:
+                if a.get("download_url"):
+                    f = dest / f"{a.get('audio_id') or a.get('id')}.m4a"
+                    urllib.request.urlretrieve(a["download_url"], f)
+                    print(f"  preview: {f}")
+        if not rows:
+            print("Instagram returned no audio (is the account professional and is the token from Facebook Login?)")
 
     elif command == "test":
         tok, c = token(arg), account(arg)

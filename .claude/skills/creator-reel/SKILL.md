@@ -324,6 +324,12 @@ Claude checks that each file has the same frames and duration, copies it as `B01
 
 Say: "I'm adding the effects and the music. I can't hear: I measure, and you approve by ear."
 
+**The order** (how the first full reel made in "glass" came out, Nov 17, 2026):
+1. The effects with `real-sfx`, from the code's list of moments (not guessed from the video) and in self-critique rounds.
+2. Compare word by word the voice alone against the mix (Whisper). No effect may cover a word.
+3. A listening test with 3 or 4 trending Instagram songs (`instagram.py audios`, see `production/variations/MUSIC.md`). The creator chooses and the reel is posted with the song added through the API.
+4. The version with CC0 music for TikTok and YouTube.
+
 - Effects with the `real-sfx` skill (which sound for which moment and where to get it: `openverse-audio`; in HyperFrames projects, `hyperframes:media-use`) (list of moments from the map). Which sound goes at each moment and which ones we do not use: `production/SOUNDS.md`. Music only with a verified license: the `openverse-audio` skill, credits next to the file.
 - Rules: a sound on everything that moves; none in the emotional part; they must be heard on a phone without covering the voice.
 - Levels and hook: follow "Sound rules" in `production/REELS-WORKFLOW.md`. Summary:

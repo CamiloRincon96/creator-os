@@ -72,7 +72,13 @@ With this, Claude uploads the reels and their copies at the batch's times. `prod
 
 ## What the API doesn't do
 
-- **It doesn't add music from Instagram's library or trending songs.** The music goes inside the video: Claude picks it from the licensed library. A trending song can only be added by hand from the app.
+- **Instagram music, yes (Audio API, checked on Nov 17, 2026).** With Facebook Login, which is the one this repo uses, the API lists what is playing today and adds it when posting:
+  - `instagram.py audios <brand>` lists the trending music authorized for third parties (`--type original_sound` lists the viral audios; `--search` searches).
+  - In a batch, `"audio": {"id": "…", "volume": 15, "video_volume": 100}` posts the reel with that song; the license is Instagram's.
+  - It can't be previewed on Instagram. The `download_url` is a temporary preview (about 36 h) for a local listening test, and it doesn't go inside the video.
+  - The list changes from one call to the next: save the `audio_id` of the one you pick.
+  - What it returns is what is authorized for third parties, not everything in the app. A commercial hit that is only in the app is added by hand from the app.
+  - Meta's doc: https://developers.facebook.com/docs/instagram-platform/content-publishing/audio-api/
 - **It doesn't schedule on Instagram's side:** that's why the computer has to stay on.
 - How many posts the API allows in 24 hours is shown by `instagram.py test` (Meta gives it in `quota_total`; its documentation says 100 on one page and 50 on another).
 

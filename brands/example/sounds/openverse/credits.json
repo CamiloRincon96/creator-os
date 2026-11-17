@@ -844,5 +844,75 @@
   "license_at_source": [
    "creativecommons.org/publicdomain/zero/1.0"
   ]
+ },
+ {
+  "id": "db3a8733-5c3d-4d57-9468-12942ff84f21",
+  "file": "scissors-cut/scissors-cutting-paper.mp3",
+  "title": "Scissors Cutting Paper",
+  "creator": "aldenroth2",
+  "license": "cc0 1.0",
+  "source": "freesound",
+  "page": "https://freesound.org/people/aldenroth2/sounds/272035",
+  "downloaded": "2026-11-17"
+ },
+ {
+  "id": "3ce478e3-d463-446a-b006-70178254e5bf",
+  "file": "book-close/book-close.mp3",
+  "title": "Book Close",
+  "creator": "xavierrrangel",
+  "license": "cc0 1.0",
+  "source": "freesound",
+  "page": "https://freesound.org/people/xavierrrangel/sounds/617410",
+  "downloaded": "2026-11-17"
+ },
+ {
+  "id": "ea9dc47e-7f07-45dd-8aa6-8c9e25609251",
+  "file": "click-ui/sfx-ui-button-click.mp3",
+  "title": "SFX UI Button Click",
+  "creator": "suntemple",
+  "license": "cc0 1.0",
+  "source": "freesound",
+  "page": "https://freesound.org/people/suntemple/sounds/253168",
+  "downloaded": "2026-11-17"
+ },
+ {
+  "id": "8fdd9c20-dc5d-4738-97a8-1da39e8b1ca6",
+  "file": "click-ui/menu-scroll-selection-sound.mp3",
+  "title": "Menu Scroll/ Selection Sound",
+  "creator": "CS279",
+  "license": "cc0 1.0",
+  "source": "freesound",
+  "page": "https://freesound.org/people/CS279/sounds/200469",
+  "downloaded": "2026-11-17"
+ },
+ {
+  "id": "e21bf59c-b836-4a20-9bdc-5f7d28c3d2e5",
+  "file": "click-ui/family-friendly-inspect-sound-ui-or-in-game-noti.mp3",
+  "title": "Family Friendly Inspect Sound, UI, or In-Game Notification.wav",
+  "creator": "MATRIXXX_",
+  "license": "cc0 1.0",
+  "source": "freesound",
+  "page": "https://freesound.org/people/MATRIXXX_/sounds/657948",
+  "downloaded": "2026-11-17"
+ },
+ {
+  "id": "d3ab488b-dee1-4c40-89ab-67837664b616",
+  "file": "click-ui/ui-button-click.mp3",
+  "title": "UI Button Click",
+  "creator": "benzix2",
+  "license": "cc0 1.0",
+  "source": "freesound",
+  "page": "https://freesound.org/people/benzix2/sounds/467951",
+  "downloaded": "2026-11-17"
+ },
+ {
+  "id": "ca936844-d958-44fe-86ff-2f0d9f20019a",
+  "file": "swish/swish-bamboo-pole-w-insect-net-12-wav.mp3",
+  "title": "swish Bamboo pole w insect net 12.wav",
+  "creator": "ra_gun",
+  "license": "cc0 1.0",
+  "source": "freesound",
+  "page": "https://freesound.org/people/ra_gun/sounds/75544",
+  "downloaded": "2026-11-17"
  }
 ]
