@@ -245,7 +245,7 @@ Say: "Now I'm animating the reel. First I'll show you the 2 or 3 hardest moments
 - the `STYLE.md` of the brand's identity for this type of video ("Identities" in its `BRAND.md`), with its list of yes and no;
 - its kit in `brands/<brand>/reel/` (for "glass", the generic one is in `brands/example/reel/src/glass/`, with its README).
 
-With an approved identity, the person only gives their video and their opinions; Claude builds the full reel in that style. For each scene, find the real material that tells it: the `stock/`, the repo's data, real captures (Montage with Playwright, pages with headless Chrome). Only then build it.
+What's named is shown with its real logo or image, which go in `brands/<brand>/reel/public/logos/` and come from `simple-icons` or `@lobehub/icons-static-svg` (the glass kit's `Logo` draws them). Higgsfield comes last, with a quote. With an approved identity, the person only gives their video and their opinions; Claude builds the full reel in that style. For each scene, find the real material that tells it: the `stock/`, the repo's data, real captures (Montage with Playwright, pages with headless Chrome). Only then build it.
 
 If the brand doesn't have an identity for this type of video yet, find it with the person scene by scene. Start with the hook and save what they approve in a new `STYLE.md`.
 

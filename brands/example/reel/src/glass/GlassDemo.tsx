@@ -4,6 +4,7 @@
 //   npx remotion studio            → GlassDemo
 //   npx remotion still GlassDemo out.png --frame=120
 // With `world`, a photo or timelapse of your own (relative to public/) becomes the blurred world behind.
+// It uses no `Logo`, so it renders without any file in public/logos/.
 import { AbsoluteFill, Sequence } from "remotion";
 import { ComeFromBehind } from "./ComeFromBehind";
 import { FilmGrain } from "./FilmGrain";
@@ -20,7 +21,7 @@ export const GlassDemo = ({ world = "" }: GlassDemoProps) => (
   <AbsoluteFill style={{ background: "#000" }}>
     <Sequence durationInFrames={80} name="1 · number and the real command">
       <World src={world || undefined} />
-      <NumberWord value={7} word="rules" at={4} y={300} count={[4, 22]} />
+      <NumberWord value={8} word="rules" at={4} y={300} count={[4, 22]} />
       <ComeFromBehind from={24} behind={{ x: 540, y: 1500 }} to={{ x: 540, y: 785 }}>
         {/* the command that really opens this project, in a pane the size of one line */}
         <Terminal y={690} h={190}>
@@ -34,10 +35,10 @@ export const GlassDemo = ({ world = "" }: GlassDemoProps) => (
     </Sequence>
     <Sequence from={172} name="3 · one word">
       <World src={world || undefined} />
-      <BigWord at={2} y={640} size={200}>
+      <BigWord at={2} y={660} size={150}>
         yours.
       </BigWord>
-      <GlassPill at={12} text="same standard" top={960} size={96} />
+      <GlassPill at={12} text="same standard" top={960} size={72} />
       <FilmGrain />
     </Sequence>
   </AbsoluteFill>

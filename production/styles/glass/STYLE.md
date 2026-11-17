@@ -9,6 +9,7 @@ What it taught became **the standard every identity meets** (`production/REELS-W
 ## The patterns (what works and what doesn't)
 
 **Yes:**
+- Real logos and images of what's named, instead of its written name (v25).
 - The real and specific: their photos, their timelapses, their numbers, their notes, their files, their team.
 - Dark glass with video inside, the size of what it shows.
 - Pieces that come out from behind the person, and the previous one that moves back.
@@ -21,6 +22,8 @@ What it taught became **the standard every identity meets** (`production/REELS-W
 - Film grain.
 
 **No:**
+- Writing the name of an app or AI when its logo can be shown.
+- Joined cursive or tightly tracked type.
 - "Emoji-like" white cards.
 - Small type or labels that can't be read in time.
 - Lists of steps on screen.
@@ -53,11 +56,14 @@ More picture than text. Pieces of dark, transparent glass, with video inside, th
 
 ## Type
 
-- Numbers and titles in Inter Tight 800, with tight letter spacing. The words that go with them, in Instrument Serif italic. Examples: "**3** *weeks*", "**21** *days*", "**Creator OS**" and "*from idea to reel*".
-- Under the chin, a stack of a number and a word, which fades out before the next phrase. Yellow is for the number that carries the weight.
-- Captions: white Montserrat 800, the spoken word in yellow, 1 to 3 words. They don't show while the stack is on screen, and a group never joins two phrases.
-- **Nothing that can't be read in time.** Out go type under about 36 px at 1080 wide, labels ("EDITOR · now", "v13", the calendar's numbers) and lists of steps. What can't be read in time is said with shapes, like the red icon, ✕ and ✓, or the days that fill up.
-- Text goes below y≈270, so Instagram's top bar doesn't cover it.
+- **A wide, heavy display face, uppercase, normal tracking** (in the kit: Unbounded 800 or 900, `DISPLAY` and `disp()` in `src/glass/theme.ts`). It goes on numbers and big words: "3 WEEKS", "+100 ERRORS", "4–5 HOURS", "$0", "LIKE YOU".
+  - The creator, Nov 17, 2026: "that typeface like joined-up writing, no… something more attractive, that hooks".
+  - Out go the serif italic and tightly tracked letters (negative `letterSpacing`).
+  - Anton, Bricolage Grotesque, Unbounded and Archivo Black were tested over the person's take. Anton hooks, but it's the usual one.
+- **Captions:** a heavy sans (Montserrat 800 where it was born; the brand's sans in the kit), normal tracking, the spoken word in yellow, 1 to 3 words that never join two phrases.
+- Wide type takes more room: a big word goes at 150 px or less. Measure that it fits in 1080.
+- **Nothing that can't be read in time.** What doesn't fit is said with a logo or an icon.
+- Text goes below y≈270, out of Instagram's top bar.
 
 ## Colors
 
@@ -93,7 +99,7 @@ The recipe comes from one of the references (a 3D interface over a dark backgrou
 - **The camera is never still:** it pushes in, pulls back, turns a little and goes through things.
 - **One big glass protagonist per scene**, filling the frame from y≈250 to y≈1250. It carries video inside when possible: their take in the editor's preview, or a reel.
 - **Something new every 0.4 to 1 s, on the word that names it:** a cut in the timeline, a number that jumps, a window passing by.
-- **One big word per scene,** in Instrument Serif or Inter Tight 800, at y≈250. While it's on screen there's no caption, so it isn't repeated.
+- **One big word per scene,** in the display face, at y≈250. While it's on screen there's no caption, so it isn't repeated.
 - **Captions lower** (y≈1400), below the protagonist. Over busy backgrounds they get a dark band behind.
 - **Enter by pulling focus:** the person blurs out over about 4 frames while the glass comes into focus, in the pause after the word, never inside it.
 - **Come back to the person through the glass:** the camera goes into a reel that already shows their take, and that reel becomes the screen.
@@ -122,7 +128,9 @@ A generic, brand-neutral version lives in the example brand: `brands/example/ree
 | Glass pane | The dark, transparent panel, sized to what it shows, with a video inside when possible | `GlassPanel` (frosting from a blurred, aligned copy of the take), `GlassWindow` (comes in pulling focus), `glassStyle()` |
 | The world behind | Their own footage, blurred, behind every full-screen scene | `World` |
 | Comes from behind | Wraps any piece so it starts small behind the head and comes out with a spring and a 3D turn; the previous one moves back | `ComeFromBehind`, with the person's cutout on top (`cutout-person.mjs` and the kit's `Person` piece) |
-| Big word, number and word | One word per scene; "4–5 *hours*" | `BigWord`, `NumberWord` |
+| Big word, number and word | One word per scene; "4–5 HOURS" | `BigWord`, `NumberWord` |
+| Type | The wide, heavy display face, uppercase, normal tracking | `DISPLAY`, `disp()` in `theme.ts` |
+| Logos | What's named, shown with its real logo from `public/logos/` (from `simple-icons` and `@lobehub/icons-static-svg`; the repo ships none); an app tile with letters when there's no logo | `Logo`, `AppIcon` |
 | Word under the chin | One word in glass that never covers the face | `GlassPill` |
 | Captions | 1 to 3 words, the spoken one highlighted, never across two phrases | `GlassCaptions`, from the cut's map |
 | Grain | Fine film grain on full-screen scenes | `FilmGrain` |
@@ -136,3 +144,4 @@ Built per piece, with the piece's real material: panes with motion inside (a cal
 - **Nov 17, 2026, v19:** glass with video inside instead of the white cards, and the reveal almost without text. The creator: "much better".
 - **Nov 17, 2026, v20:** the pieces come out from behind the person and the previous one moves back. The errors stack up behind the warning, with no small type. The final window is two panes the size of what they show, with big type, and the flash follows the finger. The creator's request: "more dynamism… that they could come out from behind… a better distribution of the space".
 - **Nov 17, 2026, v21-v24:** full-screen scenes. Invented screens were dropped for real material (v22), the reel feed was added (v23) and the creator approved the style: "I won't accept less than this". The full reel (v24) added the recipes for step scenes. Its standard went into `production/REELS-WORKFLOW.md` and the generic kit into `brands/example/reel/src/glass/`.
+- **Nov 17, 2026, v25:** real logos instead of names, icons instead of words, "$0", errors that turn into lessons; the type moves to a wide, heavy display face (Unbounded). The kit got `Logo`, `AppIcon` and `disp()`.

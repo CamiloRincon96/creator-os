@@ -1,19 +1,42 @@
 // The «glass» identity's look. Colors and the main font come from the brand (src/brand.ts): change the brand there.
-// What belongs to the identity (the word font, the glass tint, the motion curves) is here: change it to make the
+// What belongs to the identity (the display face, the glass tint, the motion curves) is here: change it to make the
 // identity yours. What doesn't change is the standard (production/REELS-WORKFLOW.md, «The standard»).
 import { loadFont as loadMono } from "@remotion/google-fonts/JetBrainsMono";
-import { loadFont as loadSerif } from "@remotion/google-fonts/InstrumentSerif";
+import { loadFont as loadDisplay } from "@remotion/google-fonts/Unbounded";
+import type { CSSProperties } from "react";
 import { Easing } from "remotion";
 import { BACKGROUND, C, fontFamily } from "../brand";
 
 export const FONT = {
-  /** Numbers and titles: the brand's sans, weight 800, tight letter spacing. */
+  /** Captions and small UI: the brand's sans, weight 800, normal letter spacing. */
   sans: fontFamily,
-  /** The words that go with them («3 *weeks*»): a serif italic. Swap it for your identity's word font. */
-  serif: loadSerif("italic", { weights: ["400"], subsets: ["latin"] }).fontFamily,
+  /**
+   * Numbers and big words: a wide, heavy face in uppercase with normal letter spacing, so it hooks and reads at a
+   * glance («3 WEEKS», «4–5 HOURS», «$0»). No joined cursive, no serif italic, no negative letterSpacing. Swap it for
+   * your identity's own display face (test 3 or 4 over the person's take before choosing).
+   */
+  display: loadDisplay("normal", { weights: ["700", "800", "900"], subsets: ["latin"] }).fontFamily,
   /** Commands, times and code. */
   mono: loadMono("normal", { weights: ["500", "700"], subsets: ["latin"] }).fontFamily,
 };
+
+/** The display face (see FONT.display). */
+export const DISPLAY = FONT.display;
+
+/**
+ * A big word or number in the display face: weight 800, uppercase, normal letter spacing. Wide type takes more room:
+ * keep a big word at 150 px or less and check it fits in 1,080; what doesn't fit is said with a logo or an icon.
+ */
+export const disp = (size: number, extra?: CSSProperties): CSSProperties => ({
+  fontFamily: DISPLAY,
+  fontWeight: 800,
+  fontSize: size,
+  fontStyle: "normal",
+  textTransform: "uppercase",
+  letterSpacing: 0,
+  lineHeight: 1,
+  ...extra,
+});
 
 /** The identity's colors, taken from the brand. */
 export const GLASS = {
