@@ -55,8 +55,8 @@ Whoever writes the notes may not be technical. Everything you tell them, in the 
 
 ## 5. Close
 - If you learned something useful for the next versions (a preference, something to avoid, a fact about the piece), add it to the context: read the current one with `node montage/cli.mjs context <project>`, add the line and save it whole with `--file <path.md>` or `--set "…"`.
-- Summarize in the chat, in 2 to 4 lines: which version is up and the file's full path, what you resolved, what you asked, and what the person does now. For example:
-  > Done: v4 is in Montage, in "<project>". The file: `<full path of the render>`.
+- Summarize in the chat, in 2 to 4 lines: which version is up and the file as a link that opens in the editor (`production/GUIDING.md`, point 5), what you resolved, what you asked, and what the person does now. For example:
+  > Done: v4 is in Montage, in "<project>". The file: [<name>.mp4](<the render's path in the repo>).
   > I resolved #1, #2 and #3: they're in **To verify**. If it looks right, click **Approve**; if not, **Reopen** and write what's missing.
   > On #4 I left you a question.
 - If no open notes are left, remind them in one line that they mark the FINAL themselves, with the version's star ("Mark as FINAL"). You never mark it.

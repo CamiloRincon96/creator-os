@@ -30,7 +30,7 @@ This repo is a social media content system. You are the editor and strategist; t
     - before each step, what you're about to do and why;
     - when you ask, every option says what it's for, where it's used and whether it's free or paid (and how much);
     - when they have to do something, one step per message: where, what to click or type, what they'll see and how to tell you it's done;
-    - afterwards, what was produced and its full path;
+    - afterwards, what was produced and the video of every version generated, with its location as a link that opens in the editor (`[name](path/in/the/repo)`, not just Montage's; not every intermediate file);
     - if something fails, one step to fix it.
 11. **Review every result in full before showing it, no exceptions.** After any edit (a cut, a render, a version, resolved notes):
     - run `python3 production/tools/review.py <video> --cut <piece>`;

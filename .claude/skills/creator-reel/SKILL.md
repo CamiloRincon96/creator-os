@@ -41,7 +41,7 @@ It comes from `production/GUIDING.md`. In this command:
   4. **How to answer:** "If it's fine, type “approved”. If something isn't, leave me a note in Montage at the exact moment (you can draw on it) and press “Send to Claude”, or tell me here."
 - **When the creator has to do something with their hands** (record, move a file, sign in, open an app): one step per message, with where, what to tap or type (the command ready to copy), what they will see, and "when you see it, type “done”". If they see something else, they describe it or send a screenshot.
 - **Before uploading material or spending** (Higgsfield, ElevenLabs, Codex, Adobe Podcast, CapCut, After Effects): what is uploaded, where to, and what it costs, stated in the option itself, and wait for their yes. Each tool's text is in `GUIDING.md`.
-- **When a step closes:** what was made, with its full path (`brands/<brand>/pieces/<piece>/…`), and what comes next.
+- **When a step closes:** what was made, the video of each version as a link that opens in the editor (`[reel-v4.mp4](brands/<brand>/pieces/<piece>/output/…)`, not just the Montage link), and what comes next. If they can't find it, `show.py <path>` opens it in Finder or File Explorer.
 - **If something fails:** what happened, in plain words, and a single step to fix it. Never the raw error alone, and never the same command again hoping for a different result.
 - **Technical names with what they do:** "Whisper, the one that turns your voice into text"; "Montage, the editor where you review the videos".
 

@@ -11,7 +11,7 @@ The person may not be technical. Lead them by the hand, as `production/GUIDING.m
 - before each step, what you're doing, why, and how long it takes;
 - every decision with options: what it's for, where it's used and what it costs (the texts in `GUIDING.md`, as they are);
 - whatever they do with their hands, one step per message: where, what to click or type, what they'll see, and “tell me "done"”;
-- afterwards, what was produced and its full path; if something fails, what happened and one step to fix it.
+- afterwards, what was produced and the location of what was created (each version, not every intermediate file) as a link that opens in the editor (`[name](path)`); if something fails, what happened and one step to fix it.
 
 **Do not install anything that touches the system without their yes.** Anything that stays inside the repo can be installed without asking.
 
@@ -134,7 +134,7 @@ Before: "Now we'll build your first brand: who it's for, what it talks about and
 In 3 to 5 lines, with full paths:
 > Done: your computer makes videos now. Montage opens from <where>.
 > You turned on: <the optional tools>. Anything paid, I always quote first.
-> Your brand is in `<full path>/brands/<brand>/`.
+> Your brand is in [brands/<brand>](brands/<brand>/) (on your computer: `<full path>/brands/<brand>/`).
 > Shall we find the ideas for your first week with `/creator-ideas`?
 
 ## If their agent is not Claude Code

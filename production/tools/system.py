@@ -74,6 +74,18 @@ def program(name):
     return shutil.which(name) or name
 
 
+def show_in_folder(path):
+    """Opens a file's folder so the person can see it: Finder (macOS) or File Explorer (Windows) with the file selected;
+    on Linux, its folder. With a folder, it opens it."""
+    path = Path(path).resolve()
+    if MAC:
+        subprocess.run(["open", "-R", str(path)] if path.is_file() else ["open", str(path)])
+    elif WINDOWS:
+        subprocess.run(["explorer", f"/select,{path}"] if path.is_file() else ["explorer", str(path)])   # returns 1 even when it opens
+    else:
+        subprocess.run(["xdg-open", str(path if path.is_dir() else path.parent)])
+
+
 # ---------------------------------------------------------------- Chrome and Remotion
 def chrome():
     """Installed Google Chrome, or None. Remotion uses it if it is there; if not, it downloads its own browser."""

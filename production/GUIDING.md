@@ -16,7 +16,12 @@ Whoever uses this may not be technical. Every time the system talks to them, the
 
 **4. When something gets installed, uploaded or spent:** first, what it is, where it comes from, how big it is or what it costs, and what it touches on the computer. Passwords, keys, accepting terms and paying are done by the person; tell them exactly where.
 
-**5. After a step:** one line with what was produced and the full path of what was created; then, what's next. For example: "Done: your voice is in `brands/example/pieces/…/voice/cut-v2.mp4`. Now you listen to it and tell me whether every word comes through."
+**5. After a step:** one line with what was produced, **every version that was generated with its location** (the video or image of each version: what goes to Montage or gets delivered; not intermediate files like sheets, tracks or reports), and then what's next. The person doesn't see the files unless they're told where they are (the creator, Nov 17, 2026: "whenever you create something, give me the location… not every file, but every video generated for each version").
+- **As a link that opens with one click:** in VS Code and in the Claude app, the path relative to the repo as a link, `[cut-v2.mp4](brands/example/pieces/…/voice/cut-v2.mp4)`: it opens the file in the editor (videos and images show right there). In the terminal, the full path.
+- **Every version, not just the Montage link:** the Montage link goes too, never instead of the video's path. If a version leaves several videos, one per line, with a word on what each one is ("to listen", "the one to post").
+- **To see it on the computer:** `python3 production/tools/show.py <path>` opens the folder in Finder (or Windows File Explorer) with the file selected. Offer it in one line, or do it if the person asks.
+
+For example: "Done: your voice is in [cut-v2.mp4](brands/example/pieces/2026-11-16-example/voice/cut-v2.mp4). Now you listen to it and tell me whether every word comes through."
 
 **6. When something fails:** what happened, in plain words; why (if known); and one single step to fix it. Never the raw error alone, and never repeat the same command hoping for a different result.
 
