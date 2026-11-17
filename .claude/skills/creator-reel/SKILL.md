@@ -20,7 +20,14 @@ The why and the overview are in `production/REELS-WORKFLOW.md`. This is the proc
 5. **Never FINAL and never publish on your own:** the creator marks FINAL. Only a batch they approved in the chat goes out to Instagram (stage 12, `instagram.py approve`).
 6. The brand's rules (`brands/<brand>/BRAND.md`) rule over the style.
 7. **Before showing each stage, go over its block in `production/LESSONS.md`**: it is what has already gone wrong and how to avoid it. If a new lesson comes up, it goes there.
-8. **By the hand** (`production/GUIDING.md`): the creator may not be technical. Every message says what is happening, why, what they have to do and what comes next, in short lines and without jargon. How, below.
+8. **Every result is reviewed in full before it is shown, no exceptions.** After every cut, render, version or resolved note:
+   - run `python3 production/tools/review.py <video> --cut <piece>` (or `--script <piece>/visual-script.json`, `--text "…"`);
+   - look at all its images: the walkthrough, the cuts and the eyes;
+   - read what is heard and the warnings;
+   - write "## What I saw" in its `REVIEW.md`.
+
+   If something is wrong, fix it and review again. Montage blocks publishing without that review. A script that "passed" is not a review: the review is looking at the result. Reviewing comes before speed.
+9. **By the hand** (`production/GUIDING.md`): the creator may not be technical. Every message says what is happening, why, what they have to do and what comes next, in short lines and without jargon. How, below.
 
 ## How you talk to the creator
 
@@ -117,7 +124,7 @@ Say: "I'm turning your voice into text with Whisper, on your computer (nothing i
 python3 production/tools/prepare.py <piece> --names "<the brand's proper names>"
 ```
 
-1. Read `work/TRANSCRIPT.md` and check it against the script. Pick the best version of each sentence (if it was repeated, the last complete one with no slip). Note in the log what was said differently from the script, and tell the creator in a short list ("Three sentences came out different from the script; they stay as you said them: …").
+1. Read `work/TRANSCRIPT.md` and check it against the script. Pick the best version of each sentence **by the voice and by the picture**. If it was repeated, take the one heard complete with no slip and where the person looks at the lens with the gesture complete (not reading or looking down). If the best voice doesn't work on camera, keep the voice and mark that sentence to be covered with animation in stage 5. Note in the log what was said differently from the script, and tell the creator in a short list ("Three sentences came out different from the script; they stay as you said them: …").
 2. Write `<piece>/cut.json`:
    - `phrases` in order;
    - `corrections` for mistranscribed words;
@@ -132,7 +139,16 @@ python3 production/tools/prepare.py <piece> --names "<the brand's proper names>"
    - **Automatic check:** it looks for gaps without voice longer than 0.3 s and transcribes the finished cut to compare it word by word with what was expected.
 
    Read the warnings before showing anything. Tell each one to the creator in plain words and with the second ("At second 12 you can hear “hands”: that's how you said it"), and don't hide it. If the creator or the brand want another pace, change it in `cut.json` (`pause_between_segments`, `pace`, `vad`). Example, for instance, preferred 0.45 s of air.
-4. Publish `voice/cut-vN.mp4` to Montage (raw takes cut together, original audio leveled).
+4. **Review the cut by the picture and by the voice, always, before showing it:**
+   - `python3 production/tools/gaze.py <piece>` checks every piece of the cut and leaves `voice/gaze-vN.jpg`: the eyes up close, piece by piece, green when looking at the lens and red when not. Claude looks at the whole sheet. Pieces where the person doesn't look, reads, leaves the frame or is blurry can't go on camera.
+   - `python3 production/tools/review.py <piece>/voice/cut-vN.mp4 --cut <piece>` reviews the whole cut:
+     - the walkthrough, every cut and the eyes;
+     - what is heard against what was expected;
+     - dead pauses, clipped words and cuts inside a word.
+
+     Look at all its images and write "## What I saw".
+   - Fix whatever is wrong (a clipped word, a cut in the middle of a gesture, a stretch where they read) in `cut.json` and review again.
+5. Publish `voice/cut-vN.mp4` to Montage (raw takes cut together, original audio leveled). With it, in one line: what was reviewed and which sentences can't go on camera and why ("In “I always edited…” you look down: it goes with animation").
 - **Approves, by ear:** nothing missing or extra, and no word clipped. **Check:** listen all the way through, with headphones if you can: no sentence missing or extra, no word clipped at the start or the end, and a pace that sounds neither rushed nor sung. If they want it faster or slower, offer two `pace` intensities to compare. If they ask for changes, edit `cut.json` and `cut-v(N+1)` comes out.
 
 ## Stage 4 · Voice
@@ -166,11 +182,29 @@ The chosen version always goes through `python3 production/tools/match_timbre.py
 
 Say: "I'm building a mockup: your voice with gray cards where each animation will go, so you approve the pace before anything is built."
 
+- **How much the person appears.** If `brands/<brand>/BRAND.md` doesn't say, ask once per brand, with options:
+  - a lot, 60 to 70 % (the person tells it and the animations support);
+  - half, 40 to 50 %;
+  - little, 20 to 30 % (mostly animation);
+  - "you decide from the takes".
+
+  Save it in the brand's `BRAND.md` and in `scenes.json` as `person_target` (0.45 = 45 %). With "you decide", the person appears in their best moments: the hook, what they tell first-hand and the call to action. Always in pieces that `gaze.py` marks as fit.
+- **Where the person appears, by the picture and not only by the voice:**
+  - only in pieces where they look at the lens (`voice/gaze-vN.jpg`);
+  - never a shot of them shorter than 0.6 s (a micro cut);
+  - never frames from another moment at the start or end of the take (`visual_script.py` cuts at the piece);
+  - if they keep talking and looking at the camera, they're not cut mid-sentence: the cut goes after (`"starts": "<phrase>:<i>:end"`);
+  - if they point or make a gesture, the edit follows it: the animation appears where they point.
 - Write `<piece>/scenes.json` from the table in `script.md`: per scene, `shot`, `starts` (phrase and word, e.g. `T03-01:0`), `shows`, `text`, `camera` (`snap`, `slow`, `still`) and `accent` (the word for the push-in). And `voice`: the version chosen in stage 4.
 - `python3 production/tools/visual_script.py <piece>` puts in the real timings and leaves `visual-script.md`, `visual-script.json`, `image/blocks.json` and the counts.
+- `visual_script.py` warns when a person scene lands on a piece that isn't fit and when the share drifts more than 10 points from the agreed one. Resolve each warning:
+  - change the scene;
+  - or look at the sheet and write in `gaze_ok` why it stays ("squints while talking, but looks at the lens").
+
+  Don't move on with unresolved warnings.
 - Check the counts against the brief: percentage of person on screen and a visual change every two to three seconds. Also check that each scene lasts as long as what it shows takes to be seen (stage 7 block of `LESSONS.md`): mark the ones too short for their text or shot right away.
 - Write `image/blocks.json`: one block for each `CAMERA` or `CAMEO` row (`id`, `start`, `end` in piece seconds, `what`). From here on you know how many seconds the person appears; run `python3 production/tools/quote.py <piece>` and note the result in `STATUS.md`, for information only. If the brief asked for something from stage 8, tell them in one line: "You're on screen for 9 s. With AI, that would cost about N credits; it's just so you know, nothing is spent now."
-- Make the **mockup**: `python3 production/tools/mockup.py <piece>` (the `Mockup` composition in the brand's Remotion project: the voice, the real take in the blocks, gray cards in the scenes, push-ins and captions; at half resolution). Check one frame per scene and publish it with one marker per scene.
+- Make the **mockup**: `python3 production/tools/mockup.py <piece>` (the `Mockup` composition in the brand's Remotion project: the voice, the real take in the blocks, gray cards in the scenes, push-ins and captions; at half resolution). Review it in full with `review.py <mockup> --cut <piece>` (all its images and "What I saw") and publish it with one marker per scene.
 - **Approves:** the pace and what is seen on each sentence. **Check:** in Montage, that every sentence has something to look at, that something changes every 2 or 3 s, and that you appear where the brief says. The gray cards mark places, not the design yet.
 
 ## Stage 6 · Base image of the person (only if there is a person)
@@ -281,7 +315,12 @@ Say: "I'm adding the effects and the music. I can't hear: I measure, and you app
 
 ## Stage 10 · Review
 
-Before publishing each version, two passes over the final file: one for cuts and captions (frames at every shot change, at full size) and another for hook and pace.
+Before publishing each version, the **full review** with `review.py <final video> --cut <piece>`:
+- look at all its images: the walkthrough, every cut, the eyes and the faces;
+- read what is heard;
+- write "## What I saw".
+
+Montage won't publish without it. On top of that come two passes: one for cuts and captions (frames at every shot change, at full size) and another for hook and pace.
 
 Plus a **fixed final checklist**:
 1. Duration and resolution (1080×1920, 30 fps).

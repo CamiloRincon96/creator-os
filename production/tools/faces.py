@@ -53,9 +53,14 @@ def covered(img, face):
     x, y, w, h = face
     zone = img[y + int(h * 0.2):y + h, x + int(w * 0.15):x + int(w * 0.85)]
     hsv = cv2.cvtColor(zone, cv2.COLOR_BGR2HSV)
-    white = (hsv[..., 2] > 232) & (hsv[..., 1] < 28)
-    z = zone.astype(np.int16).reshape(-1, 1, 3)
-    of_brand = (np.abs(z - BRAND[None]).sum(axis=2) < 45).any(axis=1).reshape(zone.shape[:2])
+    # card white: neutral (without the warm tone of skin). A shine on the forehead is white but warm.
+    zi = zone.astype(np.int16)
+    white = (hsv[..., 2] > 232) & (hsv[..., 1] < 28) & (np.abs(zi[..., 2] - zi[..., 0]) < 14)
+    # only the light brand colors: the dark ones (near-black green, ink) match the beard, the hair and a black
+    # t-shirt, and gave false warnings on shots with no graphic at all
+    light = BRAND[BRAND.sum(axis=1) > 150]
+    z = zi.reshape(-1, 1, 3)
+    of_brand = (np.abs(z - light[None]).sum(axis=2) < 45).any(axis=1).reshape(zone.shape[:2])
     return float((white | of_brand).mean())
 
 

@@ -45,6 +45,7 @@ Whoever writes the notes may not be technical. Everything you tell them, in the 
 - **If something fails** (a render that won't come out, a change that can't be made): don't publish a broken version. Reply on the note with what happened, in simple words, and the step you propose (or ask it with `--state question`). Say it in the chat in one line too.
 
 ## 4. Verify and publish
+- **Mandatory review of the whole video**, not just the note's frame: `python3 production/tools/review.py <render> [--cut <piece>]`. Look at all its images, read what is heard and write "## What I saw" in its `REVIEW.md`. A change in one spot can break another. Without that review, Montage won't publish.
 - Pull frames from the new render at the notes' times and compare them with the captures.
 - Publish:
   `node montage/cli.mjs publish <project> <file> --note "what changed, in one line" --resolves <n,n> --origin "<how it was produced: .aep/comp, piece, prompt…>" [--markers "0:Hook,2.5:Logo"]`

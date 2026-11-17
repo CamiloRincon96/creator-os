@@ -37,7 +37,7 @@ system.prepare(venv=True, args=1)
 
 import glob, os, re, sys
 import numpy as np
-from common import FPS, envelope, ff, level, load, loudness, piece, read, save
+from common import FPS, MODELS, envelope, ff, level, load, loudness, piece, read, save
 
 if len(sys.argv) < 2:
     sys.exit(__doc__)
@@ -355,7 +355,7 @@ if VAD is not None:  # check the result with the same detector: no long gap with
                     "nueve": "9", "nine": "9", "diez": "10", "ten": "10", "quince": "15", "fifteen": "15", "veinte": "20",
                     "twenty": "20", "treinta": "30", "thirty": "30", "cien": "100", "hundred": "100", "mil": "1000", "thousand": "1000"}
             return [nums.get(w, w) for w in re.findall(r"[a-zñ0-9]+", t)]  # "fifteen" and "15" count the same
-        model = WhisperModel(request.get("check_model", "large-v3"), device="cpu", compute_type="int8")
+        model = WhisperModel(request.get("check_model", "large-v3"), device="cpu", compute_type="int8", download_root=MODELS)  # the repo's copy, not another 2.9 GB one
         names = request.get("names", "")
         heard, _ = model.transcribe(yo.astype(np.float32), language=request.get("language"), initial_prompt=names or None, condition_on_previous_text=False)
         ea, hb = norm(" ".join(f["text"] for f in piece_phrases)), norm(" ".join(z.text for z in heard))

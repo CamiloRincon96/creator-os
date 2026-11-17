@@ -27,14 +27,14 @@ It goes in the piece's `brief.md`, with the references (`production/references/`
 | 0 | What piece is it | Asks the type, style, how much the person appears, which voices to try and what's wanted from AI; analyzes the references | The brief | `piece.py new`; `yt-dlp` and ffmpeg to look at the references |
 | 1 | Idea and script | Talks the idea through, proposes hooks and what's seen on each line, checks the facts | The script, by scene | Skills `ig-reel`, `ig-human`, `ig-viral`; the `script.md` template |
 | 2 | Recording | Gives the list of what to record and the guide | (records) | Camera and microphone |
-| 3 | Voice cut | Transcribes, picks the best version of each phrase and cuts with Silero VAD: jump cuts, no breaths, even pace and an automatic check of gaps and words | The cut, by ear | `prepare.py` (local Whisper), `cut.py`, Montage |
+| 3 | Voice cut | Transcribes, picks the best version of each phrase by the voice and by the picture (looks at the lens, gesture complete) and cuts with Silero VAD: jump cuts, no breaths, even pace. Reviews the whole cut by picture and voice before showing it | The cut, by ear | `prepare.py` (local Whisper), `cut.py`, `gaze.py`, `review.py`, Montage |
 | 4 | Voice | Cleans up, matches the tone between takes and levels phrase by phrase; brings in the chosen external versions | Which one sounds best | `voice.py`; ElevenLabs (connector), Adobe Podcast (Claude driving Chrome), CapCut |
-| 5 | Visual script | Puts the real timings into the scene table, marks the blocks where the person appears and builds a mockup | The mockup | Remotion, `quote.py` (informational), Montage |
+| 5 | Visual script | Agrees how much the person appears (or decides it from the best takes), puts the real timings in, marks the blocks where they appear only in pieces where they look at the lens, and builds a mockup | The mockup | `visual_script.py`, `gaze.py`, Remotion, `quote.py` (informational), Montage |
 | 6 | Base image | Color and framing of the person's blocks, and separating them from the background for the epic look | Before and after | `blocks.py`, After Effects via MCP, `cutout-person.mjs`, the kit's `Person` piece |
 | 7 | Animation | First the two or three hard moments; then all the scenes | The hard moments and then the edit | Remotion (`remotion-*` skills), After Effects for one-off effects |
 | 8 | AI and retouch (optional) | Reference photo, quote, draft, final and retouch | The photo, the quote, the draft and the retouch | Codex (images), Higgsfield, CapCut |
 | 9 | Sound | Effects, music and mix | The mix, by ear | Skills `real-sfx` and `openverse-audio` (or `hyperframes:media-use` in HyperFrames projects)|
-| 10 | Review | Goes over it twice, publishes the version and sends each note back to its stage | Notes on the frame | Montage, the `creator-notes` skill |
+| 10 | Review | Mandatory full review (`review.py` and "What I saw"), two passes, publishes the version and sends each note back to its stage | Notes on the frame | `review.py`, Montage, the `creator-notes` skill |
 | 11 | Delivery and cleanup | Final folder `brands/<brand>/finals/<project>/` with video, copy, cover and posting time; variants per network; then frees up the disk | Marks FINAL, posts and says yes to the cleanup | Skills `ig-caption` and `ig-human`; `clean.py`, `montage archive` |
 | 12 | Variations | 12a plan of 4 to 6 hooks (one principle each, the week's trend, licensed music) · 12b production · 12c batch · 12d posting as trial reels · 12e results that refine the prompt | The plan and then the exact batch (videos, copies, day and times), in the chat | `production/variations/` (PROMPT, MUSIC, CALENDAR, LEARNED); `variations.py`, `instagram.py` |
 
@@ -153,7 +153,7 @@ In all three cases: the blocks come from `image/to-capcut/`, the creator's saved
 .claude/skills/creator-reel/   the /creator-reel command
 production/
   REELS-WORKFLOW.md       this document
-  tools/                  install.py (in production/), variations.py, instagram.py, piece.py, prepare.py, cut.py, voice.py, match_timbre.py, listen.py, visual_script.py, clean.py, mockup.py, blocks.py, cutout-person.mjs, quote.py, codex.py, save_token.py, system.py (what's specific to each operating system)
+  tools/                  install.py (in production/), variations.py, instagram.py, piece.py, prepare.py, cut.py, voice.py, match_timbre.py, listen.py, review.py (the mandatory review of every result), gaze.py (where the person can appear: looks at the lens), visual_script.py, clean.py, mockup.py, blocks.py, cutout-person.mjs, quote.py, codex.py, save_token.py, system.py (what's specific to each operating system)
   templates/              brief.md, script.md, STATUS.md
   styles/<style>/         the style library: one STYLE.md each
   references/             reference reels and their analysis

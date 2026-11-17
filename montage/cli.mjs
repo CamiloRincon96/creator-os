@@ -279,6 +279,8 @@ const COMMANDS = {
   server [--stop | --restart]             starts / stops the server
   new <id> --name "…" --brand <b> --type video|image|carousel [--origin "…"]
   publish <project> <file…> [--note "…"] [--resolves 4,5] [--origin "…"] [--markers "0:Hook,2.5:Logo"] [--author creator] [--date file|ISO]
+      An AI's video needs its review first (production/tools/review.py) with "What I saw" written;
+      --skip-review "why" skips it and leaves the why in the note.
   pending [--project id] [--all]          notes sent by the creator (with capture paths)
   note <project> <n>                      detail of one note
   view <project> [--v vN] [--t 1.2,4.4 | --frames 30,132 | --sheet 12] [--page N]
@@ -400,6 +402,20 @@ Timeline (video editor): montage/projects/<id>/timeline.json. Times in seconds, 
     if (!project || !files.length) fail('Usage: publish <project> <file…> [--note "…"] [--resolves 4,5]');
     const paths = files.map((a) => path.resolve(process.cwd(), a));
     for (const r of paths) if (!fs.existsSync(r)) fail(`${r} does not exist`);
+    // Mandatory review: an AI's video isn't published without review.py and without "What I saw" written.
+    const byAI = !op.author || op.author === 'claude';
+    let note = op.note || '';
+    if (byAI && op['skip-review']) note = `${note}${note ? ' · ' : ''}(published without review: ${op['skip-review']})`;
+    if (byAI && !op['skip-review']) {
+      for (const r of paths.filter((x) => /\.(mp4|mov|m4v|webm)$/i.test(x))) {
+        const report = path.join(path.dirname(r), path.basename(r).replace(/\.[^.]+$/, '') + '-review', 'REVIEW.md');
+        const run = `python3 production/tools/review.py "${path.relative(process.cwd(), r)}"`;
+        if (!fs.existsSync(report) || fs.statSync(report).mtimeMs < fs.statSync(r).mtimeMs)
+          fail(`${path.basename(r)} hasn't been reviewed (or it changed after the review).\n  1. ${run}\n  2. Look at every image it leaves and read the report.\n  3. Write in "## What I saw" what you reviewed, what you found and what you fixed.`);
+        const seen = (fs.readFileSync(report, 'utf8').split('## What I saw')[1] || '').replace(/<!--[\s\S]*?-->/g, '').trim();
+        if (!seen) fail(`The review of ${path.basename(r)} has no "## What I saw" written: ${report}`);
+      }
+    }
     const markers = op.markers
       ? String(op.markers)
           .split(',')
@@ -410,7 +426,7 @@ Timeline (video editor): montage/projects/<id>/timeline.json. Times in seconds, 
       : [];
     const v = await request('POST', `/projects/${project}/versions`, {
       paths,
-      note: op.note || '',
+      note,
       origin: op.origin || '',
       resolves: op.resolves || '',
       markers,

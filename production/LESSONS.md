@@ -15,6 +15,8 @@ Where everything else is:
 
 ## Always
 
+- **After editing, the whole result is reviewed before it is shown.** This is strict. `review.py` leaves the full video in frames, every cut, the face up close, what is heard against the text, the pauses, the loudness and whether a cut lands inside a word. Claude looks at everything and writes "What I saw"; without that Montage won't publish. The creator: "you make the cuts, run the script… and then you don't check whether the video came out right… whenever you do something, review it".
+- **In Montage, a video shows only the first file of each version.** Several tests go in a single video with `--markers`, never as several files in one version. Four clips were once published together and the creator saw the same one three times and never the other three.
 - **The creator approves each stage before the next one is built.** v1 of "Sin anotar" (the example reel, Spanish for "Not written down") was made in full without them hearing the cut or seeing the plan, and it came out "one of the worst".
 - **Claude can't hear.** The measurements (`listen.py`, `critique.py`) are a floor, not the goal. In v13 everything scored 9 or 10 and the creator said nothing could be heard. Never write "it sounds good": say what was measured and what they should listen for.
 - **Visuals are shown as video**, not as stray frames ("you showed me some photos").
@@ -45,6 +47,7 @@ Where everything else is:
 
 ## Stage 3 · Voice cut
 
+- **The cut is decided by the voice and by the picture.** `gaze.py` says in which pieces the person looks at the lens; its sheet is looked at, and the ones that don't work on camera are marked for animation. The whole cut is reviewed with `review.py` before it is shown. The creator: "don't cut only by the voice, but also by the person… so the person is certain you did your best work".
 - **The cut never lands on the voice.** It's placed by `cut.py` measuring the audio, never by the transcriber's timings. In v1 two cuts ate the end of a word.
 - **Air at the end:** `final_tail` 0.7 s. Without it, the ending stops dead.
 - **A phrase can't carry long silences inside.** `prepare.py` also splits where the audio goes quiet for more than 0.7 s, even without punctuation. In "Tres semanas" one "phrase" carried 19 s of silence, and another had the sentence said twice mixed into one.
@@ -69,11 +72,29 @@ Where everything else is:
 ## Stage 6 · The person's image
 
 - **Natural color:** soft contrast, open shadows, beard and hair with detail. "Epic" comes from what happens on screen, not from harsh color: crushed blacks looked "super bad".
-- **The background is never treated differently from the person** when the cutout is used. Darkening or blurring it leaves a halo in the hair and blotches on the clothes. The cutout is only for putting something behind the head.
+- **Blocks come out of a master version of the cut,** with the same pieces, speeds and silences. `blocks.py` builds it by itself. Working out the second of the take as if the cut were continuous took the blocks from elsewhere: in "Tres semanas", "Te retoca" came out 8 s earlier in the take and another block came from the wrong take. Before grading, check that the master and the cut show the same frame at the same second.
+- **The background is never treated differently from the person** when the cutout is used. Darkening or blurring it leaves a halo in the hair and blotches on the clothes. The cutout is only for putting something behind the head. It was tried again on "Tres semanas" and the same happened: the cutout loses a dark t-shirt at night, and when the creator moves or leans in their face shows up blurred.
+- **A "cinema" grade made with ffmpeg** (curves plus a warm balance) turned the creator "red" and they dropped it. The person's color isn't changed without first showing a frame of their face next to the original.
 - A difference map against the original take across all frames: only what was added on purpose changes.
+
+## Stage 5 · Visual script
+
+- **In scenes where the person appears, the picture doesn't arrive before the voice:** it starts right at the cut of their first word. The 0.1 s lead showed the end of the previous take before the close-up ("you cut me badly, at the end of a take"). `visual_script.py` does it by itself.
+- **A person shot never ends with frames from another moment, and never lasts under 0.6 s.** 0.10 s of another moment at the end of a take was "a take that has nothing to do with it", and a 0.47 s shot was "a micro cut that only shows bad editing". `visual_script.py` ends the scene at that piece and warns about micro cuts.
+- **If the person keeps talking and looking at the camera, the take isn't cut mid-sentence.** The cut goes after it ends. That's what `"starts": "<phrase>:<i>:end"` in `scenes.json` is for.
+- **The gaze is checked on the eyes, enlarged, frame by frame (every 0.2 s)** in every scene where the person appears, before showing the mockup (`gaze.py`). A sheet of full frames at 2 or 4 per second doesn't show a downward look. Three stretches of reading slipped through once, and the creator saw them. Where the eyes go down, their picture doesn't go: what they point at or what they say goes there, big. If another take of the same phrase has them looking at the lens, use that one.
+- **How much the person appears is agreed per brand** (`person_target`) or decided from the best takes, and `visual_script.py` warns when the cut drifts more than 10 points from it.
+- **No flat scenes,** like a lone clock. Every scene without the person is composed and has depth, and every change carries a transition that holds attention. The hook has to land from frame 0.
+- **The edit flows with the person's gestures.** If they point or gesture while looking at the camera, don't cut there: the animation appears where they point ("flow with me when I point at something").
 
 ## Stage 7 · Animation
 
+- **A style test copies the references for real, it doesn't reinterpret them for the brand.** The first tests came out with small type, a small card on an empty background and barely any animation, and the creator said they looked nothing like their references. What they asked for:
+  - the hook text big and heavy, stacked, with one word in color;
+  - animations that draw what is said and fill the frame;
+  - transitions you can see.
+
+  Measure against the reference frame, at the same size, before showing it.
 - **Everything on screen gets its time to be seen.** Appearing is not enough: it has to be readable and understood, with no dead pauses that bore. The whole rhythm is tuned. Starting values, which the creator's eye adjusts:
   - a 1 to 3 word text stays at least 1 s, plus 0.25 s per extra word;
   - a screen or interface shot, 1.5 to 2.5 s, to understand what is happening;
@@ -101,6 +122,11 @@ Where everything else is:
 ## Stage 8 · AI and retouch
 
 - Higgsfield: quote (`quote.py` + `get_cost`), a 480p draft of a single block, and then the final.
+- **Real prices measured (Nov 2026):**
+  - Topaz (`upscale_video`, 720p to 1080p): 3 credits for 2 s, and it doesn't change the face. It can't be quoted before generating, so check `transactions` right after launching it.
+  - FLUX 3 Video Edit: `get_cost` quoted 15 credits for 3 s but charged 3 (1 per second, as its description says). It keeps the gestures, blurs the background and warms the light, but outputs 704x1248 and softens the face a little.
+  - Seedance 2.5 `video_edit` for 5 s: 38 credits at 720p and 100 at 1080p.
+  - Quote with `get_cost` with the clip already uploaded, then confirm the charge with `transactions`.
 - CapCut Pro: the creator doesn't have access for now (Nov 2026). Without retouch, the image keeps the stage 6 color.
 
 ## Stage 9 · Sound
@@ -163,6 +189,10 @@ Where everything else is:
 
 ## Technical (for Claude)
 
+- **ffmpeg: `unsharp` on `gbrp` tints the image magenta.** It only sharpens green. Sharpen in YUV before going to RGB; a glow with `blend` does go in `gbrp`.
+- **After Effects' disk cache grows without warning:** it reached 12 GB with the grain-removal renders. When stage 6 closes: save, quit After Effects and empty the `Disk Cache` folder. It rebuilds itself.
+- **Everything that uses Whisper points to the repo's model** (`download_root=MODELS`). Without it, `faster-whisper` downloads another 2.9 GB copy to `~/.cache/huggingface`; it happened with `cut.py`'s word check.
+- **`faces.py` only counts neutral white and the light brand colors.** The dark ones match a beard, hair and a black t-shirt, and a shine on the forehead is white but warm: both gave false "covered" warnings on shots with no graphic at all.
 - **Face detection with OpenCV 4, not 5.** Version 5 removed `CascadeClassifier`, and `faces.py` uses it. `requirements.txt` pins `<5`.
 - **The face zone for `faces.py check` goes from the eyes to the chin, without the edges.** Stretching it toward the neck flagged as "covered" the expense sheet and the counter, which sit below the chin.
 
