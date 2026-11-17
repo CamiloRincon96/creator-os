@@ -6,6 +6,24 @@ Version 2 (November 13, 2026), to keep refining with the creator. It runs with t
 
 The general rules are still in `WORKFLOW.md`, and each brand's in its `BRAND.md`. **Everything that has already gone wrong, and how to avoid it, is in `production/LESSONS.md`**, by stage: go over it before showing each one.
 
+## The standard (it holds for any identity)
+
+The creator, Nov 17, 2026, approving "glass": "I won't accept less than this". Each brand or each person picks their own identity: colors, type, the shape of the panels. But every identity meets this floor, which came out of the first full reel made in "glass" (`production/styles/glass/STYLE.md`, with the examples):
+
+1. **Real and specific, never invented.** What's on screen comes from the person and their work:
+   - their takes, their `stock/` (photos and timelapses of them working) and captures of the tools they really use;
+   - their numbers (from the repo or said by them), their notes, their files and their team.
+   - Fake screens (windows with lines instead of text, sparkles, clocks) look "generic AI".
+   - Something generic only goes in on purpose, when the script talks about the generic.
+2. **Few words, and big:** one word per scene, in the identity's type. Nothing that can't be read in time: what doesn't fit is said with shapes (✓ ✕, counters, bars), and a phrase already written big on screen gets no caption.
+3. **Panels the size of what they show,** with video inside when possible. A big window with a little piece inside looks empty.
+4. **Always moving:** the camera pushes in, pulls back or goes through; something new every 0.5 to 1 s, on the word that names it; pieces come from somewhere (from behind the person, from their gesture) and the previous one leaves.
+5. **The person rules:** they appear where they look at the lens; nothing covers their face or blurs it; if they point, the animation is born there; they're never cut in the middle of a gesture.
+6. **One world:** full-screen scenes go over their own footage, blurred, never over a background from somewhere else; nothing that looks like home unless the brand wants it; even color from take to take and fine grain.
+7. **Reviewed in full** with `review.py`, as in every piece.
+
+Picking another identity changes the look, not this floor. The brand's Remotion project has a kit that serves it (`brands/example/reel/src/glass/`, with its README).
+
 ## Stage 0: what piece is it
 
 Before writing anything, four things are chosen. Not every piece is the same.
@@ -156,7 +174,7 @@ In all three cases: the blocks come from `image/to-capcut/`, the creator's saved
 .claude/skills/creator-reel/   the /creator-reel command
 production/
   REELS-WORKFLOW.md       this document
-  tools/                  install.py (in production/), variations.py, instagram.py, piece.py, prepare.py, cut.py, voice.py, match_timbre.py, listen.py, review.py (the mandatory review of every result), gaze.py (where the person can appear: looks at the lens), visual_script.py, clean.py, mockup.py, blocks.py, cutout-person.mjs, quote.py, codex.py, save_token.py, system.py (what's specific to each operating system)
+  tools/                  install.py (in production/), variations.py, instagram.py, piece.py, prepare.py, cut.py, voice.py, match_timbre.py, listen.py, review.py (the mandatory review of every result), gaze.py (where the person can appear: looks at the lens), match_color.py (the same skin color from take to take), visual_script.py, clean.py, mockup.py, blocks.py, cutout-person.mjs, quote.py, codex.py, save_token.py, system.py (what's specific to each operating system)
   templates/              brief.md, script.md, STATUS.md
   styles/<style>/         the library of video identities: one STYLE.md each (a brand can use several)
   references/             reference reels and their analysis

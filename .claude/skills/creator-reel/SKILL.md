@@ -116,6 +116,14 @@ This is a hands-on step. In one message, the script's "What to record" list and 
 
 In the next message: "Move the video to the computer and drop it in this folder, which I'm opening now: `brands/<brand>/pieces/<piece>/source/`. When it's there, type “done”." Open the folder for them (macOS `open <folder>`, Windows `start "" <folder>`, Linux `xdg-open <folder>`). The footage goes in `source/`, untouched. When it arrives: "I got `<file>` (2 min 14 s). Now I'm cutting the voice."
 
+**Real material for the scenes.** If `brands/<brand>/stock/` is empty or not enough for the script, ask for it in a separate message, with what's useful for this piece:
+- photos of them working;
+- 10 to 30 s timelapses with the phone (their hands, their desk, their team);
+- captures of the tools they name;
+- videos they cite.
+
+It goes in `brands/<brand>/stock/`. Before using anything, watch all of it: only what doesn't look like home, unless the brand wants it. Team members can appear if the person says so.
+
 ## Stage 3 · Voice cut
 
 Say: "I'm turning your voice into text with Whisper, on your computer (nothing is uploaded), and building the cut with the best version of each sentence. It takes a few minutes." If Whisper is not there yet, first the notice about its download (2.9 GB, free).
@@ -231,6 +239,15 @@ Only the blocks in `image/blocks.json`, with half a second of tail on each side:
 - everything is fast, but each thing stays just long enough to be read (rhythm pass, below).
 
 Say: "Now I'm animating the reel. First I'll show you the 2 or 3 hardest moments on their own; with your go-ahead, I'll do the rest."
+
+**Before animating, read three things; they rule over everything below:**
+- the standard in `production/REELS-WORKFLOW.md`, which is the floor of every identity;
+- the `STYLE.md` of the brand's identity for this type of video ("Identities" in its `BRAND.md`), with its list of yes and no;
+- its kit in `brands/<brand>/reel/` (for "glass", the generic one is in `brands/example/reel/src/glass/`, with its README).
+
+With an approved identity, the person only gives their video and their opinions; Claude builds the full reel in that style. For each scene, find the real material that tells it: the `stock/`, the repo's data, real captures (Montage with Playwright, pages with headless Chrome). Only then build it.
+
+If the brand doesn't have an identity for this type of video yet, find it with the person scene by scene. Start with the hook and save what they approve in a new `STYLE.md`.
 
 - The brand's Remotion project (`brands/<brand>/reel/`), with the style's kit. Skills `remotion-best-practices`, `remotion-markup`, `remotion-create`, `remotion-render`. Design: the brand's (`DESIGN.md` in its repo).
 - After Effects for what does not look right in code: text behind the person, blurred wipes, glows.

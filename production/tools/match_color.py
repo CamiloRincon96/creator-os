@@ -39,7 +39,10 @@ face_cv = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface
 
 
 def measure(a, b):
-    """Mean Lab of the skin (center of the face) and of the frame, over 8 frames of the take."""
+    """Mean Lab of the skin (center of the face) and of the frame, over 8 frames of the take. If the take has close-up
+    faces, only those count: in a wide shot the small face gives another tone. Careful: if the light changes inside the
+    same take (the person moves toward the lamp), the take's median is not the one of the stretch that matters; there,
+    measure the face in that stretch and correct it by hand (LESSONS.md, stage 6)."""
     skin, whole = [], []
     for t in np.linspace(a + 0.05, b - 0.05, 8):
         cap.set(cv2.CAP_PROP_POS_FRAMES, round(t * fps))
@@ -52,7 +55,10 @@ def measure(a, b):
         faces = face_cv.detectMultiScale(cv2.cvtColor(small, cv2.COLOR_BGR2GRAY), 1.1, 6, minSize=(50, 50))
         if len(faces):
             x, y, w, h = (v * 2 for v in max(faces, key=lambda c: c[2] * c[3]))
-            skin.append(lab[y + h // 4:y + 3 * h // 4, x + w // 4:x + 3 * w // 4].reshape(-1, 3).mean(0))
+            skin.append((w, lab[y + h // 4:y + 3 * h // 4, x + w // 4:x + 3 * w // 4].reshape(-1, 3).mean(0)))
+    if skin:  # only the close-up faces: at least 60 % of the largest one in the take
+        largest = max(w for w, _ in skin)
+        skin = [s for w, s in skin if w >= 0.6 * largest]
     return (np.median(skin, 0) if skin else None), np.median(whole, 0)
 
 

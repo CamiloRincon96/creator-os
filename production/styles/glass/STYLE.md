@@ -2,9 +2,36 @@
 
 An example identity for **to-camera reels with animation**. A brand can have several identities, one per type of video: the account where this one was born uses another for its covers, and each brand says which goes with which in its `BRAND.md` ("Identities"). It sits between corporate and premium, like presenting a company, but with the person on camera as the protagonist. It was born in the hook of a personal account's piece (November 17, 2026), from the 8 reference reels the creator chose. One of them, with a video inside a glass panel, is where the glass comes from.
 
-**Status:** in progress. The creator, on v20: "we're very close… keep saving all this as the style". Still to test: full-screen scenes, transitions between scenes and the sound.
+**Status: approved** (Nov 17, 2026, with v23 of the first stretch of that piece). The creator: "That's our style… we're going to work with that… you can innovate… but more or less like this, I won't accept less than this". It's the floor for to-camera reels with animation; each piece can innovate on top of it. Still to do: the sound.
 
-To use it in another brand, keep the structure and the motion and put in the brand's own colors and type.
+What it taught became **the standard every identity meets** (`production/REELS-WORKFLOW.md`, "The standard"). To use glass in another brand, keep the structure and the motion and put in the brand's own colors and type; to make your own identity, change the look and keep the standard.
+
+## The patterns (what works and what doesn't)
+
+**Yes:**
+- The real and specific: their photos, their timelapses, their numbers, their notes, their files, their team.
+- Dark glass with video inside, the size of what it shows.
+- Pieces that come out from behind the person, and the previous one that moves back.
+- Animation born from their gesture: if they point, something opens there.
+- Few words, and big, one per scene, that can be read in time.
+- Always moving: the camera pushes in, pulls back, turns or goes through.
+- Something new every 0.5 to 1 s.
+- The generic only on purpose, when the script talks about the generic: the feed of identical reels.
+- Even color from take to take, by eye.
+- Film grain.
+
+**No:**
+- "Emoji-like" white cards.
+- Small type or labels that can't be read in time.
+- Lists of steps on screen.
+- A big window with a little piece inside.
+- Invented screens: windows with lines instead of text, ✦ sparkles, clocks, flying windows, decorative lights.
+- Blurring the person.
+- Micro cuts.
+- Cutting them while they point.
+- Anything that looks like home (a couch, the kitchen), unless the brand wants it.
+- Covering their face.
+- A color grade that turns the person "red".
 
 ## The idea in one line
 
@@ -28,7 +55,7 @@ More picture than text. Pieces of dark, transparent glass, with video inside, th
 
 - Numbers and titles in Inter Tight 800, with tight letter spacing. The words that go with them, in Instrument Serif italic. Examples: "**3** *weeks*", "**21** *days*", "**Creator OS**" and "*from idea to reel*".
 - Under the chin, a stack of a number and a word, which fades out before the next phrase. Yellow is for the number that carries the weight.
-- Captions: white Montserrat 800, the spoken word in yellow, 1 to 3 words. They don't show while the stack is on screen.
+- Captions: white Montserrat 800, the spoken word in yellow, 1 to 3 words. They don't show while the stack is on screen, and a group never joins two phrases.
 - **Nothing that can't be read in time.** Out go type under about 36 px at 1080 wide, labels ("EDITOR · now", "v13", the calendar's numbers) and lists of steps. What can't be read in time is said with shapes, like the red icon, ✕ and ✓, or the days that fill up.
 - Text goes below y≈270, so Instagram's top bar doesn't cover it.
 
@@ -51,21 +78,61 @@ The ones of the account where it was born; each brand puts in its own.
 - Motion blur (`CameraMotionBlur`, 200°, 6 samples) on everything that moves. Inside the blur, numbers are counted with `Math.floor(frame)` (`LESSONS.md`, "Technical").
 - Numbers that are seen at the same time say the same thing, frame by frame.
 
-## Kit pieces
+## Full-screen scenes (approved with v23)
 
-The Remotion kit is built in the brand's project (`brands/<brand>/reel/`) in the first piece that uses it.
+When the person isn't looking at the lens, the screen is all animation, and all of it is real material.
 
-| Piece | What it is | How it's made |
+**v22, with real material:** the photo of them editing, with the camera traveling across it; their hands and them working, in timelapse (from the brand's `stock/`); their data in glass (the hours a reel takes them, the 0:30 reel and the time the photo was taken); film grain; a hard cut to the wall of identical reels, which is the only generic thing and goes in on purpose.
+
+**v23, the feed:** when the script talks about "everything out there" on social media, it's shown as a feed. Reels with a generic interface (heart, comments, share, user, caption and progress bar, no network's logo), in columns that spin like a slot machine and stop on the same reel. Team members can appear if the person says so (here the creator asked to give a teammate the spotlight). From archive footage, use only what doesn't look like home (no couch, no kitchen), checked frame by frame.
+
+**What failed in v21:** the screens were invented (fake windows, sparkles, a spinning clock, flying windows), over blurred lights: today's template. What stays is the camera always moving, one protagonist per scene, something new every ~1 s and entering by pulling focus. What changes is the content, which becomes real and specific (`LESSONS.md`, stage 7).
+
+The recipe comes from one of the references (a 3D interface over a dark background with shallow depth of field). The creator's question: how to keep retention "without losing professionalism".
+- **The same world.** Behind goes their own footage, blurred (in that piece, their night with the city lights in warm and ice-blue bokeh), and it moves slower than the camera. Never switch to a background from somewhere else.
+- **The camera is never still:** it pushes in, pulls back, turns a little and goes through things.
+- **One big glass protagonist per scene**, filling the frame from y≈250 to y≈1250. It carries video inside when possible: their take in the editor's preview, or a reel.
+- **Something new every 0.4 to 1 s, on the word that names it:** a cut in the timeline, a number that jumps, a window passing by.
+- **One big word per scene,** in Instrument Serif or Inter Tight 800, at y≈250. While it's on screen there's no caption, so it isn't repeated.
+- **Captions lower** (y≈1400), below the protagonist. Over busy backgrounds they get a dark band behind.
+- **Enter by pulling focus:** the person blurs out over about 4 frames while the glass comes into focus, in the pause after the word, never inside it.
+- **Come back to the person through the glass:** the camera goes into a reel that already shows their take, and that reel becomes the screen.
+
+## Recipes for step scenes (v24, the full reel)
+
+Each step is told with the real thing that proves it, in a glass pane the size of what it shows:
+- research → their numbers for the month (views and date);
+- script → the real text typing itself and "✓ this one";
+- cutting the voice → the real waveform and the cuts being marked;
+- retouching → the raw take and the retouched one with a wipe;
+- animation and sound → frames of the same piece separating into layers, and the waveform of a real sound;
+- review → a capture of their real editor and their real note, with its exact time;
+- learning → their lessons scrolling by and the real total;
+- installing → the real command, big and in two lines, and the real install check with ✓;
+- sharing → the comments sheet with the pinned comment and the link.
+
+When the person is on camera between steps, the key word goes behind their head (with their cutout) or in glass under the chin, never over the face.
+
+## Kit
+
+A generic, brand-neutral version lives in the example brand: `brands/example/reel/src/glass/` (its `README.md` says what each piece is and the part of the standard it serves; the `GlassDemo` composition shows it in motion with no footage). Colors and the main font come from the brand's `src/brand.ts`; the identity's own choices are in `src/glass/theme.ts`.
+
+| Piece | What it is | In the kit |
 |---|---|---|
-| Glass pane | The dark, transparent panel, sized to what it shows, with a video inside when possible | Remotion: a blurred, darkened and aligned copy of the take, plus gradient, border, highlight and shadow |
-| Comes from behind | Wraps any piece so it starts small behind the head and comes out with a spring and a 3D turn; the previous one moves back | Remotion, with the person's cutout on top (`cutout-person.mjs` and the kit's `Person` piece) |
-| Panes with motion inside | A calendar whose days fill up, versions that pile up | Remotion |
-| Growing stack | Warnings or errors that pile up: the front one readable, the others as edges, with a shake and a counter | Remotion |
-| Reveal | Two panes that open from the flash at the fingertip | Remotion, with the fingertip measured frame by frame |
-| Number stack | Number and word under the chin | Remotion |
-| Captions | 1 to 3 words, the spoken one in yellow | Remotion, from the cut's map |
+| Glass pane | The dark, transparent panel, sized to what it shows, with a video inside when possible | `GlassPanel` (frosting from a blurred, aligned copy of the take), `GlassWindow` (comes in pulling focus), `glassStyle()` |
+| The world behind | Their own footage, blurred, behind every full-screen scene | `World` |
+| Comes from behind | Wraps any piece so it starts small behind the head and comes out with a spring and a 3D turn; the previous one moves back | `ComeFromBehind`, with the person's cutout on top (`cutout-person.mjs` and the kit's `Person` piece) |
+| Big word, number and word | One word per scene; "4–5 *hours*" | `BigWord`, `NumberWord` |
+| Word under the chin | One word in glass that never covers the face | `GlassPill` |
+| Captions | 1 to 3 words, the spoken one highlighted, never across two phrases | `GlassCaptions`, from the cut's map |
+| Grain | Fine film grain on full-screen scenes | `FilmGrain` |
+| Terminal | The real command and the real check | `Terminal`, `Typed`, `CheckLines` |
+| Reel feed | The slot-machine wall of identical reels, and the dive into the center one | `ReelFeed`, `ReelUI` |
+
+Built per piece, with the piece's real material: panes with motion inside (a calendar whose days fill up, versions that pile up), the growing stack of warnings, the reveal from the fingertip and the number stack under the chin.
 
 ## History
 
 - **Nov 17, 2026, v19:** glass with video inside instead of the white cards, and the reveal almost without text. The creator: "much better".
 - **Nov 17, 2026, v20:** the pieces come out from behind the person and the previous one moves back. The errors stack up behind the warning, with no small type. The final window is two panes the size of what they show, with big type, and the flash follows the finger. The creator's request: "more dynamism… that they could come out from behind… a better distribution of the space".
+- **Nov 17, 2026, v21-v24:** full-screen scenes. Invented screens were dropped for real material (v22), the reel feed was added (v23) and the creator approved the style: "I won't accept less than this". The full reel (v24) added the recipes for step scenes. Its standard went into `production/REELS-WORKFLOW.md` and the generic kit into `brands/example/reel/src/glass/`.

@@ -71,6 +71,7 @@ Where everything else is:
 
 ## Stage 6 · The person's image
 
+- **To match one take to another, measure the face on the same shot, not the whole take.** On Nov 17, 2026 the light in a hook changed when the creator moved closer to the lamp. `match_color.py --reference` took the median of the whole hook and darkened a take that sits like the end of the hook. The face was measured in that stretch (3-4.3 s) and the same LUT was applied with those values.
 - **Natural color:** soft contrast, open shadows, beard and hair with detail. "Epic" comes from what happens on screen, not from harsh color: crushed blacks looked "super bad".
 - **Blocks come out of a master version of the cut,** with the same pieces, speeds and silences. `blocks.py` builds it by itself. Working out the second of the take as if the cut were continuous took the blocks from elsewhere: in "Tres semanas", "Te retoca" came out 8 s earlier in the take and another block came from the wrong take. Before grading, check that the master and the cut show the same frame at the same second.
 - **The background is never treated differently from the person** when the cutout is used. Darkening or blurring it leaves a halo in the hair and blotches on the clothes. The cutout is only for putting something behind the head. It was tried again on "Tres semanas" and the same happened: the cutout loses a dark t-shirt at night, and when the creator moves or leans in their face shows up blurred.
@@ -127,6 +128,7 @@ Where everything else is:
   - **The glass, the size of what it shows:** a big window with a little piece inside looks empty ("a giant transparent thing to show just a little piece"). If there are two things, they go in two panes.
   - **Don't let them sit still:** the pieces come out from behind the person (their cutout covers them) and the previous one moves back. They don't appear and disappear in place ("more dynamism").
   - The full style is in `production/styles/glass/STYLE.md`.
+- **Invented screens look generic AI.** Fake windows with lines instead of text, ✦ sparkles, spinning clocks, windows flying at the camera and backgrounds of blurred lights are the template that fills social media today. On Nov 17, 2026 the creator said: "it looks a bit generic, AI-made… don't let it look like that same old generic thing". It also contradicted the video, which says generic doesn't work. What can't be copied is the real and specific: their real notes in Montage, the real list of errors, the real versions, their numbers and the real names of what they tried. Something generic only goes in on purpose, where the script talks about the generic.
 
 ## Stage 8 · AI and retouch
 
@@ -202,6 +204,9 @@ Where everything else is:
 
 ## Technical (for Claude)
 
+- **To capture Montage with a project open** (without the "Who is reviewing?" screen), use Playwright: `localStorage.setItem('montage:person', '<name>')`, reload on `#/p/<project>` and then take the capture. Headless Chrome (`--headless --screenshot`) doesn't keep that value.
+- **Frame sheets from a Remotion render are pulled with ffmpeg (`select=eq(n,N)`, `-fps_mode passthrough`), not with `cv2.CAP_PROP_POS_FRAMES`.** OpenCV seeks badly in those mp4s and the sheet showed frames from another moment.
+- **The skin measure is fooled on close-ups with a beard or monitor light:** the center of the face includes beard and shadows. On Nov 17, 2026 a photo of the creator editing asked for b +23 and came out orange. The color of archive material is decided by eye, side by side with the reference take, and the measure is only a hint.
 - **`CameraMotionBlur` draws its samples 0.45-0.9 frames ahead** (`Freeze` at `frame - offset + 1`). A number that changes inside the blur runs ahead of the one outside it. On Nov 17, 2026 a warning's counter said 23 while the big number said +15. Inside the blur, count with `Math.floor(frame)`.
 - **ffmpeg: `unsharp` on `gbrp` tints the image magenta.** It only sharpens green. Sharpen in YUV before going to RGB; a glow with `blend` does go in `gbrp`.
 - **After Effects' disk cache grows without warning:** it reached 12 GB with the grain-removal renders. When stage 6 closes: save, quit After Effects and empty the `Disk Cache` folder. It rebuilds itself.

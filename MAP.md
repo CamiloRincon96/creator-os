@@ -18,7 +18,8 @@ Everything has one place. No folders are created outside this map: a new brand c
 │       ├── ideas/ · pieces/ · finals/   chosen ideas, pieces in production and what's ready to post
 │       ├── pulse/              metrics and cards for what was posted (filled by the watcher)
 │       ├── sounds/             CC0 effects and music, with credits
-│       └── reel/               the brand's Remotion project: kit, explainer (express reel) and mockup
+│       ├── stock/              the person's real material for any piece: photos, timelapses of them working, captures (not in git)
+│       └── reel/               the brand's Remotion project: kit, glass kit, explainer (express reel) and mockup
 │
 ├── library/                    your own footage for any piece (catalog in git; videos not)
 │
@@ -46,4 +47,4 @@ Everything has one place. No folders are created outside this map: a new brand c
 
 ## What doesn't go in git
 
-Videos, working audio, renders, models and keys. Git holds the code, the rules, the catalogs and the example CC0 sound library.
+Videos, working audio, renders, models, keys and each brand's `stock/`. Git holds the code, the rules, the catalogs and the example CC0 sound library.

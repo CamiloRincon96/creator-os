@@ -61,6 +61,10 @@ brands/example/sounds/openverse/cash-register/
 **/generators/.tmp/
 **/sound/result/_work/
 
+# each brand's stock/ (the person's real photos, timelapses and captures) stays on each computer
+brands/*/stock/*
+!brands/*/stock/.gitkeep
+
 # own footage library: the catalog goes in git, the videos don't
 library/inbox/
 library/videos/

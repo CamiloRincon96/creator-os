@@ -1,5 +1,6 @@
 import { Composition } from "remotion";
 import { calculateExplainer, Explainer } from "./explainer/Explainer";
+import { GLASS_DEMO_FRAMES, GlassDemo } from "./glass/GlassDemo";
 import { calculateTest, PersonTest } from "./kit/PersonTest";
 import { calculateHook, HookText } from "./kit/HookText";
 import { calculateMockup, Mockup, type MockupProps } from "./mockup/Mockup";
@@ -17,5 +18,7 @@ export const Root = () => (
     <Composition id="PersonTest" component={PersonTest} defaultProps={{ src: "", front: "" }} calculateMetadata={calculateTest} durationInFrames={165} fps={30} width={1080} height={1920} />
     {/* Hook text with a transparent background (variations). */}
     <Composition id="HookText" component={HookText} defaultProps={{ text: "Your *hook* line", seconds: 2.5 }} calculateMetadata={calculateHook} durationInFrames={75} fps={30} width={1080} height={1920} />
+    {/* The «glass» kit in motion, with no footage (src/glass/README.md). Public repo only: keep it when re-translating. */}
+    <Composition id="GlassDemo" component={GlassDemo} defaultProps={{ world: "" }} durationInFrames={GLASS_DEMO_FRAMES} fps={30} width={1080} height={1920} />
   </>
 );
