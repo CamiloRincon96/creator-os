@@ -20,22 +20,24 @@ Checked on Nov 16, 2026 against TikTok for Developers' official documentation (s
 
 ## The steps
 
-The button names are the ones in TikTok's documentation. If something is called differently on your screen, tell Claude what you see.
+The button names are the ones in TikTok's documentation. If something is called differently on your screen, tell Claude what you see. What you fill in from step 4 to 8 gets saved all together in step 10, with **Apply changes**.
 
 **1. Developer account.**
 - Open: `python3 production/tools/connect.py open tiktok-account`.
 - Sign up with an email. It's an account separate from the TikTok on your phone.
+- **Done when:** you're signed in to TikTok for Developers with that email.
 
 **2. Create the app.**
 - Open: `connect.py open tiktok-apps`.
 - Click **Connect an app** (or **Create app**).
 - In **Select the app owner**, pick your individual account and click **Confirm**.
-- The app opens in **Production**, with the status **Draft**.
+- **Done when:** the app opens in **Production**, with the status **Draft**.
 
 **3. Switch to Sandbox.**
 - Next to the app's name, switch **Production | Sandbox** to **Sandbox**.
 - Click **Create Sandbox**, give it a name and click **Confirm**.
 - From here on, everything is done in the Sandbox.
+- **Done when:** the app's name has **Sandbox** next to it.
 
 **4. The app's details** (App details → Basic information).
 - **App icon:** 1024 × 1024 px, JPG or PNG.
@@ -51,10 +53,13 @@ The button names are the ones in TikTok's documentation. If something is called 
 - **Content Posting API:** leave the **Direct Post** switch **off**;
 - **TikTok API** (it brings the Display API, the one for metrics).
 
+**Done when:** all three show up in the app.
+
 **7. Login Kit → Desktop → Redirect URI.** Type exactly:
 ```
 http://127.0.0.1:8370/callback/
 ```
+**Done when:** the address is exactly that, with the trailing slash.
 
 **8. Permissions** (Scopes → Add Scopes). Check:
 - `user.info.basic`;
@@ -63,9 +68,11 @@ http://127.0.0.1:8370/callback/
 - `video.upload`;
 - `video.list`.
 
+**Done when:** all five are checked.
+
 **9. Your account as a test user** (Sandbox settings → Target users).
 - Click **Add account**, sign in with the brand's TikTok account and accept the developer terms.
-- It can take up to an hour to show up.
+- **Done when:** your account shows up in **Target users**. It can take up to an hour.
 
 **10. Save the changes** with **Apply changes**. Don't click **Submit for review**.
 
@@ -76,6 +83,7 @@ http://127.0.0.1:8370/callback/
   python3 production/tools/save_token.py --tiktok <brand>
   ```
 - It asks for the key and then the secret, without showing them.
+- **Done when:** the terminal says "Saved in …".
 
 **12. Connect.** Tell Claude "I saved the key". It runs `tiktok.py connect <brand>`:
 - TikTok opens in the browser;

@@ -16,13 +16,20 @@ The creator asked for it on 15 Nov 2026: "the ultimate command to grow my accoun
 - reply in the user's language; the content itself goes in the language of the brand's audience;
 - in the brand's tone, nothing exaggerated;
 - two-line copy, no hashtags;
-- never name the AI the app uses.
+- never name the AI the app uses;
+- by the hand (`production/GUIDING.md`): before each step, what you are about to do and what it is for; after it, what was produced and what comes next. One idea per line.
 
 ## 0. Kickoff: three questions, with options (AskUserQuestion, in a single call)
 
-1. **Brand:** the folders in `brands/`.
-2. **Social network:** Instagram, TikTok, Facebook or YouTube Shorts.
-3. **What they want to put out:** a reel, a story (or a sequence of stories), a carousel, a post, a series of several pieces, or "the whole week" (a plan of several pieces with their roles).
+1. **Brand** ("Which brand is it for?"): the folders in `brands/`.
+2. **Social network** ("Where will you post it?"):
+   - **Instagram:** reels to reach new people; stories and carousels for your followers.
+   - **TikTok:** short videos; you post it from your phone, with the sound you want.
+   - **Facebook:** the same reels, on your page.
+   - **YouTube Shorts:** short videos on your channel.
+3. **What they want to put out** ("What do you want to put out?"): a reel, a story (or a sequence of stories), a carousel, a post, a series of several pieces, or "the whole week" (a plan of several pieces with their roles).
+
+Each option says in a few words what it gets them. For the format, for example, "Reel: a short video, what reaches the most people who don't follow you yet" (texts in `production/GUIDING.md`, "Ideas"). The format options are those four: Reel (Recommended), Story, Carousel and The week. A post or a series goes in "Other".
 
 If the creator already said it in their message, do not ask again.
 
@@ -43,7 +50,7 @@ Also read:
 - what is already in `ideas/`, so nothing repeats;
 - `production/variations/LEARNED.md`.
 
-**If the brand has no `NICHE.md`**, `/creator-brand` goes first, option C (or A if the brand is new). As a guide, the niche is built like this:
+**If the brand has no `NICHE.md`**, `/creator-brand` goes first, option C (or A if the brand is new). Say it like this: "Your brand doesn't have written down who it talks to yet, and without that the ideas come out generic. Let's set it up first with `/creator-brand` and then come back here." As a guide, the niche is built like this:
 - with the product document from the app's repo (for example `PRODUCT.md`), its `PROFILE.md` and its metrics;
 - with the shape of Example's;
 - the real niche is not the generic category: it is not "financial education", it is "people who don't know where their money goes and live out of Nequi (a Colombian digital wallet)".
@@ -51,6 +58,8 @@ Also read:
 Show it to the creator and write it with their yes: it is a decision, not an iteration.
 
 ## 2. What is buzzing: last30days takes the lead
+
+Before: "Now I look up what your people are sharing this week on TikTok, Instagram, YouTube and Reddit, and what has worked for you (a few minutes)."
 
 Three sources, in parallel, from this week and never from memory:
 
@@ -65,16 +74,18 @@ Three sources, in parallel, from this week and never from memory:
    - **it never reads browser cookies**;
    - it does not save reports to disk.
 
-   TikTok and Instagram need the ScrapeCreators key saved (see "Set up"). If it is not there, run with YouTube, Reddit and the web, and say so.
+   TikTok and Instagram need the ScrapeCreators key saved (see "Set up"). If it is not there, run with YouTube, Reddit and the web, and say so: "Without your ScrapeCreators key I can't see TikTok or Instagram; I searched YouTube, Reddit and the web. Adding it is free (10,000 queries): if you want, I'll show you how at the end."
 2. **The account:** `python3 production/tools/instagram.py reels <brand> 10` brings views, reach, % that skip in 3 s, shares and saves. What won and why; to read it, `instagram-agent:ig-audit`.
 3. **The calendar:** the dates of the coming week and month in the niche's country (bonuses, paydays, taxes, seasons).
 
-Summarize in 5 to 8 lines: the topic, which format is moving it, and the source with its date. **What matters most is what the niche's people are sharing**, not what is trending in general.
+Summarize in 5 to 8 lines, in plain words: the topic, which format is moving it, and the source with its date. **What matters most is what the niche's people are sharing**, not what is trending in general.
 
 ## 3. Open up: 8 to 10 ideas, each with its role in the wheel
 
 | # | Role | Idea in one sentence | Hook: what is heard or read and what is seen in the first second | Why they would share or save it | Evidence (step 2) | What needs to be made |
 |---|---|---|---|---|---|---|
+
+Short cells, no jargon. Under the table, one line on how to choose: "Pick by number, for example '3 and 7', 'more like 2' or 'another round'. With the one you pick, I'll put together several options for the hook, the body and the call to action for you to choose from."
 
 **Role** is shareable, useful, connection or product. The proportions in `NICHE.md` rule: most of them shareable; product, 1 or 2 out of 10 at most.
 
@@ -94,15 +105,16 @@ Summarize in 5 to 8 lines: the topic, which format is moving it, and the source 
   - `marketing-psychology`: why people share and follow;
   - `marketing-ideas`;
 - `instagram-agent:ig-reel` for hooks and their score;
-- `instagram-agent:ig-viral` to see concrete reels from the niche with the creator's Chrome (Claude does not type passwords).
+- `instagram-agent:ig-viral` to see concrete reels from the niche with the creator's Chrome (Claude does not type passwords). If Instagram asks to log in: "Log in to your Instagram in the Chrome tab I opened. When you see your feed, write me 'done'."
 
 ## 4. Iterate (as many rounds as the creator wants)
 
 The creator answers however it comes out: "3 and 7", "more like 2", "combine 4 and 6", "another round", "wilder" or "simpler". In each round:
 - change only what was asked and show the short table;
-- say what you learned about their taste. For example, "you like the ones with a figure in pesos, not the trend ones".
+- say what you learned about their taste. For example, "you like the ones with a figure in pesos, not the trend ones";
+- end with the same line on how to choose from step 3.
 
-**If an idea is visual**, show a cheap sketch before deciding: 3 to 5 frames in Remotion or a card, in the scratchpad. A visual idea is never approved from text alone.
+**If an idea is visual**, show a cheap sketch before deciding: 3 to 5 frames in Remotion or a card, in the scratchpad. A visual idea is never approved from text alone. Say where it is and what to look at: "The sketch for 4 is at `<full path>`. Take a look and tell me whether the idea comes across."
 
 ## 5. Close the chosen one: a menu to build from, not a single version
 
@@ -123,10 +135,10 @@ The creator builds the piece by picking parts, not by correcting a single versio
   - a line that sticks and gets it saved without saying so.
 
   Never "like this", "comment X" or "if you know someone who…": they sounded two years old to the creator. On TikTok those calls also count as engagement bait and lower the video's reach.
-- The creator answers with something like "2 + B + III".
+- The creator answers with something like "2 + B + III". The menu ends with: "Pick one of each, like this: '2 + B + III'. To redo a part, tell me 'other hooks', 'other bodies' or 'other calls'. When you like it, write 'this one' and I'll save it."
 - **The piece carries one hook, one body and one call to action.** Whatever was not chosen is saved in the idea file for the variations (stage 12).
 - The duration, or the number of slides or frames.
-- Whether it is a **collaboration** with the creator's personal account: it is what helps a new account grow the most.
+- Whether it is a **collaboration** with the creator's personal account: it is what helps a new account grow the most. Ask it like this: "Shall we post it as a collaboration with your personal account? It shows up on both accounts, and it is what helps a new account grow the most."
 - **What to record**, if there is a person on camera: the main take and 2 or 3 alternate openings for the variations.
 
 Before showing it, five questions:
@@ -170,6 +182,11 @@ Ideas the creator liked but are not for today go to `brands/<brand>/ideas/BANK.m
 - story → the brand's story engine (`brands/<brand>/stories/`) or the sequence for the creator to upload;
 - carousel or post → `instagram-agent:ig-carousel` and Montage.
 
+The close, in 3 lines and with a single question. For example, for a reel:
+> Done: the idea is in `brands/<brand>/ideas/<YYYY-MM-DD>-<short-name>.md`, with what you didn't pick saved for the variations.
+> Next is making the reel: type `/creator-reel` and it starts from this file.
+> Shall we start?
+
 ## Set up (once per computer)
 
 - The `last30days` and `marketing-skills` plugins are declared in `.claude/settings.json`. Claude Code asks to approve them the first time.
@@ -180,6 +197,12 @@ Ideas the creator liked but are not for today go to `brands/<brand>/ideas/BANK.m
   ```
 
   It asks for the key without showing it. On macOS it goes in the Keychain; on Windows and Linux, in `~/.config/last30days/.env`, which is where last30days looks for it. On Windows, type `python` instead of `python3`.
+
+  Walk them through it in two messages, one step each:
+  1. "Go to scrapecreators.com, create your account (free) and copy your key. Don't paste it here. When you have it copied, write me 'done'."
+  2. "Open the Terminal app (on Windows, PowerShell) and paste this: `cd "<repo folder>"` and then `python3 production/tools/save_token.py --scrapecreators` (on Windows, `python`). It asks you to paste the key; it is not shown while you paste, that's normal. Press Enter. If you see 'Saved in …', write me 'done'. If you see something else, copy it to me."
+
+  If they paste it in the chat, tell them to replace it with a new one in their ScrapeCreators account.
 - **Safe config** in `~/.config/last30days/.env`:
   - `BROWSER_CONSENT=false` and `FROM_BROWSER=off`: never browser cookies;
   - `INCLUDE_SOURCES=tiktok,instagram,youtube_comments,tiktok_comments,instagram_comments`;

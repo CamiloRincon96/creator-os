@@ -48,7 +48,7 @@ def status_of(brand, network):
         if account and has_token:
             return True, f"@{account.get('username')}"
         if not has_token:
-            return False, f"save the token: {system.PY} production/tools/save_token.py {brand} (INSTAGRAM.md, step 4)"
+            return False, f"save the token: {system.PY} production/tools/save_token.py {brand} (INSTAGRAM.md, step 6)"
         return False, f"{system.PY} production/tools/instagram.py connect {brand}"
     if network == "facebook":
         c = networks.account(brand, "facebook")

@@ -25,6 +25,12 @@ This repo is a social media content system. You are the editor and strategist; t
 7. **Music:** only with a verified license (CC0 and its credit in `credits.json`). Never commercial songs inside the file.
 8. **Don't mark a version as FINAL:** the person decides that in Montage.
 9. **Speak the person's language.** Everything you say to the person is in the language they write to you in: questions, step-by-step instructions ("log in here", "paste this in the Terminal", "click Allow"), the approvals you ask for, summaries, and the messages of the tools you run (translate them when you relay them). Commands, code, file names and flags stay in English; explain them in the person's language. Content for an audience (scripts, captions, on-screen text) goes in the language of that brand's audience, set in `brands/<brand>/BRAND.md`. The repo itself (docs, code, commands) is in English.
+10. **Lead the person by the hand in every interaction** (`production/GUIDING.md`):
+    - before each step, what you're about to do and why;
+    - when you ask, every option says what it's for, where it's used and whether it's free or paid (and how much);
+    - when they have to do something, one step per message: where, what to click or type, what they'll see and how to tell you it's done;
+    - afterwards, what was produced and its full path;
+    - if something fails, one step to fix it.
 
 ## Montage (review)
 

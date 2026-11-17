@@ -25,12 +25,14 @@ Checked on Nov 16, 2026 against Google's official documentation (sources at the 
 - **Project name:** for example "Creator OS Example".
 - **Location:** "No organization".
 - Click **Create**.
+- **Done when:** you can pick the new project at the top of the console (step 2 uses it).
 
 **2. Turn on the two APIs.**
 - Open: `connect.py open google-apis`.
 - Pick the project you created at the top.
 - Open **YouTube Data API v3** and click **Enable**.
 - Go back, open **YouTube Analytics API** and click **Enable**.
+- **Done when:** neither of the two offers **Enable** anymore.
 
 **3. The consent screen (Google Auth Platform).**
 - Open: `connect.py open google-branding`.
@@ -40,11 +42,12 @@ Checked on Nov 16, 2026 against Google's official documentation (sources at the 
 - **Contact Information:** your email.
 - Accept the Google API Services User Data Policy and click **Create**.
 - Don't upload a logo: with a logo, Google asks to verify the brand.
+- **Done when:** the page no longer asks you to **Get started**.
 
 **4. Publish the app** (the step people forget most).
 - Open: `connect.py open google-audience`.
 - Click **Publish app** and confirm.
-- That way it's "In production", unverified. It's your own app and it doesn't need verifying while fewer than 100 people use it.
+- **Done when:** it says "In production", unverified. It's your own app and it doesn't need verifying while fewer than 100 people use it.
 - If you leave it in "Testing", the connection expires every 7 days.
 
 **5. The permissions (Data Access): no need to touch them.** The tool asks for its own when connecting: upload videos, see the channel and see YouTube Analytics. Don't submit anything for verification.
@@ -54,7 +57,8 @@ Checked on Nov 16, 2026 against Google's official documentation (sources at the 
 - Click **Create client**.
 - **Application type:** **Desktop app**. Give it a name.
 - Click **Create** and then **Download JSON**.
-- **Do it right away:** Google only shows the full secret this once. The file lands in Downloads as `client_secret_….json`.
+- **Do it right away:** Google only shows the full secret this once.
+- **Done when:** the `client_secret_….json` file is in Downloads.
 
 **7. Connect.** Tell Claude "I downloaded the JSON". It runs:
 ```

@@ -9,13 +9,18 @@ This command is a door to the workspace's own `/creator-connect` skill, which ho
 
 Speak the person's language: every question, instruction and summary goes in the language they write to you in. Commands, code and file names stay in English.
 
+The person may not be technical: lead them by the hand, as the workspace's `production/GUIDING.md` says. Before each step, one line with what you're doing and why. Whatever they do with their hands, one step per message: where, what to click or type, what they'll see, and “tell me "done"”. If something fails, what happened in plain words and one step to fix it.
+
 ## 1. Is this a workspace?
 
 Look in the working directory for `production/install.py` and `.claude/skills/creator-connect/SKILL.md`.
 
 - **Both are there:** read `.claude/skills/creator-connect/SKILL.md` and follow it, running every command from this folder.
-- **They aren't:** check `~/creator-os` (on Windows, `C:\Users\<you>\creator-os`). If a workspace is there, tell them: they can open that folder and type `/creator-connect`, or keep going in this session with every command run from that folder. If the workspace is there but has no `creator-connect` skill, it's an older copy: offer `git pull` inside it (ask first; if git reports a conflict, stop and explain it, and never discard their changes).
-- **No workspace anywhere:** say in one line that the connections need the Creator OS workspace, then follow this plugin's `start` skill (`/creator-os:start`) to set it up. When the workspace is ready (it has a brand, from `/creator-start` and `/creator-brand`), come back here and go to the first case.
+- **They aren't:** check `~/creator-os` (on Windows, `C:\Users\<you>\creator-os`). If a workspace is there, say so in one line ("Your Creator OS is in `<full path>`") and ask (AskUserQuestion) "Where do we connect your networks?":
+  - **Open that folder (Recommended):** "The `/creator-…` commands load there. You open the folder and type `/creator-connect`." Then one message with how to open it: in the Terminal app (on Windows, PowerShell), `cd "<folder>"`, Enter, then `claude`, Enter; in VS Code or the desktop app, open the folder and start a new session there.
+  - **Keep going here:** "I run every command from that folder; the commands show up the next time you open it."
+- **The workspace is there but has no `creator-connect` skill:** it's an older copy. Ask in one line: "Should I update Creator OS (git pull)? It brings the connections and the other new tools; your brands, ideas and pieces stay as they are. Free." If git reports a conflict, stop, explain it in plain words, and never discard their changes.
+- **No workspace anywhere:** say in one line that the connections need the Creator OS workspace ("the folder with the tools that post for you; it's free, about 20 MB"), then follow this plugin's `start` skill (`/creator-os:start`) to set it up. When the workspace is ready (it has a brand, from `/creator-start` and `/creator-brand`), come back here and go to the first case.
 
 ## Rules that don't bend
 

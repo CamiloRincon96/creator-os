@@ -25,6 +25,7 @@ Everything has one place. No folders are created outside this map: a new brand c
 ├── production/                 the reels workflow, the same for every brand
 │   ├── REELS-WORKFLOW.md       the stages, from the idea to the post
 │   ├── LESSONS.md              what has already gone wrong and how to avoid it
+│   ├── GUIDING.md              how to guide the person: every moment, every question, what each thing costs
 │   ├── INSTAGRAM.md            connecting Instagram through the API, giving access, the metrics watcher
 │   ├── FACEBOOK.md             connecting the Facebook Page (Reels)
 │   ├── YOUTUBE.md              connecting the YouTube channel (Shorts)

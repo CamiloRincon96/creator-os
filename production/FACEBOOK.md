@@ -21,6 +21,7 @@ Checked on Nov 16, 2026 against Meta's official documentation (sources at the en
 - In **Settings** → **Users** → **System users**, pick the user you created for Instagram.
 - Click **Assign assets** → **Pages**, pick the Page and turn on **Content** and **Insights** (and **Community Activity** if you want to reply to comments).
 - Save.
+- **Done when:** the Page shows up among the system user's assets, with **Content** and **Insights**.
 
 **3. Generate a new key with the Page's permissions.**
 - In the same system user, click **Generate new token**.
@@ -30,6 +31,7 @@ Checked on Nov 16, 2026 against Meta's official documentation (sources at the en
   - `read_insights`;
   - `pages_manage_engagement`.
 - Copy the key: Meta shows it only once.
+- **Done when:** Meta shows the new key, a long text that starts with EA. Don't close that window until you've saved it in step 4.
 - If `pages_manage_posts` isn't in the list: at developers.facebook.com → your app → **Use cases** → **Add use case**, pick the one for managing the Page ("Manage everything on your Page"), and come back to this step.
 
 **4. Save the new key** in your own terminal:
@@ -37,6 +39,8 @@ Checked on Nov 16, 2026 against Meta's official documentation (sources at the en
 python3 production/tools/save_token.py <brand>
 ```
 It replaces the Instagram one. It's the same key, now with more permissions, and Instagram keeps working the same.
+
+**Done when:** the terminal says "Saved in … (N characters)".
 
 **5. Publish the Meta app** (without this, what gets posted on the Page is only seen by people who have a role in the app).
 - Open: `connect.py open meta-apps`, go into your app and go to **App settings** → **Basic**.
@@ -46,6 +50,7 @@ It replaces the Instagram one. It's the same key, now with more permissions, and
   - **Privacy policy URL:** publish the template `production/templates/privacy-policy.md` on your website or in a public document.
   - **User data deletion** (a URL or instructions): the same page works; the template has that section.
 - At the top, switch the app mode from **Development** to **Live**. With standard access, no Meta review is needed to use it on your own accounts.
+- **Done when:** at the top, the app mode says **Live**.
 
 **6. Connect and check.** Tell Claude "done". It runs:
 - `facebook.py connect <brand>`, which finds the Page linked to your Instagram;

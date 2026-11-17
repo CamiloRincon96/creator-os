@@ -27,7 +27,7 @@ It goes in the piece's `brief.md`, with the references (`production/references/`
 | 0 | What piece is it | Asks the type, style, how much the person appears, which voices to try and what's wanted from AI; analyzes the references | The brief | `piece.py new`; `yt-dlp` and ffmpeg to look at the references |
 | 1 | Idea and script | Talks the idea through, proposes hooks and what's seen on each line, checks the facts | The script, by scene | Skills `ig-reel`, `ig-human`, `ig-viral`; the `script.md` template |
 | 2 | Recording | Gives the list of what to record and the guide | (records) | Camera and microphone |
-| 3 | Voice cut | Transcribes, picks the best version of each phrase and cuts where the voice has already ended | The cut, by ear | `prepare.py` (local Whisper), `cut.py`, Montage |
+| 3 | Voice cut | Transcribes, picks the best version of each phrase and cuts with Silero VAD: jump cuts, no breaths, even pace and an automatic check of gaps and words | The cut, by ear | `prepare.py` (local Whisper), `cut.py`, Montage |
 | 4 | Voice | Cleans up, matches the tone between takes and levels phrase by phrase; brings in the chosen external versions | Which one sounds best | `voice.py`; ElevenLabs (connector), Adobe Podcast (Claude driving Chrome), CapCut |
 | 5 | Visual script | Puts the real timings into the scene table, marks the blocks where the person appears and builds a mockup | The mockup | Remotion, `quote.py` (informational), Montage |
 | 6 | Base image | Color and framing of the person's blocks, and separating them from the background for the epic look | Before and after | `blocks.py`, After Effects via MCP, `cutout-person.mjs`, the kit's `Person` piece |

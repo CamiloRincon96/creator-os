@@ -18,6 +18,8 @@ Where everything else is:
 - **The creator approves each stage before the next one is built.** v1 of "Sin anotar" (the example reel, Spanish for "Not written down") was made in full without them hearing the cut or seeing the plan, and it came out "one of the worst".
 - **Claude can't hear.** The measurements (`listen.py`, `critique.py`) are a floor, not the goal. In v13 everything scored 9 or 10 and the creator said nothing could be heard. Never write "it sounds good": say what was measured and what they should listen for.
 - **Visuals are shown as video**, not as stray frames ("you showed me some photos").
+- **When the creator appears, always looking at the camera,** in a gesture or an action that frames well, or at a precise moment. The person blocks are chosen by looking for that frame by frame, not only by the sentence. A stretch where they look at the computer or read never goes in. The creator asked for it on 16 Nov 2026 ("I always keep that").
+- **Screens are recreated as motion graphics, not recorded.** A real reference screenshot is taken (the Claude app, Montage, the terminal) and animated with HyperFrames or Remotion with the same elements. It is faster, looks better and doesn't fill the disk. The creator, 16 Nov 2026: "take a screenshot… and animate it as motion graphics… faster than recording and using up a lot of space". VS Code is never shown, and neither is the sidebar with the creator's chats.
 - **Review at full size and in motion before publishing:**
   - frames at every scene change;
   - 100 % crops;
@@ -45,7 +47,12 @@ Where everything else is:
 
 - **The cut never lands on the voice.** It's placed by `cut.py` measuring the audio, never by the transcriber's timings. In v1 two cuts ate the end of a word.
 - **Air at the end:** `final_tail` 0.7 s. Without it, the ending stops dead.
-- **Air between takes:** `pause_between_segments` 0.45 s. If the margins give less, `cut.py` adds silence. In "Sin anotar" the gaps were 0.3 s and "it was all like boom, it went straight through".
+- **A phrase can't carry long silences inside.** `prepare.py` also splits where the audio goes quiet for more than 0.7 s, even without punctuation. In "Tres semanas" one "phrase" carried 19 s of silence, and another had the sentence said twice mixed into one.
+- **Background noise fools where the voice starts.** A balcony at night sits about 10 dB above silence, and measuring by energy stretched starts by up to 4 s. That's why Silero makes the cuts (below). The `adjustments` in `cut.json` stay for when the transcriber mixes two versions of a sentence.
+- **The air between sentences, by default, is a jump cut:** 0.12 s, the style approved in "Tres semanas" (16 Nov 2026). A brand that wants more air puts it in its `cut.json`. Example preferred 0.45 s, because with 0.3 s "it was all like boom".
+- **Voice cuts are decided by Silero VAD,** the trained speech detector that ships with faster-whisper. It's what `cut.py` uses by default. Each segment is trimmed to what is voice, without breaths, traffic or echo, and stretched over the "s" at the start and the end, which Silero leaves out. Before, cuts were measured by energy and pitch, and in "Tres semanas" that left 0.85 s of background before "Corta tu voz" and then ate consonants.
+- **Sentences said slowly or "sung" are sped up in parts** with `pace` in `cut.json`: a target in syllables per second and a cap. The creator's voice runs at about 5.7 syllables per second, and in "Tres semanas" several sentences were at 4.2 and sounded read. The default became 5.8 syllables per second with a 1.2× cap, which is what they approved. Above 1.3× it starts to sound rushed. If they want something else, offer two intensities to choose by ear.
+- **Every cut checks itself:** `cut.py` looks for gaps without voice longer than 0.3 s and transcribes the result to compare it word by word with what it should say. The differences come out as warnings. Read them before showing anything to the creator: a different word can be a clipped one, or how they said it.
 - The transcriber's `initial_prompt` only gets the proper names. With the whole script in it, Whisper skipped the first phrase.
 
 ## Stage 4 · Voice
@@ -64,6 +71,15 @@ Where everything else is:
 - A difference map against the original take across all frames: only what was added on purpose changes.
 
 ## Stage 7 · Animation
+
+- **Everything on screen gets its time to be seen.** Appearing is not enough: it has to be readable and understood, with no dead pauses that bore. The whole rhythm is tuned. Starting values, which the creator's eye adjusts:
+  - a 1 to 3 word text stays at least 1 s, plus 0.25 s per extra word;
+  - a screen or interface shot, 1.5 to 2.5 s, to understand what is happening;
+  - a big number, at least 0.8 s still after it lands.
+  - Nothing longer than 0.8 s without voice or visual change, unless it is a deliberate pause (a punchline).
+  - If the voice goes faster than it can be read, hold the shot or cut the text. Don't let it slide.
+
+  The creator asked for it on 16 Nov 2026: "what's on screen has enough time to be seen… no long pauses… tune it all".
 
 - **The interface never covers the face or the captions:**
   - it goes between the chin and the captions;

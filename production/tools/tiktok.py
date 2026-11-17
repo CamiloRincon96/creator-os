@@ -105,7 +105,7 @@ def connect(brand):
     networks.note(brand, "tiktok", {"username": info.get("username") or info.get("display_name"), "open_id": t["open_id"]})
     print(f"TikTok connected for {brand}: @{info.get('username') or info.get('display_name')}.")
     if missing:
-        print(f"Warning: TikTok did not grant these permissions: {', '.join(missing)}. Check the app's \"Scopes\" (production/TIKTOK.md, step 7).")
+        print(f"Warning: TikTok did not grant these permissions: {', '.join(missing)}. Check the app's \"Scopes\" (production/TIKTOK.md, step 8).")
 
 
 def test(brand):

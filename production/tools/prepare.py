@@ -80,6 +80,27 @@ for n, src in enumerate(sources, 1):
                     again = True
                     break
 
+    # a long silence (more than 0.7 s) also splits the phrase, even if the transcriber put no punctuation.
+    # It is measured in the audio, not in the word times: the transcriber stretches a word over the pause.
+    # In "Tres semanas" (16 Nov 2026) one phrase carried 19 s of silence inside and the cut would have kept it.
+    def longest_silence(wa, wb):
+        best = run = 0.0
+        frm = max(wa["start"] + 0.05, wa["end"] - 0.25)  # a stretched word's sound sits at the end of its span
+        for u in np.arange(frm, max(frm + 0.05, wb["end"] - 0.03), STEP):
+            run = run + STEP if level(env, u, u + STEP) < noise + 8 else 0.0
+            best = max(best, run)
+        return best
+    split = []
+    for g in groups:
+        current = [g[0]]
+        for wa, wb in zip(g, g[1:]):
+            if longest_silence(wa, wb) > 0.7:
+                split.append(current)
+                current = []
+            current.append(wb)
+        split.append(current)
+    groups = split
+
     dur = len(x) / sr
     voice = lambda t, above=6: level(env, t, t + 0.03) > noise + above
 

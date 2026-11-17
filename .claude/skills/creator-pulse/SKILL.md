@@ -9,6 +9,8 @@ Speak the person's language: every question, instruction (log in here, paste thi
 
 It closes the loop: `/creator-brand` defines what is talked about, `/creator-ideas` decides what to publish, `/creator-reel` produces it and **`/creator-pulse` says what worked** so the other three get better. Run it once a week (on Mondays) or whenever the creator wants.
 
+Lead the person by the hand (`production/GUIDING.md`): every number says what it means, every finding says what to do with it, and if something fails, what happened in plain words and a single step to fix it.
+
 **Rules:**
 - Judge **relative to reach**, never by views alone. In order: shares, new followers, saves and the % that skip the first 3 s.
 - **A style rule only goes in if it shows up in 2 or more pieces and has data behind it.** Something that happened once is a hint, not a rule.
@@ -19,7 +21,8 @@ It closes the loop: `/creator-brand` defines what is talked about, `/creator-ide
 ## 1. Gather (no Claude needed, the computer already does it)
 
 - The computer's watcher (`instagram.py watcher`, every hour: launchd on macOS, Task Scheduler on Windows, cron on Linux) runs `pulse.py collect` for each connected account. It saves a snapshot of the metrics in each age bucket, **stories every hour while they are live** (their metrics disappear after 24 h) and the day's followers.
-- At the start: `python3 production/tools/pulse.py collect <brand>`, to bring in the latest.
+- Before: "I'm bringing in the latest from your account and measuring each new reel. It takes longer if there are many new reels."
+- At the start: `python3 production/tools/pulse.py collect <brand>`, to bring in the latest. If the account is not connected: "I can't read your numbers yet: your Instagram isn't connected. You can connect it for free with `/creator-connect`."
 - Then: `python3 production/tools/pulse.py cards <brand>`. It downloads each new reel and measures:
   - duration;
   - cuts per minute;
@@ -37,19 +40,30 @@ It closes the loop: `/creator-brand` defines what is talked about, `/creator-ide
 
 ## 3. Conclude (in the chat)
 
-In 6 to 10 lines, with numbers:
+In 6 to 10 lines, with numbers and in plain words. The first time each number comes up, say what it is:
+- **shares:** out of every 100 people it reached, how many sent it to someone;
+- **saves:** how many out of every 100 saved it to watch again;
+- **skips:** how many out of every 100 left in the first 3 seconds (lower is better);
+- **your typical reel:** the account's median, the middle point to compare against.
+
+For example: "'Payday leaks' was shared by 4 out of every 100 people; your typical reel, 1. What changed: the money figure in the first second." If the reading is weak: "With only 4 reels, this is a hint, not a rule yet."
+
+What to cover:
 - **what worked and why**, compared with the account's median;
 - **what did not**;
 - **the wheel:** how much was published of each role, against the weights in `NICHE.md`;
 - **followers:** from how many to how many, and which pieces line up with the jumps;
-- **stories:** average reach, exits and replies;
+- **stories:** average reach, exits (how many closed them there) and replies;
 - **cadence:** how much was published against the plan (`production/DISTRIBUTION.md`).
 
-Then, **3 things for next week**: one to repeat, one to stop doing and one to try. They go to `/creator-ideas`.
+Then, **3 things for next week**: one to repeat, one to stop doing and one to try. They go to `/creator-ideas`. Each one is something to do, not a figure:
+> **Repeat:** open with the money figure in the first second.
+> **Stop:** intros longer than 2 seconds before the topic.
+> **Try:** a carousel with the 5 most common small everyday leaks.
 
 ## 4. Own style (`brands/<brand>/OWN-STYLE.md`)
 
-It is the brand's style guide **drawn from what the brand itself published and how it did**. It does not come from role models. With the creator's yes, it is created or updated with this shape:
+It is the brand's style guide **drawn from what the brand itself published and how it did**. It does not come from role models. First show in the chat only what changes (before and after, with the pieces it comes from) and ask: "Shall I save it in your own style? Write 'yes' or tell me which rule doesn't fit." With the creator's yes, it is created or updated with this shape, and you say: "Done: it is in `brands/<brand>/OWN-STYLE.md`. `/creator-ideas` and `/creator-reel` already use it."
 
 ```markdown
 # Own style of <brand>
@@ -77,10 +91,12 @@ Drawn from <n> pieces published between <date> and <date> (pulse). Each rule say
 ```
 
 **For the first version, or when there are fewer than 6 pieces**, you can add an analysis of role models:
-- The creator passes ~5 videos from accounts they like; download them with `uvx yt-dlp` to `production/references/videos/`, only to study them, never to publish them.
+- The creator passes ~5 videos from accounts they like; download them with `uvx yt-dlp` to `production/references/videos/`, only to study them, never to publish them. Ask for them like this: "Send me here the links to about 5 videos from accounts you like, one per line. I download them only to study them; they are never published."
 - For each one, measure the hook in the first 3 s, the cuts per minute, the captions (font or the closest free one, size, position, animation), the palette in hex, the sound, the framing and the structure.
 - To study a role model frame by frame, `hyperframes:reverse-any-video` helps.
 - What comes from role models is marked "from role models", separate from what came out of the brand's own metrics. When the brand's own metrics contradict it, its own metrics win.
+
+**At the end**, in 3 to 5 lines: what was learned in one sentence, the 3 things for the week, where whatever was saved is, and a single question: "Shall we plan the week with this? Type `/creator-ideas`."
 
 ## 5. Feed the other commands
 

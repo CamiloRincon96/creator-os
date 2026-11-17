@@ -15,15 +15,18 @@ With this, Claude uploads the reels and their copies at the batch's times. `prod
 1. **Professional account.**
    - Open: `connect.py open instagram-professional`.
    - In the Instagram app: Profile → ☰ → **For professionals** → **Account type and tools** → **Switch to professional account** → category → **Creator** or **Business**.
+   - **Done when:** **Account type and tools** no longer shows **Switch to professional account**.
 2. **Link the Facebook Page to Instagram.**
    - Open: `connect.py open facebook-link`.
    - On a computer, switch to the Page (your photo → **See all profiles** → the Page).
    - Then: the Page's photo → **Settings & privacy** → **Settings** → **Linked accounts** → **Instagram** → **Connect account**.
    - It's not Accounts Center: that one links personal profiles.
+   - **Done when:** **Linked accounts** → **Instagram** shows your Instagram account as connected.
 3. **The business portfolio.**
    - Open: `connect.py open meta-portfolio`.
    - In Meta Business Suite → **Settings** → **Accounts**, add the Page (**Pages** → **Add**) and the Instagram account (**Instagram accounts** → **Add**).
    - An Instagram account can only be in one portfolio.
+   - **Done when:** **Settings** → **Accounts** shows the Page (under **Pages**) and the account (under **Instagram accounts**).
 4. **The Meta app.**
    - Open: `connect.py open meta-app`.
    - Name and email → **Next**.
@@ -32,6 +35,7 @@ With this, Claude uploads the reels and their copies at the batch's times. `prod
    - In **Use cases** → that use case → **Customize** → **API setup with Facebook Login** → **Add all required permissions**.
    - In **Permissions and features**, also add `instagram_manage_insights`.
    - An app uses a single type of login: if you picked the Instagram one, create another app.
+   - **Done when:** `instagram_manage_insights` shows up in the app's **Permissions and features**.
 5. **The system user and its key.** A key that doesn't expire.
    1. Open: `connect.py open meta-system-user`. Go to **Settings** → **Users** → **System users** → **Add new system user**, with the **Admin** role → **Create system user**.
    2. **Assign assets:**
@@ -42,6 +46,8 @@ With this, Claude uploads the reels and their copies at the batch's times. `prod
       - if you'll also post to Facebook, add these now: `pages_manage_posts`, `read_insights` and `pages_manage_engagement`.
    4. Copy the key: Meta shows it only once.
    5. If posting gives a permissions error, generate the key again adding `ads_read`: Meta sometimes asks for it when the permission over the Page comes through the portfolio.
+
+   **Done when:** Meta shows the key, a long text that starts with EA. Don't close that window until you've saved it in step 6.
 6. **Save the key in the system's secure store.** Never in the repo or in the chat. In your own terminal, inside the repo folder (`cd <your repo folder>`):
    - macOS (the Terminal app): `python3 production/tools/save_token.py example`. It goes in the Keychain.
    - Windows (PowerShell or Windows Terminal, not Git Bash): `python production/tools/save_token.py example`. It goes in the Credential Manager.
@@ -51,6 +57,7 @@ With this, Claude uploads the reels and their copies at the batch's times. `prod
    - When it asks, and only then, copy the token in the browser with the copy button, paste it and press Enter. It isn't shown.
    - Don't save it by hand with macOS's `security` command: it cuts what you paste at 128 characters, and the token is about 200 long. Nor with a command copied from the chat that reads the clipboard: the clipboard ends up holding the command, not the token.
    - The tool checks that what you pasted is a Meta token (it starts with EA and is long) and that it can be read back.
+   - **Done when:** the terminal says "Saved in … (N characters)".
 7. **Tell Claude "done".** It runs `instagram.py connect example` and `instagram.py test example`, which show the account, the followers and the day's quota.
 
 **So it doesn't switch off:** Meta deactivates an app that goes 90 days without calls, and all its keys with it. The metrics watcher (below) keeps it active.
