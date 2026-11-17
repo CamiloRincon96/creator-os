@@ -172,8 +172,11 @@ def _all():
         if not reel:
             raise RuntimeError("the hook text composition was not found in brands/*/reel/src/Root.tsx")
         png = TMP / "test frame.png"
-        rc, out = run([*system.remotion(reel), "still", "src/index.ts", comp, png, "--frame=30", *system.remotion_browser(),
-                       "--log=error"], cwd=reel, timeout=900)
+        for attempt in (1, 2):  # a cold Chrome on a busy machine can miss Remotion's 25 s connect window once
+            rc, out = run([*system.remotion(reel), "still", "src/index.ts", comp, png, "--frame=30", *system.remotion_browser(),
+                           "--log=error"], cwd=reel, timeout=900)
+            if not rc and png.exists():
+                break
         if rc or not png.exists() or png.stat().st_size < 1000:
             raise RuntimeError(out[-800:])
         return f"{comp} in {reel.relative_to(REPO)}"
@@ -234,7 +237,9 @@ def _all():
             time.sleep(0.25)
         if rc or not state.exists():
             # safety: if the CLI did not use the temporary folders, it would talk to the real Montage. Stop here.
-            raise RuntimeError(f"Montage did not start in the temporary folders; the real one is left alone. {out[-400:]}")
+            server_log = TMP / "state" / "server.log"
+            tail = server_log.read_text(encoding="utf-8", errors="replace")[-1500:] if server_log.exists() else "(no server.log)"
+            raise RuntimeError(f"Montage did not start in the temporary folders; the real one is left alone. {out[-400:]}\n{tail}")
         try:
             for step in steps:
                 rc, out = run([node, cli, *step], env=env, cwd=REPO, timeout=300)
@@ -394,7 +399,7 @@ def _all():
                     bad.append(f"winget {i}: {out.strip()[-200:]}")
             names = ids
         elif system.MAC:
-            names = sorted(set(m.group(1) + m.group(2) for m in re.finditer(r"brew install (--cask )?([a-z0-9][\w@.+\-]*)", text)))
+            names = sorted(set((m.group(1) or "") + m.group(2) for m in re.finditer(r"brew install (--cask )?([a-z0-9][\w@.+\-]*)", text)))
             for n in names:
                 rc, out = run(["brew", "info", *n.split()], timeout=180)
                 if rc:
