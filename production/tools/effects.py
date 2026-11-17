@@ -27,15 +27,16 @@ mix:
   3. mixes with real-sfx (the voice and the music inside the mix, --voice-safe --voice-depth light, −14 LUFS) and brings each effect
      to its level measured against the voice on the ducked track, in up to 6 rounds. Says which ones don't reach it (a recording that
      is too quiet: swap it or drop it; an effect 20 dB under the voice is not heard);
-  4. leaves in output/sound/ <name>-with-music.mp4 (to listen; with CC0 music it's the TikTok and YouTube one), <name>-no-music.mp4
-     (Instagram: the song is added by the Audio API at publishing), <name>.wav (the effects) and <name>-levels.json.
+  4. leaves the videos in output/ (where all of the piece's videos go): <name>-with-music.mp4 (to listen; with CC0 music it's the
+     TikTok and YouTube one) and <name>-no-music.mp4 (Instagram: the song is added by the Audio API at publishing). The working files
+     (the effects track, the levels, the review and its pictures) stay in work/effects/<name>/.
 
 review (always on the final mix, never before the music):
   - real-sfx: critique.py against the brand's niche style (brands/<brand>/sounds/study/style.json), verify.py, review.py and
     zoom.py of the hook. Both pictures get looked at;
   - Whisper word by word, voice alone against each mix. A word that changes is tried again in a 3 s window (reading the whole file
     the model gets things wrong, with no effect involved) and only counts if it changes there too;
-  - writes output/sound/<name>-review.md with what was measured and the moments the person has to listen to.
+  - writes work/effects/<name>/review.md with what was measured and the moments the person has to listen to.
 real-sfx's "ears" (hear.py, YAMNet) don't work with a continuous voice on top: they get it wrong and only say "Speech". Decide with
 the measurement against the voice, with Whisper and with the person's ears.
 """
@@ -239,7 +240,7 @@ def mix():
                      "gain_dB": gains.get(i, e.get("gain", 0.0))})
         if target is not None and measured[i] < target - 3:
             short.append(f"{e['t']} s {e.get('what')} ({Path(e['sound']).name}): sits at {measured[i]:+.1f} dB (should be {target:+.1f})")
-    out = Path(P) / "output" / "sound"
+    out = Path(P) / "output"
     out.mkdir(parents=True, exist_ok=True)
     if has_music:
         shutil.copy2(work / "mix.mp4", out / f"{name}-with-music.mp4")
@@ -248,16 +249,16 @@ def mix():
         shutil.copy2(work / "no-music" / "mix.mp4", out / f"{name}-no-music.mp4")
     else:
         shutil.copy2(work / "mix.mp4", out / f"{name}-no-music.mp4")
-    shutil.copy2(work / "mix_sfx_track.wav", out / f"{name}.wav")
+    shutil.copy2(work / "mix_sfx_track.wav", work / f"{name}.wav")
     med = float(np.median([r["measured_dB"] for r in rows if r["target_dB"] is not None]))
     save({"sheet": os.path.relpath(sheet, P), "sounds": len(effects), "per_10_s": round(per10, 1), "median_vs_voice_dB": round(med, 1),
-          "warnings": warnings, "short": short, "effects": rows}, str(out / f"{name}-levels.json"))
+          "warnings": warnings, "short": short, "effects": rows}, str(work / "levels.json"))
     print(f"\nEffects median: {med:+.1f} dB against the voice (the niche: about +2.6; v31, which \"couldn't be heard\": −7.3).")
     for x in short:
         print("  SHORT", x, "→ swap the recording or drop the effect")
-    for f in (f"{name}-with-music.mp4", f"{name}-no-music.mp4", f"{name}.wav", f"{name}-levels.json"):
-        if (out / f).exists():
-            print(" ", out / f)
+    for f in (out / f"{name}-with-music.mp4", out / f"{name}-no-music.mp4", work / "levels.json"):
+        if f.exists():
+            print(" ", f)
     print(f"Next: {system.PY} production/tools/effects.py review {os.path.relpath(P, ROOT)} --name {name}")
 
 
@@ -300,8 +301,8 @@ def review():
             sys.exit("There's no mix: run effects.py mix first")
         name = done[-1].parent.name
     work = Path(P) / "work" / "effects" / name
-    out = Path(P) / "output" / "sound"
-    levels = load(str(out / f"{name}-levels.json"))
+    out = Path(P) / "output"
+    levels = load(str(work / "levels.json"))
     resolved, track = work / "mix_resolved_cues.json", work / "mix_sfx_track.wav"
     report = [f"# Sound review: {name}", "",
               f"- **Effects:** {levels['sounds']} ({levels['per_10_s']} every 10 s); median **{levels['median_vs_voice_dB']:+.1f} dB** "
@@ -321,12 +322,12 @@ def review():
     else:
         report.append(f"- WARNING the brand has no niche sound study ({style.relative_to(ROOT)}): make it with sound_study.py")
     critique = run("critique.py", resolved, track, "--list", *style_args)
-    (out / f"{name}-critique.md").write_text(critique, encoding="utf-8")
+    (work / "critique.md").write_text(critique, encoding="utf-8")
     axes = [l for l in critique.splitlines() if re.match(r"\| (hook|sync|pacing|balance|audibility|speech|low_end|variety) \|", l)]
     report += ["", "## real-sfx (on the final mix)", "", "| axis | score | basis |", "|---|---|---|", *axes]
     ver = run("verify.py", resolved, track)
     report.append(f"\n`verify.py`: {next((l for l in ver.splitlines() if 'cues:' in l), ver.strip().splitlines()[-1] if ver.strip() else '')}")
-    run("review.py", resolved, track, "--out", out / f"{name}-mix.png")
+    run("review.py", resolved, track, "--out", work / "mix.png")
     hook = 4.3
     try:
         hook = float(load(str(Path(P) / levels["sheet"])).get("hook", 4.3))
@@ -336,7 +337,7 @@ def review():
     if not final.exists():
         final = out / f"{name}-no-music.mp4"
     run("zoom.py", resolved, track, "--at", round(hook / 2, 2), "--span", round(hook + 0.4, 2), "--video", final,
-        "--out", out / f"{name}-hook.png")
+        "--out", work / "hook.png")
     voice = work / "base" / "voice.wav"
     report += ["", "## The voice, word by word (Whisper)", ""]
     for kind in ("with-music", "no-music"):
@@ -351,10 +352,10 @@ def review():
     loud = sorted((r for r in levels["effects"] if r["level"] in ("hook", "hit")), key=lambda r: r["t"])[:5]
     report += ["", "## To listen to (the person, on headphones and on the phone)", "",
                f"- the hook (0 to {hook} s);", *[f"- {r['t']} s, {r['what']};" for r in loud],
-               "", f"Pictures to look at: `{name}-mix.png` (the whole reel) and `{name}-hook.png` (the hook up close)."]
-    (out / f"{name}-review.md").write_text("\n".join(report) + "\n", encoding="utf-8")
+               "", f"Pictures to look at: `{work / 'mix.png'}` (the whole reel) and `{work / 'hook.png'}` (the hook up close)."]
+    (work / "review.md").write_text("\n".join(report) + "\n", encoding="utf-8")
     print("\n".join(report))
-    print(f"\n{out / f'{name}-review.md'}")
+    print(f"\n{work / 'review.md'}")
 
 
 if __name__ == "__main__":

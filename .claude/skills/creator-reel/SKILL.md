@@ -41,6 +41,7 @@ It comes from `production/GUIDING.md`. In this command:
   4. **How to answer:** "If it's fine, type “approved”. If something isn't, leave me a note in Montage at the exact moment (you can draw on it) and press “Send to Claude”, or tell me here."
 - **When the creator has to do something with their hands** (record, move a file, sign in, open an app): one step per message, with where, what to tap or type (the command ready to copy), what they will see, and "when you see it, type “done”". If they see something else, they describe it or send a screenshot.
 - **Before uploading material or spending** (Higgsfield, ElevenLabs, Codex, Adobe Podcast, CapCut, After Effects): what is uploaded, where to, and what it costs, stated in the option itself, and wait for their yes. Each tool's text is in `GUIDING.md`.
+- **Where each thing goes in the piece:** the video of each version (what goes to Montage or gets delivered) straight into `output/`, with no subfolders; sheets, tracks, reports and tests in `work/`. The creator, Nov 17, 2026: "all the videos go to output".
 - **When a step closes:** what was made, the video of each version as a link that opens in the editor (`[reel-v4.mp4](brands/<brand>/pieces/<piece>/output/…)`, not just the Montage link), and what comes next. If they can't find it, `show.py <path>` opens it in Finder or File Explorer.
 - **If something fails:** what happened, in plain words, and a single step to fix it. Never the raw error alone, and never the same command again hoping for a different result.
 - **Technical names with what they do:** "Whisper, the one that turns your voice into text"; "Montage, the editor where you review the videos".
@@ -334,15 +335,15 @@ Say: "I'm adding the effects and the music. I can't hear: I measure against your
    - `measure`, `listen` (the listening-test video goes to Montage as a separate project) and `style`;
    - when done, `clean --yes`.
    The person picks by ear which creator sounds the way they want.
-2. **The sheet** (`output/sound/effects-vN-sheet.json`), from the moments in the animation's code, not guessed from the video:
+2. **The sheet** (`work/effects-vN-sheet.json`), from the moments in the animation's code, not guessed from the video:
    - about 7 sounds every 10 s, a full hook and one on frame 0;
    - a whoosh on the big changes, hits with body on the words that land, real objects where they're seen;
    - a level per effect (`hook`, `hit`, `transition`, `object`, `small`, `rise`, `layer`);
    - no synthesized interface sounds, dings, sparkles or coin (`effects.py` won't let them through);
    - the music goes in `"music"`: the trending Instagram song (preview from `instagram.py audios`) to listen, or a CC0 one for TikTok and YouTube. In HyperFrames projects, sounds and music can also come from `hyperframes:media-use`.
-3. **`python3 production/tools/effects.py mix <piece> output/sound/effects-vN-sheet.json`:**
+3. **`python3 production/tools/effects.py mix <piece> work/effects-vN-sheet.json [--name reel-vN]`:**
    - it mixes with the voice and the music inside and brings each effect to its level against the voice, measured in the final mix, in up to 6 rounds;
-   - it leaves `-with-music.mp4` and `-no-music.mp4`. On Instagram the no-music one is posted and the Audio API adds the song.
+   - it leaves in `output/` `<name>-with-music.mp4` and `<name>-no-music.mp4` (the rest, in `work/effects/<name>/`). On Instagram the no-music one is posted and the Audio API adds the song.
    What it warns about (weak hook, gaps, repeats, "short") gets fixed in the sheet before going on.
 4. **`effects.py review <piece> --name effects-vN`:**
    - real-sfx's critique against the niche style, `verify`, the mix picture and the hook zoom (both get looked at);
