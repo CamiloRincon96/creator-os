@@ -914,5 +914,19 @@
   "source": "freesound",
   "page": "https://freesound.org/people/ra_gun/sounds/75544",
   "downloaded": "2026-11-17"
+ },
+ {
+  "id": "34ba7605-bc18-4609-909c-87e4dc25bba9-copia",
+  "file": "woosh-short/whoosh-1.mp3",
+  "title": "Whoosh #1",
+  "creator": "Kinoton",
+  "license": "cc0 1.0",
+  "source": "freesound",
+  "page": "https://freesound.org/people/Kinoton/sounds/427823",
+  "downloaded": "2026-11-13",
+  "license_at_source": [
+   "creativecommons.org/publicdomain/zero/1.0"
+  ],
+  "note": "identical copy of whoosh-transition/whoosh-1.mp3 (used by a reel's effects sheet)"
  }
 ]
