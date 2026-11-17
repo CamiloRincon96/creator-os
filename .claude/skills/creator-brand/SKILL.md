@@ -84,7 +84,7 @@ Each one ends the same way: "Is this your brand? If so, write 'yes'. If somethin
 
 Before: "With your yes, I create the brand's folder and add it to Montage, the editor where you review your videos."
 
-1. **The folders:** `brands/<id>/` with `NICHE.md`, `BRAND.md` and `PROFILE.md`. Plus `identity/{logo,profile,covers}`, `ideas/`, `pieces/`, `finals/` and `sounds/`, with an empty `sounds/credits.json` (`[]`).
+1. **The folders:** `brands/<id>/` with `NICHE.md`, `BRAND.md` and `PROFILE.md`. Plus `identity/{logo,profile,covers}`, `ideas/`, `pieces/`, `finals/`, `sounds/` (with an empty `sounds/credits.json`, `[]`) and `stock/`, for the person's real material: photos, timelapses of them working and screenshots. That material stays out of git.
 2. **The brand's Remotion project (`reel/`) is not created now.** It is built in its first `/creator-reel`, with `remotion-create`, starting from Example's kit with the brand's colors and fonts.
 3. **Montage** knows about the brand in two places:
    - `montage/shared/formats.js` (the `BRANDS` list);
