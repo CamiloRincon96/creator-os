@@ -27,6 +27,9 @@ The creator, Nov 17, 2026, approving "glass": "I won't accept less than this". E
      - the old versions with their mistake, instead of little red squares;
      - their headphones, instead of a sound bar.
    - Every scene has something happening in the picture every half second: a finger swiping, a heart, something falling or being cut.
+   - **Understandable without knowing the tool** (the creator, Nov 17, 2026: "it makes sense to someone who has already used it, but if they've already used it, they aren't watching this video"). An action is shown the way anyone would do it: pause, a pen that circles, and the note. A loose box isn't enough.
+   - **Not everything is the person** (the creator: "very me-centric… not everything has to be my photo"). Supporting material (example reels, photos, sound) uses material from the brand or from their work, without their face. The face appears only when it adds something, for example one second of one of their reels.
+   - **Zoom with intent:** a short zoom punch on each key word, and a slow push-in in each scene. On a capture (an editor, a page) the camera moves in to the part that matters and travels along it.
 3. **Few words, and big:** one word per scene, in the identity's type. Nothing that can't be read in time: what doesn't fit is said with shapes (✓ ✕, counters, bars), and a phrase already written big on screen gets no caption.
 4. **Panels the size of what they show,** with video inside when possible. A big window with a little piece inside looks empty.
 5. **Always moving:** the camera pushes in, pulls back or goes through; something new every 0.5 to 1 s, on the word that names it; pieces come from somewhere (from behind the person, from their gesture) and the previous one leaves.

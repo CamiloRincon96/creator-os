@@ -9,6 +9,7 @@ What it taught became **the standard every identity meets** (`production/REELS-W
 ## The patterns (what works and what doesn't)
 
 **Yes:**
+- Zoom punches on the key words and a slow push-in in each scene; on a capture, moving in to the part that matters and traveling along it (v27).
 - Real logos and images of what's named, instead of its written name (v25).
 - The real and specific: their photos, their timelapses, their numbers, their notes, their files, their team.
 - Dark glass with video inside, the size of what it shows.
@@ -22,6 +23,8 @@ What it taught became **the standard every identity meets** (`production/REELS-W
 - Film grain.
 
 **No:**
+- Filling the supporting material with their face (v27): reels, photos, sound. It uses the brand's material without their face; the face, only for a second when it adds something.
+- Marks or boxes that only someone who has already used the tool understands.
 - Abstract things that "stand for" something: boxes with a play button, bars, waveforms, little colored squares (v26). Show the thing itself.
 - Writing the name of an app or AI when its logo can be shown.
 - Joined cursive or tightly tracked type.
@@ -108,13 +111,13 @@ The recipe comes from one of the references (a 3D interface over a dark backgrou
 ## Recipes for step scenes (v26)
 
 Each step is told with the thing itself, not with a symbol:
-- **research:** a phone with real reels swiped by a finger, hearts and shares;
+- **research:** a phone with real reels swiped by a finger (one of theirs for a second, then the brand's, without their face), hearts and shares;
 - **script:** the AI's logo, big, and the real text being typed, big;
 - **cutting the voice:** a film strip with frames of their raw take; scissors cut out the silences and the strip closes up;
 - **retouching:** their raw take and the retouched one, with a wipe;
 - **animation:** the real layers of one frame (take, cutout, result) separating in 3D;
-- **sound:** their photo with headphones and waves;
-- **review:** a capture of their editor and their real note;
+- **sound:** their desk; the camera goes into the microphone and waves come out (no photo of them);
+- **review:** a capture of their editor, with a zoom to the timeline that travels along it; "marking" is pause, a red pen circling a frame, and their real note;
 - **learning:** the old versions with their mistake, falling with ✕ into the book with the total;
 - **installing:** the logos of the AIs and of what gets installed, each with its ✓;
 - **sharing:** the comments sheet with the link.
@@ -148,3 +151,4 @@ Built per piece, with the piece's real material: panes with motion inside (a cal
 - **Nov 17, 2026, v21-v24:** full-screen scenes. Invented screens were dropped for real material (v22), the reel feed was added (v23) and the creator approved the style: "I won't accept less than this". The full reel (v24) added the recipes for step scenes. Its standard went into `production/REELS-WORKFLOW.md` and the generic kit into `brands/example/reel/src/glass/`.
 - **Nov 17, 2026, v25:** real logos instead of names, icons instead of words, "$0", errors that turn into lessons; the type moves to a wide, heavy display face (Unbounded). The kit got `Logo`, `AppIcon` and `disp()`.
 - **Nov 17, 2026, v26:** nothing abstract. Now there's a phone with real reels, the film strip of their takes cut by scissors, the real layers of the hook, their headphones and their old versions with their mistake falling into the book.
+- **Nov 17, 2026, v27:** less of the person in the supporting material (the brand's reels without their face, one of their own reels for a second), the microphone instead of their photo, a zoom to the editor's timeline, "marking" anyone understands (pause, pen, note) and zoom punches on the key words.
