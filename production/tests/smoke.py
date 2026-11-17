@@ -227,7 +227,12 @@ def _all():
                  ["history", "smoke"],
                  ["view", "smoke", "--t", "1.5"]]
         rc, out = run([node, cli, "server"], env=env, cwd=REPO, timeout=120)
-        if rc or not (TMP / "state" / "server.json").exists():
+        state = TMP / "state" / "server.json"
+        for _ in range(40):  # the server writes it once it finishes starting: give it up to 10 s
+            if rc or state.exists():
+                break
+            time.sleep(0.25)
+        if rc or not state.exists():
             # safety: if the CLI did not use the temporary folders, it would talk to the real Montage. Stop here.
             raise RuntimeError(f"Montage did not start in the temporary folders; the real one is left alone. {out[-400:]}")
         try:
