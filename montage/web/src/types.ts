@@ -44,6 +44,13 @@ export interface Version {
   state: 'review' | 'discarded' | 'final';
   /** Date its files were deleted when the piece was finished (archive); notes and history stay. */
   archived?: string;
+  /** The /creator-reel stage it closes (the review report says it). */
+  stage?: number;
+  /** The independent reviewer's score (1 to 10 per axis) and the person's stars (1 to 5). */
+  rating?: {
+    reviewer?: { axes: { axis: string; score: number }[]; average: number | null; minimum: number | null; verdict: string; skipped?: string[] };
+    person?: { stars: number; name?: string; date: string };
+  };
 }
 
 export interface Format {

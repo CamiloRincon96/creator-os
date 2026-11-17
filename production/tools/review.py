@@ -1,7 +1,11 @@
 """Mandatory review of every result before showing it to the person. Run it after ANY edit that changes the video
 (a cut, a render, a version, resolved notes), on the file that is about to be shown.
-Usage: python3 production/tools/review.py <video> [--cut <piece> | --text "what is said" | --script <visual-script.json|.txt>]
+Usage: python3 production/tools/review.py <video> --stage N [--cut <piece> | --text "what is said" | --script <visual-script.json|.txt>]
                                           [--every 0.5]
+
+--stage N (the /creator-reel stage this version closes) adds the quality lock (locks.py): the stage's tools checked against
+what they leave in the piece, the table the independent reviewer fills (the reel-reviewer agent) and its verdict. Without
+it, Montage won't publish the version.
 
 The AI doesn't watch the video playing and doesn't hear. This leaves it the whole video to look at and the sound measured:
   walkthrough-NN.jpg  the whole video, one frame every 0.5 s with its second, to see it from start to end
@@ -30,6 +34,10 @@ video = Path(sys.argv[1]).resolve()
 if not video.exists():
     sys.exit(f"{video} does not exist")
 op = lambda k, d=None: sys.argv[sys.argv.index(k) + 1] if k in sys.argv else d
+import locks
+STAGE = int(op("--stage")) if op("--stage") else None
+if STAGE is not None and STAGE not in locks.STAGES:
+    sys.exit(f"Unknown stage {STAGE}: python3 production/tools/locks.py says which ones there are")
 EVERY = float(op("--every", 0.5))
 out_dir = video.with_name(video.stem + "-review")
 out_dir.mkdir(exist_ok=True)
@@ -275,6 +283,7 @@ L += ["", "## Checklist by eye", "",
       "- [ ] A full screen: each thing the size of what it shows, inside the safe zone, nothing leaves the frame.",
       "- [ ] The person rules but isn't everything: they look at the lens, nothing covers their face, and the supporting material goes without their face.",
       "- [ ] One world: nothing that looks like home, even color and the brand's identity from start to end.",
+      ] + (locks.section(video, STAGE) if STAGE else []) + [
       "", "## What I saw", "",
       "<!-- The AI writes here, after looking at ALL the images: what it reviewed, what it found and what it fixed (or why",
       "     something stays as it is). Montage won't publish an AI's video while this section is empty. -->", ""]
@@ -288,3 +297,11 @@ print("Look at all these images before saying it's ready:")
 for p in images:
     print(f"  {p}")
 print("Then write \"## What I saw\" in the report; without it Montage won't publish.")
+if STAGE:
+    pending = [l for l in locks.check(video, STAGE) if not l[1]]
+    print(f"Stage {STAGE} lock: " + ("all in order." if not pending else f"{len(pending)} pending:"))
+    for line, _, proof in pending:
+        print(f"  [ ] {line} · {proof}")
+    print("Then the independent reviewer: the reel-reviewer agent fills the score and the verdict (Montage won't publish without it).")
+else:
+    print("NOTE: without --stage N, Montage won't publish this version (its stage's lock is missing).")

@@ -124,3 +124,20 @@ test('archive: deletes the files of the versions that are not the FINAL and keep
   // A second pass has nothing to do.
   assert.equal((await data.archiveVersions('archive')).plan.length, 0);
 });
+
+test('rating: the reviewer comes with the version and the person gives stars', async () => {
+  await data.createProject({ id: 'rate', name: 'Rate', brand: 'example', type: 'image' });
+  const v = await data.addVersion('rate', {
+    files: [IMAGE],
+    author: 'claude',
+    stage: 9,
+    rating: { reviewer: { axes: [{ axis: 'hook', score: 9 }, { axis: 'voice', score: 8 }, { axis: 'junk', score: 40 }], verdict: 'Show' } },
+  });
+  assert.equal(v.stage, 9);
+  assert.equal(v.rating.reviewer.axes.length, 2);
+  assert.equal(v.rating.reviewer.average, 8.5);
+  const r = await data.rateVersion('rate', v.id, { stars: 4, person: 'Alex' });
+  assert.equal(r.rating.person.stars, 4);
+  assert.equal(r.rating.reviewer.average, 8.5);
+  await assert.rejects(() => data.rateVersion('rate', v.id, { stars: 6 }), /1 to 5/);
+});

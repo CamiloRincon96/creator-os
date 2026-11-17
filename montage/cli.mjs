@@ -7,6 +7,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { missing, MIN_SCORE, readReview } from './shared/review.js';
 import { parseTime, readableTime } from './shared/time.js';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
@@ -279,8 +280,11 @@ const COMMANDS = {
   server [--stop | --restart]             starts / stops the server
   new <id> --name "…" --brand <b> --type video|image|carousel [--origin "…"]
   publish <project> <file…> [--note "…"] [--resolves 4,5] [--origin "…"] [--markers "0:Hook,2.5:Logo"] [--author creator] [--date file|ISO]
-      An AI's video needs its review first (production/tools/review.py) with "What I saw" written and every
-      "Visual floor" line ticked [x] or marked "n/a" with why; --skip-review "why" skips it and leaves the why in the note.
+      Quality lock: an AI's video needs its review (production/tools/review.py --stage N) with "What I saw" written,
+      the "Visual floor" resolved, its stage's lock and the independent reviewer's score (the reel-reviewer agent),
+      every axis at 8 or more. --dry-run only says whether it passes. Only with what the person said:
+      --show-low "…" publishes it even with an axis under 8; --skip-review "…" skips it all. It stays in the note.
+  ratings <project>                       each version's reviewer score next to the person's stars
   pending [--project id] [--all]          notes sent by the creator (with capture paths)
   note <project> <n>                      detail of one note
   view <project> [--v vN] [--t 1.2,4.4 | --frames 30,132 | --sheet 12] [--page N]
@@ -402,24 +406,30 @@ Timeline (video editor): montage/projects/<id>/timeline.json. Times in seconds, 
     if (!project || !files.length) fail('Usage: publish <project> <file…> [--note "…"] [--resolves 4,5]');
     const paths = files.map((a) => path.resolve(process.cwd(), a));
     for (const r of paths) if (!fs.existsSync(r)) fail(`${r} does not exist`);
-    // Mandatory review: an AI's video isn't published without review.py and without "What I saw" written.
+    // Quality lock (the creator, Nov 17, 2026: "super strict… going through the steps and following the plugin… scoring
+    // every version… an independent reviewer"). shared/review.js says what's missing; only the person decides to skip it.
     const byAI = !op.author || op.author === 'claude';
     let note = op.note || '';
-    if (byAI && op['skip-review']) note = `${note}${note ? ' · ' : ''}(published without review: ${op['skip-review']})`;
+    let stage = null;
+    let rating = null;
+    if (byAI && op['skip-review']) note = `${note}${note ? ' · ' : ''}(published without review, the person decided: ${op['skip-review']})`;
     if (byAI && !op['skip-review']) {
       for (const r of paths.filter((x) => /\.(mp4|mov|m4v|webm)$/i.test(x))) {
         const report = path.join(path.dirname(r), path.basename(r).replace(/\.[^.]+$/, '') + '-review', 'REVIEW.md');
-        const run = `python3 production/tools/review.py "${path.relative(process.cwd(), r)}"`;
+        const run = `python3 production/tools/review.py "${path.relative(process.cwd(), r)}" --stage N`;
         if (!fs.existsSync(report) || fs.statSync(report).mtimeMs < fs.statSync(r).mtimeMs)
-          fail(`${path.basename(r)} hasn't been reviewed (or it changed after the review).\n  1. ${run}\n  2. Look at every image it leaves and read the report.\n  3. Write in "## What I saw" what you reviewed, what you found and what you fixed.`);
-        const seen = (fs.readFileSync(report, 'utf8').split('## What I saw')[1] || '').replace(/<!--[\s\S]*?-->/g, '').trim();
-        if (!seen) fail(`The review of ${path.basename(r)} has no "## What I saw" written: ${report}`);
-        // The visual floor (production/REELS-QUALITY.md): if the review has the list, each line is ticked or says "n/a".
-        const floor = (fs.readFileSync(report, 'utf8').split('## Visual floor')[1] || '').split('\n## ')[0].replace(/<!--[\s\S]*?-->/g, '');
-        const unresolved = floor.split('\n').filter((l) => /^- \[ \]/.test(l.trim()) && !/\bn\/a\b|not applicable/i.test(l));
-        if (unresolved.length) fail(`The review of ${path.basename(r)} has ${unresolved.length} unresolved "## Visual floor" line(s) (tick them [x] after looking, or write "n/a" and why): ${report}`);
+          fail(`${path.basename(r)} hasn't been reviewed (or it changed after the review).\n  1. ${run}\n  2. Look at every image it leaves and write "## What I saw".\n  3. Run the reel-reviewer agent on the report: it scores each axis and gives its verdict.`);
+        const rev = readReview(fs.readFileSync(report, 'utf8'));
+        const f = missing(rev, { showLow: Boolean(op['show-low']) });
+        if (f.length) fail(`It doesn't pass the quality lock (${path.basename(r)}):\n${f.map((x) => `  - ${x}`).join('\n')}\n  Report: ${report}`);
+        stage = rev.stage.n;
+        rating = { reviewer: { axes: rev.axes, average: rev.average, minimum: rev.minimum, verdict: rev.verdict.slice(0, 600), skipped: rev.skipped } };
+        if (op['show-low'] && rev.minimum < MIN_SCORE) note = `${note}${note ? ' · ' : ''}(with axes under ${MIN_SCORE}, the person decided: ${op['show-low']})`;
+        if (rev.skipped.length) note = `${note}${note ? ' · ' : ''}(skipped: ${rev.skipped.join('; ')})`;
+        console.log(`It passes the lock: stage ${stage} · reviewer ${rev.average}/10 (minimum ${rev.minimum})`);
       }
     }
+    if (op['dry-run']) return console.log('Dry run: nothing was published.');
     const markers = op.markers
       ? String(op.markers)
           .split(',')
@@ -437,10 +447,34 @@ Timeline (video editor): montage/projects/<id>/timeline.json. Times in seconds, 
       author: !op.author || op.author === 'claude' ? 'claude' : 'person',
       name: op.author && op.author !== 'claude' ? String(op.author) : undefined,
       created: op.date === 'file' ? fs.statSync(paths[0]).mtime.toISOString() : op.date || undefined,
+      stage,
+      rating,
     });
     console.log(`Published ${v.id} in ${project} (${v.files.length} file${v.files.length === 1 ? '' : 's'}, cloned with no extra space).`);
     if (v.resolves.length) console.log(`Notes marked as resolved in ${v.id}: ${v.resolves.map((n) => '#' + n).join(', ')}`);
     console.log(`View: ${BASE_URL}/#/p/${project}`);
+  },
+
+  /** Each version's independent reviewer score next to the person's stars: where Claude fools itself. */
+  async ratings({ pos }) {
+    const project = pos[0];
+    if (!project) fail('Usage: ratings <project>');
+    const d = await request('GET', `/projects/${project}/history`);
+    const l = [`# Ratings · ${d.project.name}`, '', '| version | stage | reviewer (out of 10) | the person (stars) | gap |', '|---|---|---|---|---|'];
+    const gaps = [];
+    for (const v of d.versions) {
+      const r = v.rating?.reviewer;
+      const pe = v.rating?.person;
+      if (!r && !pe) continue;
+      const g = r && pe ? Math.round((r.average - pe.stars * 2) * 10) / 10 : null;
+      if (g !== null) gaps.push(g);
+      l.push(`| ${v.id} | ${v.stage ?? '—'} | ${r ? `${r.average} (min. ${r.minimum})` : '—'} | ${pe ? `${'★'.repeat(pe.stars)}${'☆'.repeat(5 - pe.stars)} (${pe.name || 'person'})` : 'not rated'} | ${g === null ? '—' : (g > 0 ? '+' : '') + g} |`);
+    }
+    if (gaps.length) {
+      const mean = Math.round((gaps.reduce((a, c) => a + c, 0) / gaps.length) * 10) / 10;
+      l.push('', `Mean gap: ${mean > 0 ? '+' : ''}${mean} (reviewer minus stars × 2). ${mean >= 2 ? 'The reviewer is scoring too high: make the review stricter (read LESSONS and what the person said about those versions).' : mean <= -2 ? 'The reviewer is scoring too low.' : 'They agree.'}`);
+    } else l.push('', 'No version has both scores yet: ask the person for their stars in Montage.');
+    console.log(l.join('\n'));
   },
 
   async pending({ op }) {

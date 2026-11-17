@@ -21,6 +21,7 @@ export const api = {
   editVersion: (id: string, v: string, changes: { state?: string; note?: string }) =>
     request<Version>('PATCH', `/projects/${id}/versions/${v}`, changes),
   markFinal: (id: string, version: string | null) => request<Project>('POST', `/projects/${id}/final`, { version }),
+  rateVersion: (id: string, v: string, stars: number) => request<Version>('POST', `/projects/${id}/versions/${v}/rating`, { stars }),
   createNote: (id: string, data: Partial<Note>) => request<Note>('POST', `/projects/${id}/notes`, data),
   editNote: (id: string, n: number, changes: Partial<Note> & { message?: string }) =>
     request<Note>('PATCH', `/projects/${id}/notes/${n}`, changes),

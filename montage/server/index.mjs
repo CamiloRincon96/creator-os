@@ -233,6 +233,9 @@ api.post('/projects/:id/versions', async (req, res) => {
     resolves: list(b.resolves),
     markers: b.markers || [],
     created: b.created,
+    // the reviewer's score only comes from Claude (the CLI reads it from the report); the person rates with stars
+    stage: b.author === 'claude' ? b.stage ?? null : null,
+    rating: b.author === 'claude' ? b.rating || null : null,
   });
   // Temporary uploads are already cloned into the version.
   for (const a of files) if (isInside(path.join(STATE, 'uploads'), a)) fsp.rm(a, { force: true }).catch(() => {});
@@ -244,6 +247,11 @@ api.post('/projects/:id/versions', async (req, res) => {
 api.patch('/projects/:id/versions/:v', async (req, res) => res.json(await data.editVersion(req.params.id, req.params.v, req.body || {})));
 
 api.post('/projects/:id/final', async (req, res) => res.json(await data.markFinal(req.params.id, req.body?.version || null, req.person)));
+api.post('/projects/:id/versions/:v/rating', async (req, res) => {
+  const v = await data.rateVersion(req.params.id, req.params.v, { stars: req.body?.stars, person: req.person });
+  scheduleRefresh(req.params.id);
+  res.json(v);
+});
 
 // When the piece is done: deletes the files of the versions that are not the FINAL (or the ones in `keep`); the history stays.
 api.post('/projects/:id/archive', async (req, res) =>

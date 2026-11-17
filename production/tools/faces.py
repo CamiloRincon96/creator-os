@@ -105,12 +105,15 @@ def cover(video, n=3, until=None):
     cand = []
     for t, img in frames(video, 0.2, until):
         faces = faces_in(img)
-        sharp = sharpness(img)
         light = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY).mean()
-        p = min(sharp / 300, 1.5) + (0.8 if 60 < light < 200 else 0)
+        # The whole frame's sharpness comes from the lettering: on the first full reel made in "glass" it picked a frame
+        # with sharp text and a blurred face (the reviewer gave it a 5). It counts little; what matters is the face's own
+        # sharpness and that it sits in the centre.
+        p = min(sharpness(img) / 300, 1.0) * 0.5 + (0.8 if 60 < light < 200 else 0)
         if faces:
             x, y, w, h = max(faces, key=lambda c: c[2])
-            p += 1.0 + min(w / img.shape[1], 0.5) * 2 - covered(img, (x, y, w, h)) * 5
+            centre = 1 - abs((x + w / 2) / img.shape[1] - 0.5) * 2
+            p += 1.0 + min(w / img.shape[1], 0.5) * 2 + min(sharpness(img[y:y + h, x:x + w]) / 20, 1.5) + 0.5 * centre - covered(img, (x, y, w, h)) * 5
         cand.append((p, t, img))
     chosen = []
     for p, t, img in sorted(cand, key=lambda c: -c[0]):

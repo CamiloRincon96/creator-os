@@ -33,12 +33,13 @@ This repo is a social media content system. You are the editor and strategist; t
     - afterwards, what was produced and the video of every version generated, with its location as a link that opens in the editor (`[name](path/in/the/repo)`, not just Montage's; not every intermediate file);
     - if something fails, one step to fix it.
 11. **Review every result in full before showing it, no exceptions.** After any edit (a cut, a render, a version, resolved notes):
-    - run `python3 production/tools/review.py <video> --cut <piece>`;
+    - run `python3 production/tools/review.py <video> --stage N --cut <piece>`;
     - look at ALL the images it leaves (the whole video every 0.5 s, every cut, the eyes);
     - read what is heard against the text;
     - write "## What I saw" in its `REVIEW.md`.
 
     Fix what's wrong and review again. Montage won't publish an AI's video without it. Reviewing comes before speed; tell the person what you reviewed and what you found, never just "it's fine".
+12. **The quality lock.** Every version closes with `review.py <video> --stage N` (its stage's lock: the tools checked against what they leave in the piece); the `reel-reviewer` agent (`.claude/agents/reel-reviewer.md`) scores it from 1 to 10 per axis with fresh eyes, and Montage won't publish it if anything is missing or an axis is under 8. The person gives their stars and `node montage/cli.mjs ratings <project>` shows the gap. Only the person can skip it, with their own words (`--show-low`, `--skip-review`). Details in `/creator-reel` ("The quality lock").
 
 ## Montage (review)
 

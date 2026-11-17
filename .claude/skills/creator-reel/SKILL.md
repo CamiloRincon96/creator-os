@@ -21,12 +21,13 @@ The why and the overview are in `production/REELS-WORKFLOW.md`. This is the proc
 6. The brand's rules (`brands/<brand>/BRAND.md`) rule over the style.
 7. **Before showing each stage, go over its block in `production/LESSONS.md`**: it is what has already gone wrong and how to avoid it. If a new lesson comes up, it goes there.
 8. **Every result is reviewed in full before it is shown, no exceptions.** After every cut, render, version or resolved note:
-   - run `python3 production/tools/review.py <video> --cut <piece>` (or `--script <piece>/visual-script.json`, `--text "…"`);
+   - run `python3 production/tools/review.py <video> --stage N --cut <piece>` (or `--script <piece>/visual-script.json`, `--text "…"`);
    - look at all its images: the walkthrough, the cuts and the eyes;
    - read what is heard and the warnings;
    - write "## What I saw" in its `REVIEW.md`.
 
    If something is wrong, fix it and review again. Montage blocks publishing without that review. A script that "passed" is not a review: the review is looking at the result. Reviewing comes before speed.
+   On top of that, every version passes **the quality lock** (below): its stage's tools, an independent reviewer who scores it, and nothing under 8.
 9. **By the hand** (`production/GUIDING.md`): the creator may not be technical. Every message says what is happening, why, what they have to do and what comes next, in short lines and without jargon. How, below.
 
 ## How you talk to the creator
@@ -71,6 +72,25 @@ If a stage does not have its tool, say which one is missing and offer the altern
 - New piece: do stage 0 and create it with `python3 production/tools/piece.py new <brand> <short-name> --type on-camera|animated|mixed --style <style>`.
 
 When closing each stage: update the table and the log in `STATUS.md` (what was shown, what the creator said) and the **Current stage** line. To the creator, two lines: what was approved, with its path, and what comes next. "Stage 3 done: the cut is in `brands/<brand>/pieces/<piece>/voice/cut-v2.mp4`. Next is stage 4: making your voice clean and even."
+
+## The quality lock: how each version closes
+
+The creator asked for it: "make it super strict about going through the steps and following the plugin… score every version… an independent reviewer". In the first full reel made in "glass" the rules were written down, but the skills were used late or halfway and the creator ended up being the quality control. Since then no version reaches them without this, in this order:
+
+1. **`python3 production/tools/review.py <video> --stage N --script <piece>/visual-script.json`**. `N` is the stage the version closes, and the video goes straight in `output/`. It adds the stage's **lock** to the report (`locks.py`): the tools and skills that should have run, checked against what they leave in the piece. `python3 production/tools/locks.py` lists what each stage requires.
+2. **Look at all the images** and write "What I saw"; the "Visual floor", resolved.
+3. **If the lock has a line in `[ ]`**, run the missing tool and go back to step 1. Don't tick it by hand.
+4. **The independent reviewer:** launch the `reel-reviewer` agent (Agent tool) with **only** the path of the `REVIEW.md`, the stage and the Montage project. Never tell it your conclusions: it has to look with fresh eyes. It scores each axis of the stage from 1 to 10, with its proof, and writes the verdict with the 3 worst problems.
+5. **If an axis is under 8**, fix what it says and go back to step 1. After two rounds without reaching 8, don't do a third one blind: tell the person what's going on, with the scores, and decide with them.
+6. **Publish to Montage** (`node montage/cli.mjs publish …`). Montage checks all of the above and won't publish if anything is missing: don't look for a way around it. With `--dry-run` it only says whether it passes.
+7. **To the person:** the version with its link, the reviewer's score per axis in one line and "Give it your stars in Montage (1 to 5)". Their stars sit next to the reviewer's score.
+8. **Before each new version:** `node montage/cli.mjs ratings <project>`. If the mean gap is 2 or more (the reviewer scores too high), go over what the person saw that the reviewer didn't and write it down in `LESSONS.md`.
+
+**Strict, but never a dead end.** The person can decide to go on even if something is missing. Only them, and with their own words, which get written down:
+- `--show-low "<what they said>"` publishes even with an axis under 8;
+- on the lock line, `skipped: <name> said "…"`;
+- `--skip-review "<what they said>"` skips all of it.
+Claude never uses these ways out on its own, not even in a hurry.
 
 ## Montage
 
@@ -150,7 +170,7 @@ python3 production/tools/prepare.py <piece> --names "<the brand's proper names>"
    Read the warnings before showing anything. Tell each one to the creator in plain words and with the second ("At second 12 you can hear “hands”: that's how you said it"), and don't hide it. If the creator or the brand want another pace, change it in `cut.json` (`pause_between_segments`, `pace`, `vad`). Example, for instance, preferred 0.45 s of air.
 4. **Review the cut by the picture and by the voice, always, before showing it:**
    - `python3 production/tools/gaze.py <piece>` checks every piece of the cut and leaves `voice/gaze-vN.jpg`: the eyes up close, piece by piece, green when looking at the lens and red when not. Claude looks at the whole sheet. Pieces where the person doesn't look, reads, leaves the frame or is blurry can't go on camera.
-   - `python3 production/tools/review.py <piece>/voice/cut-vN.mp4 --cut <piece>` reviews the whole cut:
+   - `python3 production/tools/review.py <piece>/voice/cut-vN.mp4 --stage 3 --cut <piece>` reviews the whole cut:
      - the walkthrough, every cut and the eyes;
      - what is heard against what was expected;
      - dead pauses, clipped words and cuts inside a word.
@@ -349,7 +369,7 @@ Say: "I'm adding the effects and the music. I can't hear: I measure against your
    - real-sfx's critique against the niche style, `verify`, the mix picture and the hook zoom (both get looked at);
    - Whisper word by word with the window test: "really covered" or "only the transcriber"; a covered word is fixed with `"adjust"` or a shorter whoosh.
    The critique's `speech` and `low_end` axes stay low on purpose: the effects sit at the voice's level, in the gaps, over the music. The word test decides.
-5. `listen.py`, `review.py` on the video (with "What I saw" and the "Visual floor") and to Montage with markers on the hook and the hits.
+5. `listen.py`, `review.py <video> --stage 9` (with "What I saw", the "Visual floor" and the lock: it checks that `effects.py review` ran and that nothing covers a word), the `reel-reviewer` agent, and to Montage with markers on the hook and the hits.
 
 - Don't use real-sfx's "ears" (`hear.py`, YAMNet) to decide whether an effect is heard under a continuous voice: they get it wrong and only say "Speech". Tell the person what was measured and which tool was used.
 - Also deliver the video at 1.08× and 1.12× (`setpts` + `atempo`) if the voice sounds monotone. With the speeds, the question is "Which speed stays?": normal, 1.08× or 1.12×.
@@ -357,7 +377,7 @@ Say: "I'm adding the effects and the music. I can't hear: I measure against your
 
 ## Stage 10 · Review
 
-Before publishing each version, the **full review** with `review.py <final video> --cut <piece>`:
+Before publishing each version, the **full review** with `review.py <final video> --stage 10 --cut <piece>` and the quality lock:
 - look at all its images: the walkthrough, every cut, the eyes and the faces;
 - read what is heard;
 - write "## What I saw".

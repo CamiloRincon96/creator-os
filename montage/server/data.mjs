@@ -125,7 +125,7 @@ function uniqueName(name, used) {
  * Adds a new version by cloning the files (APFS, no extra space) into versions/vN/.
  * A carousel carries several images (pages) in a single version.
  */
-export async function addVersion(id, { files, author = 'claude', name = '', note = '', origin = '', resolves = [], markers = [], created }) {
+export async function addVersion(id, { files, author = 'claude', name = '', note = '', origin = '', resolves = [], markers = [], created, stage = null, rating = null }) {
   if (!files?.length) throw error(400, 'There are no files for the version');
   const metas = [];
   for (const a of files) {
@@ -162,6 +162,8 @@ export async function addVersion(id, { files, author = 'claude', name = '', note
       resolves: resolves.map(Number).filter(Boolean),
       markers: cleanMarkers(markers),
       state: 'review',
+      ...(Number.isInteger(Number(stage)) && stage !== null ? { stage: Number(stage) } : {}),
+      ...(rating?.reviewer ? { rating: { reviewer: cleanReviewer(rating.reviewer) } } : {}),
     };
     p.versions = [...(p.versions || []), v];
     return v;
@@ -181,6 +183,42 @@ export async function addVersion(id, { files, author = 'claude', name = '', note
     text: `${who(author, name)} published ${version.id}${note ? ` — ${note}` : ''}`,
   });
   return version;
+}
+
+/** The independent reviewer's score (shared/review.js reads it from the report): axes from 1 to 10 and its verdict. */
+function cleanReviewer(r) {
+  const axes = (r.axes || [])
+    .map((a) => ({ axis: String(a.axis || '').slice(0, 80), score: Number(a.score) }))
+    .filter((a) => a.axis && Number.isFinite(a.score) && a.score >= 1 && a.score <= 10);
+  const scores = axes.map((a) => a.score);
+  return {
+    axes,
+    average: scores.length ? Math.round((10 * scores.reduce((a, b) => a + b, 0)) / scores.length) / 10 : null,
+    minimum: scores.length ? Math.min(...scores) : null,
+    verdict: String(r.verdict || '').slice(0, 600),
+    skipped: (r.skipped || []).map((x) => String(x).slice(0, 200)),
+  };
+}
+
+/** The person's stars (1 to 5) for a version. Next to the reviewer's score, they show where Claude fools itself. */
+export async function rateVersion(id, vid, { stars, person = 'Team' }) {
+  const n = Number(stars);
+  if (!Number.isInteger(n) || n < 1 || n > 5) throw error(400, 'Stars go from 1 to 5');
+  const v = await updateProject(id, (p) => {
+    const v = p.versions.find((x) => x.id === vid);
+    if (!v) throw error(404, `Version ${vid} does not exist`);
+    v.rating = { ...(v.rating || {}), person: { stars: n, name: person, date: now() } };
+    return v;
+  });
+  const r = v.rating.reviewer;
+  await logActivity(id, {
+    author: 'person',
+    name: person,
+    type: 'rating',
+    version: vid,
+    text: `${person} gave ${vid} ${n} out of 5 stars${r ? ` (the reviewer had given it ${r.average} out of 10)` : ''}`,
+  });
+  return v;
 }
 
 function cleanMarkers(markers) {

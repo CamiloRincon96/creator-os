@@ -1174,6 +1174,47 @@ h3 {
   font: 11px var(--mono);
   color: var(--text-3);
 }
+.version-rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.reviewer-score {
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--ice-soft);
+  color: var(--ice);
+  font: 700 10px var(--mono);
+  line-height: 18px;
+  cursor: help;
+}
+.reviewer-score.low {
+  background: rgba(245, 165, 36, 0.14);
+  color: var(--warning);
+}
+.stars {
+  display: inline-flex;
+}
+.star {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-3);
+  cursor: pointer;
+}
+.star.filled {
+  color: var(--warning);
+}
+.star:focus-visible {
+  outline: 2px solid var(--ice);
+  border-radius: 4px;
+}
 .version-actions {
   position: absolute;
   top: 6px;

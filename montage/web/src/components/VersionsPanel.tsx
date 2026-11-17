@@ -48,6 +48,7 @@ export function VersionsPanel({ data }: { data: ProjectData }) {
             onDiscard={() =>
               action(() => api.editVersion(p.id, v.id, { state: v.state === 'discarded' ? 'review' : 'discarded' }), v.state === 'discarded' ? `${v.id} restored` : `${v.id} discarded`)
             }
+            onRate={(n) => action(() => api.rateVersion(p.id, v.id, n), `You gave ${v.id} ${n} out of 5 stars`)}
             canCompare={v.id !== selVersion}
           />
         ))}
@@ -69,6 +70,7 @@ function VersionCard(props: {
   onCompare: () => void;
   onFinal: () => void;
   onDiscard: () => void;
+  onRate: (stars: number) => void;
 }) {
   const { v, poster, sel, comparing } = props;
   const a = v.files[0];
@@ -104,9 +106,11 @@ function VersionCard(props: {
         <p className="version-note">{v.note || <span className="dim">No description</span>}</p>
         <p className="version-detail">
           {detail}
+          {v.stage !== undefined && ` · stage ${v.stage}`}
           {v.resolves.length > 0 && ` · resolved ${v.resolves.map((n) => '#' + n).join(' ')}`}
           {v.state === 'discarded' && ' · discarded'}
         </p>
+        <Rating v={v} onRate={props.onRate} />
       </div>
       <div className="version-actions" onClick={(e) => e.stopPropagation()}>
         {props.canCompare && (
@@ -128,6 +132,39 @@ function VersionCard(props: {
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+/** The independent reviewer's score (out of 10) and the person's stars (1 to 5), on the same line: that way you can see
+ *  when the reviewer scores too high. The stars can be clicked without opening the version. */
+function Rating({ v, onRate }: { v: Version; onRate: (n: number) => void }) {
+  const r = v.rating?.reviewer;
+  const mine = v.rating?.person?.stars || 0;
+  const [hover, setHover] = useState(0);
+  return (
+    <div className="version-rating" onClick={(e) => e.stopPropagation()}>
+      {r && r.average !== null && (
+        <span className={cx('reviewer-score', (r.minimum ?? 10) < 8 && 'low')} title={r.axes.map((a) => `${a.axis}: ${a.score}`).join('\n') + (r.verdict ? `\n\n${r.verdict}` : '')}>
+          Reviewer {r.average}
+        </span>
+      )}
+      <span className="stars" role="radiogroup" aria-label={`Your stars for ${v.id}`} onMouseLeave={() => setHover(0)}>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            className={cx('star', n <= (hover || mine) && 'filled')}
+            role="radio"
+            aria-checked={n === mine}
+            aria-label={`${n} out of 5`}
+            title={mine ? `You gave it ${mine} out of 5` : 'Rate this version'}
+            onMouseEnter={() => setHover(n)}
+            onClick={() => onRate(n)}
+          >
+            <Star size={12} fill={n <= (hover || mine) ? 'currentColor' : 'none'} />
+          </button>
+        ))}
+      </span>
     </div>
   );
 }
