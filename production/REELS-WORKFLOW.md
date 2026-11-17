@@ -21,6 +21,12 @@ The creator, Nov 17, 2026, approving "glass": "I won't accept less than this". E
    - Logos come from free libraries installed in the brand's reel project (`simple-icons`, CC0, and `@lobehub/icons-static-svg`, MIT) and are copied to `public/logos/`.
    - Higgsfield comes last, only for an image that doesn't exist, and with an approved quote.
    - Text is left for what has no image.
+   - **Nothing abstract** (the creator, Nov 17, 2026: "I don't want abstract things… people's brains are fried and they need visual stimuli all the time"). Boxes with a play button, bars, waveforms or little squares that "stand for" something don't hook. Show the thing itself:
+     - a phone with real reels swiped by a finger, instead of two boxes with view counts;
+     - a film strip of the person's takes being cut, instead of a waveform;
+     - the old versions with their mistake, instead of little red squares;
+     - their headphones, instead of a sound bar.
+   - Every scene has something happening in the picture every half second: a finger swiping, a heart, something falling or being cut.
 3. **Few words, and big:** one word per scene, in the identity's type. Nothing that can't be read in time: what doesn't fit is said with shapes (✓ ✕, counters, bars), and a phrase already written big on screen gets no caption.
 4. **Panels the size of what they show,** with video inside when possible. A big window with a little piece inside looks empty.
 5. **Always moving:** the camera pushes in, pulls back or goes through; something new every 0.5 to 1 s, on the word that names it; pieces come from somewhere (from behind the person, from their gesture) and the previous one leaves.
