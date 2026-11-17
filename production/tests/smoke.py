@@ -242,7 +242,8 @@ def _all():
             files = [a for v in p.get("versions", []) for a in v.get("files", [])]
             if not files:
                 raise RuntimeError(f"the published version does not show up in the API: {json.dumps(p)[:300]}")
-            if any("\\" in json.dumps(a) for a in files):
+            # the path the web uses goes with "/"; "source" is the original path for display (on Windows, with "\\")
+            if any("\\" in str(a.get("path", "")) for a in files):
                 raise RuntimeError(f"the API returns paths with \"\\\" (they break on the web): {files[:2]}")
             if not list((TMP / "projects" / "smoke" / "versions").rglob("*.mp4")):
                 raise RuntimeError("the video did not end up in the version's folder")
