@@ -119,6 +119,8 @@ Each step is told with the thing itself, not with a symbol:
 - **installing:** the logos of the AIs and of what gets installed, each with its ✓;
 - **sharing:** the comments sheet with the link.
 
+When the person is on camera between steps, the key word goes behind their head (with their cutout) or in glass under the chin, never over the face.
+
 ## Kit
 
 A generic, brand-neutral version lives in the example brand: `brands/example/reel/src/glass/` (its `README.md` says what each piece is and the part of the standard it serves; the `GlassDemo` composition shows it in motion with no footage). Colors and the main font come from the brand's `src/brand.ts`; the identity's own choices are in `src/glass/theme.ts`.
