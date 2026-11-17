@@ -57,7 +57,7 @@ Ask (with options, not open-ended): type, style, how much the person appears, ho
 
 ## Stage 1 · Idea and script
 
-- Talk through the idea: propose three hooks and, for each sentence, what could be seen. Remind the creator of what they said they wanted to see. Skills: `instagram-agent:ig-reel` (hooks and spoken script), `instagram-agent:ig-human` (so it sounds like them), `instagram-agent:ig-viral` if they ask to see what is working.
+- Talk through the idea: propose **5 to 7 options** of hook, body and call to action, as in step 5 of `/creator-ideas`, and, for each sentence, what could be seen. If the piece comes from an idea that is already closed, only redo what the creator asks for, also with 5 to 7 options. Remind the creator of what they said they wanted to see. Skills: `instagram-agent:ig-reel` (hooks and spoken script), `instagram-agent:ig-human` (so it sounds like them), `instagram-agent:ig-viral` if they ask to see what is working.
 - Check the facts against the brand's repo. Whatever does not exist yet is noted in the brief and you ask the creator how to show it; they decide (no label by default).
 - The script's "Camera" column says where each push-in goes.
 - Write `script.md` with the full scene table (shot, says, shows, on-screen text, camera, sound, seconds) and the counts: percentage of person on screen, number of scenes, average visual change.

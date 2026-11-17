@@ -104,12 +104,28 @@ The creator answers however it comes out: "3 and 7", "more like 2", "combine 4 a
 
 **If an idea is visual**, show a cheap sketch before deciding: 3 to 5 frames in Remotion or a card, in the scratchpad. A visual idea is never approved from text alone.
 
-## 5. Close the chosen one
+## 5. Close the chosen one: a menu to build from, not a single version
 
-- **3 hooks**, each with its first second, or the cover if it is a carousel.
-- The **script or sequence**, in the creator's voice (`instagram-agent:ig-human`), with what is seen in each part.
+The creator builds the piece by picking parts, not by correcting a single version round after round. They asked for it on 16 Nov 2026: "it gives a single call to action… several calls to action, several bodies… between 5 or 7 options every time you generate one". Show all of this at once, **5 to 7 options of each**, and again every time a single part is redone:
+
+- **Hooks** (1, 2, 3…), each with its first second, or the cover if it is a carousel.
+- **Bodies** (A, B, C…): different ways of telling the middle, in the creator's voice (`instagram-agent:ig-human`), with what is seen in each part. For example:
+  - the steps, said out loud;
+  - a single take that transforms step by step;
+  - what the person does versus what the tool does.
+- **Calls to action** (I, II, III…), the kind used today:
+  - one that asks for nothing: "I'm not going to ask you to follow me…";
+  - one that invites people in and really shapes what comes next: "tell me what… and that's the next thing I make";
+  - a reveal at the end;
+  - an ending that loops back to the hook;
+  - the pinned comment;
+  - the community one: "if you improve it, it belongs to everyone";
+  - a line that sticks and gets it saved without saying so.
+
+  Never "like this", "comment X" or "if you know someone who…": they sounded two years old to the creator. On TikTok those calls also count as engagement bait and lower the video's reach.
+- The creator answers with something like "2 + B + III".
+- **The piece carries one hook, one body and one call to action.** Whatever was not chosen is saved in the idea file for the variations (stage 12).
 - The duration, or the number of slides or frames.
-- **A single call to action:** share ("send this to…"), save, follow ("part 2 tomorrow") or pre-register. The one that goes with the role.
 - Whether it is a **collaboration** with the creator's personal account: it is what helps a new account grow the most.
 - **What to record**, if there is a person on camera: the main take and 2 or 3 alternate openings for the variations.
 
@@ -135,6 +151,9 @@ Write one file: `brands/<brand>/ideas/<YYYY-MM-DD>-<short-name>.md`.
 ## Hook
 - Chosen: "…". First second: <what is seen>.
 - Alternates (for variations): "…", "…".
+
+## What was not chosen (for variations)
+<The other bodies and calls to action from the menu, exactly as they were shown.>
 
 ## Script or sequence
 | Part | What is said or read | What is seen |
