@@ -32,6 +32,7 @@ Where everything else is:
 - **Nothing paid and no uploading material without saying so.** Higgsfield only with an approved quote. ElevenLabs, Adobe and Codex are announced first.
 - **Licenses:** music and effects only with the license confirmed on the source page, because Openverse gets it wrong: it marked as CC0 a sound that is CC BY on Freesound. Credits go in `credits.json`, next to the file. Whatever fails is banned (`taste.py ban`).
 - **Trending songs:** never go inside the video. Deliver a version without music and the creator adds the song from Instagram. If the account is a business account, Instagram only allows its royalty-free library.
+- **What isn't enforced on its own gets forgotten: the automatic checks enforce it.** In the first full reel made in "glass" the AI skipped plugin steps even though they were written down; since then `guard.py` (the hooks in `.claude/settings.json`) won't let a turn end with a video without its review, a stage without its approval recorded or a rejection without its lesson, each stage goes through `stage.py` and lessons only through `lessons.py` (the creator, Nov 17, 2026: "I think you skip a lot of the plugin's steps").
 
 ## Stages 0 and 1 · Piece and script
 

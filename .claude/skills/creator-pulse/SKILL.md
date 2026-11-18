@@ -33,7 +33,7 @@ Lead the person by the hand (`production/GUIDING.md`): every number says what it
 
 ## 2. Look
 
-1. Run `python3 production/tools/pulse.py report <brand> --days 28`: the tables by type, with the account's medians.
+1. Run `python3 production/tools/pulse.py report <brand> --days 28`: the tables by type, with the account's medians. And read `brands/<brand>/pulse/CALIBRATION.md` (`pulse.py calibrate` keeps it up to date, also every hour): the reviewer's score and the creator's stars against the audience, reel by reel. If the reviewer scored too high a reel the audience punished, say so in the report and propose the lesson (`lessons.py add`). If a delivered reel doesn't show up because its copy changed when it was posted: `pulse.py tag <brand> <id> --project <project>`.
 2. Read with Read the **hook sheet** of the 2 or 3 best and the 2 or 3 worst of each type. It is in `card.hook_sheet`, in the cache.
 3. **Tag what you judge:** `pulse.py tag <brand> <id> --role <shareable|useful|connection|product> --topic "…" --hook "<type: pain, belief, figure, question, demo…>" --format "<on-camera, animated, mixed, carousel…>"`. That way it is already there next time.
 4. To read the why behind a specific reel, `instagram-agent:ig-audit`.

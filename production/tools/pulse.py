@@ -3,7 +3,8 @@
     python3 production/tools/pulse.py collect <brand>          # metrics of everything posted (and of the stories that are live)
     python3 production/tools/pulse.py cards <brand> [--no-voice]   # what each reel was like
     python3 production/tools/pulse.py report <brand> [--days 28]  # the table, relative to reach
-    python3 production/tools/pulse.py tag <brand> <id> [--role …] [--topic …] [--hook …] [--format …] [--notes …]
+    python3 production/tools/pulse.py tag <brand> <id> [--role …] [--topic …] [--hook …] [--format …] [--notes …] [--project …]
+    python3 production/tools/pulse.py calibrate <brand>       # the reviewer and the person against the audience (CALIBRATION.md)
 
 Everything lives in brands/<brand>/pulse/posts.json (in git: it is small and it is the account's memory). Downloaded
 videos and frame sheets go to the computer's cache (system.cache_dir: the cache folder of macOS, Windows or Linux), never to the repo.
@@ -109,6 +110,10 @@ def collect(brand, quiet=False):
         p["snapshots"].append({"bucket": bucket, "hours": round(hours, 1), "date": now.isoformat(timespec="minutes"), **metrics(tok, m["id"], kind)})
         new += 1
     save(brand, d)
+    try:  # the calibration (reviewer and person against the audience) updates itself, without the AI
+        calibrate(brand, quiet=True)
+    except Exception as e:  # it never stops the collection
+        print(f"calibrate {brand}: {e}", file=sys.stderr)
     if not quiet:
         print(f"@{c.get('username')}: {info.get('followers_count')} followers · {len(media)} posts · {len(stories)} live stories · {new} new snapshots")
     return new
@@ -219,6 +224,119 @@ def tag(brand, mid, fields):
     print(f"{mid}: {d['posts'][mid]['tags']}")
 
 
+def _normal(s):
+    import unicodedata
+    return re.sub(r"[^a-z0-9 ]", "", unicodedata.normalize("NFKD", (s or "").lower()).encode("ascii", "ignore").decode())
+
+
+def _post_of(folder, project, reels):
+    """The posted reel of a final folder: the one tagged with --project, or the one with the most similar copy (the person
+    sometimes touches it up when posting)."""
+    import difflib
+    for mid, p in reels.items():
+        if p.get("tags", {}).get("project") == project:
+            return mid
+    copy = (folder / "copy.txt").read_text(encoding="utf-8").split("\n")[0] if (folder / "copy.txt").exists() else ""
+    best = max(reels.items(), key=lambda kv: difflib.SequenceMatcher(None, _normal(copy)[:80], _normal(kv[1].get("copy"))[:80]).ratio(), default=None)
+    if best and difflib.SequenceMatcher(None, _normal(copy)[:80], _normal(best[1].get("copy"))[:80]).ratio() >= 0.7:
+        return best[0]
+    return None
+
+
+def _rating(project):
+    """(version, reviewer, stars, duration) of the version posted in Montage: the FINAL, or the newest one with a rating."""
+    pj = REPO / "montage" / "projects" / project / "project.json"
+    if not pj.exists():
+        return None, None, None, None
+    p = json.loads(pj.read_text(encoding="utf-8"))
+    vs = p.get("versions", [])
+    v = next((x for x in vs if x["id"] == p.get("final")), None) or next((x for x in reversed(vs) if x.get("rating")), None) or (vs[-1] if vs else None)
+    if not v:
+        return None, None, None, None
+    r = v.get("rating") or {}
+    dur = next((a.get("meta", {}).get("duration") for a in v.get("files", []) if a.get("meta", {}).get("duration")), None)
+    return v["id"], r.get("reviewer"), (r.get("person") or {}).get("stars"), dur
+
+
+def calibrate(brand, quiet=False):
+    """For each delivered reel, compares the independent reviewer's score and the person's stars with what the audience did
+    (how much they watched, how many skipped it, how many shared it). Writes brands/<brand>/pulse/CALIBRATION.md, which the
+    reel-reviewer agent reads before scoring: if the audience punishes what it scored high, it has to be tougher."""
+    d = load(brand)
+    reels = {mid: p for mid, p in d["posts"].items() if p["type"] == "REELS"}
+
+    def measures(p, duration=None):
+        u, ca = latest(p), p.get("card", {})
+        reach = u.get("reach")
+        dur = ca.get("duration") or duration  # no card yet: the video's length in Montage
+        watched = pct(u["ig_reels_avg_watch_time"] / 1000, dur) if u.get("ig_reels_avg_watch_time") else None
+        return {"hours": u.get("hours"), "reach": reach, "watched%": watched, "skip%": u.get("reels_skip_rate"), "share%": pct(u.get("shares"), reach)}
+
+    every = {mid: measures(p) for mid, p in reels.items()}
+    base = [m for m in every.values() if (m["hours"] or 0) >= 24]
+    median = {k: statistics.median([m[k] for m in base if m[k] is not None]) for k in ("watched%", "skip%", "share%")
+              if len([m for m in base if m[k] is not None]) >= 2}
+
+    def audience(m):
+        """1 to 10: the reel's place among the account's reels in how much it was watched (weighs most) and shared."""
+        scores = []
+        for k, weight in (("watched%", 2), ("share%", 1)):
+            vals = sorted(x[k] for x in base if x[k] is not None)
+            if m.get(k) is None or len(vals) < 3:
+                continue
+            place = sum(1 for x in vals if x < m[k]) + 0.5 * sum(1 for x in vals if x == m[k])
+            scores += [1 + 9 * place / len(vals)] * weight
+        return round(sum(scores) / len(scores), 1) if scores else None
+
+    rows = []
+    for folder in sorted((REPO / "brands" / brand / "finals").glob("*/")):
+        project = folder.name
+        mid = _post_of(folder, project, reels)
+        vid, rev, stars, dur = _rating(project)
+        m = (every[mid] if every[mid].get("watched%") is not None else measures(reels[mid], dur)) if mid else {}
+        rows.append({"project": project, "id": mid, "link": reels[mid].get("link") if mid else None, "version": vid,
+                     "reviewer": rev.get("average") if rev else None, "axes": rev.get("axes") if rev else None,
+                     "person": stars * 2 if stars else None, "audience": audience(m) if m and (m.get("hours") or 0) >= 24 else None, **m})
+
+    def f(x, suf=""):
+        return "—" if x is None else f"{x:g}{suf}" if isinstance(x, (int, float)) else str(x)
+
+    summary = []
+    for r in rows:
+        if r["id"] is None:
+            summary.append(f"\"{r['project']}\" doesn't show up as posted yet (or its copy changed a lot: pulse.py tag {brand} <id> --project {r['project']})")
+            continue
+        parts = [f"reviewer {f(r['reviewer'])}", f"person {f(r['person'])}", f"audience {f(r['audience'])}" if r["audience"] is not None
+                 else f"audience: not yet ({f(r['hours'])} h; it's compared from 24 h on)"]
+        if r["reviewer"] is not None and r["audience"] is not None and r["reviewer"] - r["audience"] >= 2:
+            parts.append(f"the reviewer scored {r['reviewer'] - r['audience']:.1f} points above the audience: tougher on hook and pace")
+        summary.append(f"\"{r['project']}\": " + ", ".join(parts))
+    L = [f"# Calibration of {brand}: the reviewer, the person and the audience", "",
+         "Written by `pulse.py calibrate` (also every hour, when the pulse is collected). The reel-reviewer agent reads it before scoring. "
+         "The audience is measured from 24 h on: the reel's place among the account's reels in how much it was watched (counts double) and how much it was shared, from 1 to 10. "
+         "The person: their stars in Montage, times 2.", "",
+         "**In short:** " + ("; ".join(summary) if summary else "no reels delivered in finals/ yet") + ".", "",
+         "| reel | version | reviewer | person | audience | watched | skip | shared | reach | hours |", "|---|---|---|---|---|---|---|---|---|---|"]
+    for r in rows:
+        name = f"[{r['project']}]({r['link']})" if r.get("link") else r["project"]
+        L.append(f"| {name} | {f(r['version'])} | {f(r['reviewer'])} | {f(r['person'])} | {f(r['audience'])} | {f(r.get('watched%'), ' %')} | "
+                 f"{f(r.get('skip%'), ' %')} | {f(r.get('share%'), ' %')} | {f(r.get('reach'))} | {f(r.get('hours'))} |")
+    L += ["", f"Account median ({len(base)} reels with 24 h or more): watched {f(median.get('watched%'), ' %')}, skip {f(median.get('skip%'), ' %')}, "
+          f"shared {f(median.get('share%'), ' %')}."]
+    scored = [r for r in rows if r.get("axes")]
+    if scored:
+        L += ["", "## What the reviewer scored in each reel", ""]
+        L += [f"- {r['project']} {r['version']}: " + ", ".join(f"{a['axis']} {f(a['score'])}" for a in r["axes"]) for r in scored]
+    target = REPO / "brands" / brand / "pulse" / "CALIBRATION.md"
+    text = "\n".join(L) + "\n"
+    if not target.exists() or target.read_text(encoding="utf-8") != text:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(text, encoding="utf-8")
+    if not quiet:
+        print(text)
+    return rows
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         sys.exit(__doc__)
@@ -231,7 +349,9 @@ if __name__ == "__main__":
         report(brand, int(sys.argv[sys.argv.index("--days") + 1]) if "--days" in sys.argv else 28)
     elif command == "tag":
         mid = sys.argv[3]
-        fields = {k: sys.argv[sys.argv.index(f"--{k}") + 1] for k in ("role", "topic", "hook", "format", "notes") if f"--{k}" in sys.argv}
+        fields = {k: sys.argv[sys.argv.index(f"--{k}") + 1] for k in ("role", "topic", "hook", "format", "notes", "project") if f"--{k}" in sys.argv}
         tag(brand, mid, fields)
+    elif command == "calibrate":
+        calibrate(brand)
     else:
         sys.exit(__doc__)

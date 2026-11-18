@@ -40,6 +40,7 @@ This repo is a social media content system. You are the editor and strategist; t
 
     Fix what's wrong and review again. Montage won't publish an AI's video without it. Reviewing comes before speed; tell the person what you reviewed and what you found, never just "it's fine".
 12. **The quality lock.** Every version closes with `review.py <video> --stage N` (its stage's lock: the tools checked against what they leave in the piece); the `reel-reviewer` agent (`.claude/agents/reel-reviewer.md`) scores it from 1 to 10 per axis with fresh eyes, and Montage won't publish it if anything is missing or an axis is under 8. The person gives their stars and `node montage/cli.mjs ratings <project>` shows the gap. Only the person can skip it, with their own words (`--show-low`, `--skip-review`). Details in `/creator-reel` ("The quality lock").
+13. **The automatic checks.** `.claude/settings.json` has Claude Code run `production/tools/guard.py` on its own when the session starts, when the person writes, after each step and when each turn ends. It won't let a turn end if a video from the session is left without its full review, if a stage was left behind without the approval recorded or if a rejection has no lesson: it stops once and, if nothing changes, tells the person. Each stage is worked with `stage.py <piece>` (what's next, `run`, `close`, `ready`, `approve`), lessons are written only with `lessons.py add`, and `pulse.py calibrate` compares the reviewer and the stars with the audience every hour (`brands/<brand>/pulse/CALIBRATION.md`).
 
 ## Montage (review)
 

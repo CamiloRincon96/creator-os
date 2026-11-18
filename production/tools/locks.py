@@ -153,6 +153,113 @@ STAGES = {
 }
 ALL = [("the piece's STATUS.md says this stage", status_says_stage)]
 
+# What each stage runs on its own (stage.py <piece> run): the tools that don't need to decide anything. {piece} is the
+# piece's folder, {video} the newest video in output/, {sheet} the newest effects sheet in work/ and {name} its name without
+# "-sheet" (effects-vN). The creative part (the script, the animation, the effects sheet) is the AI's work, with its skills.
+RUN = {
+    3: [["cut.py", "{piece}"], ["gaze.py", "{piece}"]],
+    4: [["voice.py", "{piece}"]],
+    5: [["visual_script.py", "{piece}"]],
+    6: [["blocks.py", "{piece}"]],
+    9: [["effects.py", "mix", "{piece}", "{sheet}", "--name", "{name}"], ["effects.py", "review", "{piece}", "--name", "{name}"]],
+    10: [["faces.py", "check", "{video}"]],
+    11: [["faces.py", "check", "{video}"], ["faces.py", "cover", "{video}"]],
+}
+
+
+# ---------------------------------------------------------------- the report (the same thing Montage reads)
+# A Python copy of montage/shared/review.js: if one changes, change the other. stage.py uses it (does it pass yet?) and so
+# does guard.py (the check that won't let a turn end with a video left unreviewed).
+MIN_SCORE = 8
+
+
+def _no_comments(s):
+    return re.sub(r"<!--[\s\S]*?-->", "", s)
+
+
+def section_of(text, title):
+    """The text of a section (## or ###) up to the next one of the same or higher level; None if it's missing."""
+    lines = text.split("\n")
+    i = next((k for k, l in enumerate(lines) if re.match(r"^#{2,3}\s", l) and re.sub(r"^#+\s*", "", l).strip().startswith(title)), None)
+    if i is None:
+        return None
+    level = len(re.match(r"^#+", lines[i]).group(0))
+    end = next((k for k in range(i + 1, len(lines)) if re.match(r"^#+\s", lines[k]) and len(re.match(r"^#+", lines[k]).group(0)) <= level), None)
+    return _no_comments("\n".join(lines[i + 1:end]))
+
+
+def read_review(text):
+    what_i_saw = (section_of(text, "What I saw") or "").strip()
+    floor = [l.strip() for l in (section_of(text, "Visual floor") or "").split("\n")]
+    floor_unresolved = [l for l in floor if l.startswith("- [ ]") and not re.search(r"\bn/a\b|not applicable", l, re.I)]
+    m = re.search(r"^## Stage (\d+)\s*·?\s*(.*)$", text, re.M)
+    stage = {"n": int(m.group(1)), "name": m.group(2).strip()} if m else None
+    lock = [l.strip() for l in (section_of(text, "Lock") or "").split("\n") if re.match(r"^- \[[ x]\]", l.strip(), re.I)]
+    lock_pending = [re.sub(r"^- \[ \]\s*", "", l) for l in lock if l.startswith("- [ ]") and not re.search(r"skipped", l, re.I)]
+    skipped = [re.sub(r"^- \[[ x]\]\s*", "", l, flags=re.I) for l in lock if re.search(r"skipped", l, re.I)]
+    axes = []
+    for l in (section_of(text, "Independent reviewer score") or "").split("\n"):
+        c = re.match(r"^\|\s*([^|]+?)\s*\|\s*([^|]*?)\s*\|", l)
+        if not c or re.match(r"^axis$", c.group(1), re.I) or re.match(r"^:?-{2,}", c.group(1)):
+            continue
+        try:
+            n = float(c.group(2).replace(",", "."))
+            score = n if 1 <= n <= 10 else None
+        except ValueError:
+            score = None
+        axes.append({"axis": c.group(1), "score": score})
+    scores = [a["score"] for a in axes if a["score"] is not None]
+    return {"what_i_saw": what_i_saw, "floor_unresolved": floor_unresolved, "stage": stage, "lock_pending": lock_pending,
+            "skipped": skipped, "axes": axes, "average": round(sum(scores) / len(scores), 1) if scores else None,
+            "minimum": min(scores) if scores else None, "verdict": (section_of(text, "Reviewer verdict") or "").strip()}
+
+
+def missing(r, show_low=False):
+    """What keeps the version from being shown (empty = it passes), in the same words as Montage."""
+    f = []
+    if not r["what_i_saw"]:
+        f.append("\"## What I saw\" isn't written (what you looked at, what you found and what you fixed)")
+    if r["floor_unresolved"]:
+        f.append(f"{len(r['floor_unresolved'])} unresolved \"## Visual floor\" line(s)")
+    if not r["stage"]:
+        return f + ["the stage is missing: run review.py with --stage N"]
+    f += [f"stage {r['stage']['n']} lock: {c}" for c in r["lock_pending"]]
+    if not r["axes"] or any(a["score"] is None for a in r["axes"]):
+        f.append("the independent reviewer's score is missing: run the reel-reviewer agent on this report")
+    elif not show_low and r["minimum"] < MIN_SCORE:
+        low = ", ".join(f"{a['axis']} ({a['score']:g})" for a in r["axes"] if a["score"] < MIN_SCORE)
+        f.append(f"axes under {MIN_SCORE}: {low}")
+    if not r["verdict"]:
+        f.append("the independent reviewer's verdict is missing")
+    return f
+
+
+def report_of(video):
+    """The path of a video's REVIEW.md (review.py leaves it in <video without extension>-review/)."""
+    v = Path(video)
+    return v.with_name(v.stem + "-review") / "REVIEW.md"
+
+
+def video_status(video):
+    """(list of what's missing, the report read or None). A report older than the video doesn't count: the video changed after it."""
+    rev = report_of(video)
+    if not rev.exists():
+        return ["it has no review: run review.py <video> --stage N (or stage.py <piece> close <video>)"], None
+    if rev.stat().st_mtime < Path(video).stat().st_mtime:
+        return ["the video changed after its review: review it again"], None
+    r = read_review(rev.read_text(encoding="utf-8"))
+    return missing(r), r
+
+
+def rounds(P, N):
+    """How many stage-N versions the reviewer already sent back with "Fix" (the rule: after 2, talk to the person)."""
+    n = 0
+    for rev in P.glob("output/*-review/REVIEW.md"):
+        r = read_review(rev.read_text(encoding="utf-8"))
+        if r["stage"] and r["stage"]["n"] == N and r["verdict"].lstrip("*_ ").lower().startswith("fix"):
+            n += 1
+    return n
+
 
 def check(video, N):
     """[(line, ok, proof)] of stage N's lock for that video."""

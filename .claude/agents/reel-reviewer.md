@@ -20,6 +20,7 @@ The path of a `REVIEW.md` (left by `production/tools/review.py <video> --stage N
    - 9 (sound): `production/SOUNDS.md` and, from the mix, `work/effects/<name>/review.md`, `levels.json`, `mix.png` and `hook.png` (look at them);
    - 11 (delivery): the final folder (`brands/<brand>/finals/<project>/`): `copy.txt`, `PUBLISH.md` and `suggested-cover.jpg` (look at it).
 4. What the person already said: `brands/<brand>/BRAND.md`, `brands/<brand>/OWN-STYLE.md` if it exists, and in Montage `node montage/cli.mjs history <project>` (their notes) and `node montage/cli.mjs ratings <project>` (if the reviewer has been scoring too high, be tougher).
+5. What the audience said: `brands/<brand>/pulse/CALIBRATION.md` (written by `pulse.py calibrate`). It compares, reel by reel, the score the reviewer gave and the person's stars with how much the reel was watched and shared. If the reviewer scored 2 points or more above the audience, that reel failed where it didn't look: be tougher on the hook (0 to 3 s), the pace and what's understood without sound.
 
 ## How you score
 

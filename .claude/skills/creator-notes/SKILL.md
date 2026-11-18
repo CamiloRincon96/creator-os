@@ -45,7 +45,7 @@ Whoever writes the notes may not be technical. Everything you tell them, in the 
 - **If something fails** (a render that won't come out, a change that can't be made): don't publish a broken version. Reply on the note with what happened, in simple words, and the step you propose (or ask it with `--state question`). Say it in the chat in one line too.
 
 ## 4. Verify and publish
-- **Mandatory review of the whole video**, not just the note's frame: `python3 production/tools/review.py <render> --stage N [--cut <piece>]` (N, the piece's stage). Look at all its images, read what is heard and write "## What I saw" in its `REVIEW.md`. A change in one spot can break another.
+- **Mandatory review of the whole video**, not just the note's frame: `python3 production/tools/stage.py <piece> close <render>` (underneath, `review.py <render> --stage N [--cut <piece>]`, with N the piece's stage), and then `stage.py <piece> ready <render>`. Look at all its images, read what is heard and write "## What I saw" in its `REVIEW.md`. A change in one spot can break another.
 - **The quality lock** (`/creator-reel`, "The quality lock"): the lock lines in order; the `reel-reviewer` agent scores the version with only the report's path, the stage and the project; nothing under 8. Without it, Montage won't publish. When you reply, the reviewer's score and "Give it your stars in Montage".
 - Pull frames from the new render at the notes' times and compare them with the captures.
 - Publish:
@@ -55,6 +55,7 @@ Whoever writes the notes may not be technical. Everything you tell them, in the 
 - What the person sees in Montage: the new version lands in the versions list by itself; resolved notes move to the **To verify** tab, with "Applied in vN: check it, then approve or reopen" and the **Approve** and **Reopen** buttons.
 
 ## 5. Close
+- **Every note that rejects or corrects something leaves its lesson**, in the same turn: if it's useful for any piece, `python3 production/tools/lessons.py add <stage> "what happened and how it's avoided" --said "their words" --from "<project> vN"`; if it's only about this piece, in the context (below). The automatic checks won't let the turn end without it.
 - If you learned something useful for the next versions (a preference, something to avoid, a fact about the piece), add it to the context: read the current one with `node montage/cli.mjs context <project>`, add the line and save it whole with `--file <path.md>` or `--set "…"`.
 - Summarize in the chat, in 2 to 4 lines: which version is up and the file as a link that opens in the editor (`production/GUIDING.md`, point 5), what you resolved, what you asked, and what the person does now. For example:
   > Done: v4 is in Montage, in "<project>". The file: [<name>.mp4](<the render's path in the repo>).

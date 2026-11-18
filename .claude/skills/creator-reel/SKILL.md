@@ -68,23 +68,40 @@ If a stage does not have its tool, say which one is missing and offer the altern
 
 - With no argument: `python3 production/tools/piece.py list`, and ask with AskUserQuestion "Which reel do we continue?": up to 3 open pieces (in the description, the brand, the stage it is at and what comes next) and "A new one". If there is no clear idea, `/creator-ideas` goes first: it is the creative stage. "Not sure what it's about yet? Let's find the idea with `/creator-ideas`."
 - If the piece comes from `/creator-ideas`, its file `brands/<brand>/ideas/<date>-<name>.md` is the starting point for stages 0 and 1: the chosen hook, the alternates and what to record.
-- Existing piece: read its `STATUS.md`, `brief.md`, `script.md`, the style (`production/styles/<style>/STYLE.md`) and the brand's rules. Continue at the **Current stage**, and say so in two lines: "We're continuing with <piece>. We're at stage 5, the visual script: I'll build a mockup so you can see the pace."
+- Existing piece: `python3 production/tools/stage.py <piece>` (where it's at and what's next), and read its `STATUS.md`, `brief.md`, `script.md`, the style (`production/styles/<style>/STYLE.md`) and the brand's rules. Continue at the **Current stage**, and say so in two lines: "We're continuing with <piece>. We're at stage 5, the visual script: I'll build a mockup so you can see the pace."
 - New piece: do stage 0 and create it with `python3 production/tools/piece.py new <brand> <short-name> --type on-camera|animated|mixed --style <style>`.
 
-When closing each stage: update the table and the log in `STATUS.md` (what was shown, what the creator said) and the **Current stage** line. To the creator, two lines: what was approved, with its path, and what comes next. "Stage 3 done: the cut is in `brands/<brand>/pieces/<piece>/voice/cut-v2.mp4`. Next is stage 4: making your voice clean and even."
+When closing each stage: `python3 production/tools/stage.py <piece> approve N "what the creator said"` updates the table, the log and the **Current stage** line in `STATUS.md` (what was shown is added to the log by hand, below). To the creator, two lines: what was approved, with its path, and what comes next. "Stage 3 done: the cut is in `brands/<brand>/pieces/<piece>/voice/cut-v2.mp4`. Next is stage 4: making your voice clean and even."
 
 ## The quality lock: how each version closes
 
-The creator asked for it: "make it super strict about going through the steps and following the plugin… score every version… an independent reviewer". In the first full reel made in "glass" the rules were written down, but the skills were used late or halfway and the creator ended up being the quality control. Since then no version reaches them without this, in this order:
+The creator asked for it: "make it super strict about going through the steps and following the plugin… score every version… an independent reviewer". In the first full reel made in "glass" the rules were written down, but the skills were used late or halfway and the creator ended up being the quality control. Since then no version reaches them without this.
 
-1. **`python3 production/tools/review.py <video> --stage N --script <piece>/visual-script.json`**. `N` is the stage the version closes, and the video goes straight in `output/`. It adds the stage's **lock** to the report (`locks.py`): the tools and skills that should have run, checked against what they leave in the piece. `python3 production/tools/locks.py` lists what each stage requires.
+**One stage, one command (`stage.py`).** Each stage is worked with it, in this order, and not by hand:
+- `python3 production/tools/stage.py <piece>`: which stage it's at, which tools, skills and lock it requires, which `LESSONS.md` block to go over and **the exact command for what's next**. Run it when each stage opens and whenever it isn't clear what's missing.
+- `… run`: the stage's automatic part (cut, gaze, voice, visual script, blocks, the effects mix and review, the faces and the cover). The creative part is the AI's, with the skills the command names.
+- `… close <video>`: `review.py --stage N` with the lock and the piece's options, and the steps that follow.
+- `… ready <video>`: after the reviewer, it says whether it passes and gives the Montage command; if not, what's missing and how many rounds so far.
+- `… approve N "their words"` (or `… not-applicable N "why"`): records the approval in `STATUS.md` with the person's words, the date and the log, and opens the next stage. Only run it when they said yes.
+
+**The automatic checks (`guard.py`, in `.claude/settings.json`)** are run by Claude Code on its own, even if the AI forgets them:
+- when the session starts, they tell it the open pieces and the missing lessons;
+- when the person rejects or corrects something (or confirms a taste), they remind it to leave the lesson;
+- after each step, they record the `output/` videos the session made and warn if a key file shrank;
+- when each turn ends, they won't let it end if a video from the session is left without its full review, if a stage was left behind without the approval recorded or if a rejection has no lesson. They stop once; if nothing changes, they tell the person.
+
+Each version closes like this:
+
+1. **`python3 production/tools/stage.py <piece> close <video>`** (underneath, `review.py <video> --stage N --script <piece>/visual-script.json`). `N` is the stage the version closes, and the video goes straight in `output/`. It adds the stage's **lock** to the report (`locks.py`): the tools and skills that should have run, checked against what they leave in the piece. `python3 production/tools/locks.py` lists what each stage requires.
 2. **Look at all the images** and write "What I saw"; the "Visual floor", resolved.
 3. **If the lock has a line in `[ ]`**, run the missing tool and go back to step 1. Don't tick it by hand.
 4. **The independent reviewer:** launch the `reel-reviewer` agent (Agent tool) with **only** the path of the `REVIEW.md`, the stage and the Montage project. Never tell it your conclusions: it has to look with fresh eyes. It scores each axis of the stage from 1 to 10, with its proof, and writes the verdict with the 3 worst problems.
 5. **If an axis is under 8**, fix what it says and go back to step 1. After two rounds without reaching 8, don't do a third one blind: tell the person what's going on, with the scores, and decide with them.
-6. **Publish to Montage** (`node montage/cli.mjs publish …`). Montage checks all of the above and won't publish if anything is missing: don't look for a way around it. With `--dry-run` it only says whether it passes.
-7. **To the person:** the version with its link, the reviewer's score per axis in one line and "Give it your stars in Montage (1 to 5)". Their stars sit next to the reviewer's score.
-8. **Before each new version:** `node montage/cli.mjs ratings <project>`. If the mean gap is 2 or more (the reviewer scores too high), go over what the person saw that the reviewer didn't and write it down in `LESSONS.md`.
+6. **`stage.py <piece> ready <video>`** and, if it passes, **publish to Montage** with the command it gives (`node montage/cli.mjs publish …`). Montage checks all of the above and won't publish if anything is missing: don't look for a way around it. With `--dry-run` it only says whether it passes.
+7. **To the person:** the version with its link, the reviewer's score per axis in one line and "Give it your stars in Montage (1 to 5)". Their stars sit next to the reviewer's score. With their yes: `stage.py <piece> approve N "what they said"`.
+8. **Before each new version:** `node montage/cli.mjs ratings <project>`. If the mean gap is 2 or more (the reviewer scores too high), go over what the person saw that the reviewer didn't and write it down with `lessons.py add`.
+
+**Tastes are learned on their own.** Each rejection or correction from the person, and each "exactly that", leaves its lesson in the same turn: `python3 production/tools/lessons.py add <stage|always> "what happened and how it's avoided" --said "their words" [--from "<project> vN"]`. `LESSONS.md` is never written with a script of your own. `lessons.py pending` lists the 1-to-3-star versions without a lesson. And the audience scores too: `pulse.py calibrate <brand>` (every hour, on its own) compares the reviewer's score and the stars with how much the reel was watched and shared, in `brands/<brand>/pulse/CALIBRATION.md`, which the reviewer reads before scoring.
 
 **Strict, but never a dead end.** The person can decide to go on even if something is missing. Only them, and with their own words, which get written down:
 - `--show-low "<what they said>"` publishes even with an axis under 8;

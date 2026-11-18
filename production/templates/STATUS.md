@@ -21,7 +21,7 @@ Brand: **{{brand}}** · Created on {{date}} · Montage project: (created in stag
 | 12 | Variations | pending | | batch of trial reels approved and scheduled; results at 24 and 72 h |
 | 13 | Cleanup | pending | | `clean.py` and `montage archive` with the creator's yes |
 
-Statuses: pending · in progress · waiting for the creator · approved · n/a.
+Statuses: pending · in progress · waiting for the creator · approved · n/a. Each approval is recorded by `stage.py <piece> approve N "what they said"`, in their words (`not-applicable N "why"` if the stage doesn't apply).
 
 ## Log
 
