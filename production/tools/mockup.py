@@ -18,6 +18,10 @@ P = os.path.abspath(P)
 brand_dir = os.path.dirname(os.path.dirname(P))  # brands/<brand>
 brand = os.path.basename(brand_dir)
 remo = os.path.join(root, sys.argv[sys.argv.index("--remotion") + 1]) if "--remotion" in sys.argv else os.path.join(brand_dir, "reel")
+if not os.path.isdir(os.path.join(remo, "node_modules")):
+    sys.exit(f"The brand's video project needs installing ({os.path.relpath(remo, root)}): cd {os.path.relpath(remo, root)} && npm install"
+             if os.path.exists(os.path.join(remo, "package.json")) else
+             f"The brand has no video project ({os.path.relpath(remo, root)}): create it with piece.py new or copy brands/example/reel")
 name = os.path.basename(P)
 vs = json.load(open(os.path.join(P, "visual-script.json")))
 

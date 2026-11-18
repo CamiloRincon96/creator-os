@@ -61,6 +61,12 @@ Then, **3 things for next week**: one to repeat, one to stop doing and one to tr
 > **Stop:** intros longer than 2 seconds before the topic.
 > **Try:** a carousel with the 5 most common small everyday leaks.
 
+**The comments (free, optional).** If a piece has comments, offer it in one line: "Shall I help you reply to the comments on '<piece>'? Copy them here or send me a screenshot, and I'll write the replies."
+- For the comments on the account's own posts, `instagram-agent:ig-reply`: it says which ones are worth answering first and writes each reply.
+- To comment on accounts in the niche (the daily round), `instagram-agent:ig-comment`.
+- **Nothing is sent on its own.** Claude writes the drafts; the person copies each one, pastes it in Instagram and sends it themselves.
+- For a private message that goes out by itself to whoever comments a word ("want"), it's Business Suite: `production/MESSAGES.md`. A private message to one specific person is written with `instagram-agent:ig-dm`, and they send it themselves too.
+
 ## 4. Own style (`brands/<brand>/OWN-STYLE.md`)
 
 It is the brand's style guide **drawn from what the brand itself published and how it did**. It does not come from role models. First show in the chat only what changes (before and after, with the pieces it comes from) and ask: "Shall I save it in your own style? Write 'yes' or tell me which rule doesn't fit." With the creator's yes, it is created or updated with this shape, and you say: "Done: it is in `brands/<brand>/OWN-STYLE.md`. `/creator-ideas` and `/creator-reel` already use it."

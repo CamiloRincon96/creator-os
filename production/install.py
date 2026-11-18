@@ -13,12 +13,16 @@ Installed without asking (everything stays inside the repo or in the user's Clau
   - the Node dependencies of each brand's Remotion project (brands/<brand>/reel) and of Montage
   - the real-sfx and openverse-audio skills in ~/.claude/skills/ (copied from production/skills/), with the repo's
     CC0 sound library (brands/example/sounds/openverse) registered in real-sfx
+  With --check, whatever of this is missing shows up under "To install".
 Asks for permission (this script only says so; Claude asks and does it if the person says yes):
-  - missing system programs: ffmpeg, Node.js 22.12+, Python 3.10+ (Homebrew on macOS, winget on Windows,
-    the package manager on Linux; this script gives the exact command)
+  - missing system programs: git, ffmpeg 7+, Node.js (the version montage/package.json asks for) and Python 3.10+
+    (Homebrew on macOS, winget on Windows, the package manager on Linux; this script gives the exact command and, on
+    macOS without Homebrew, how to install it first)
   - the Whisper large-v3 model (2.9 GB): --with-whisper
-  - logins: Higgsfield, ElevenLabs, Adobe; and approving the MCP servers and the plugin the repo declares
-Exits with 0 if everything required is there, 2 if something that needs permission is missing, 1 if something failed.
+  - logins: Higgsfield, ElevenLabs, Adobe; and approving the MCP servers and the plugins the repo declares
+Only notes: the free disk space (under 6 GB), secret-tool on Linux, Chrome, uv and the optional plugins.
+Exits with 0 if everything required is there, 2 if something is missing (that needs permission or that gets installed by
+running without --check), 1 if something failed.
 """
 import sys
 from pathlib import Path
@@ -46,23 +50,51 @@ SOUND_LIBRARY = REPO / "brands" / "example" / "sounds" / "openverse"
 args = sys.argv[1:]
 CHECK = "--check" in args
 WITH_WHISPER = "--with-whisper" in args
-MAC, WINDOWS = system.MAC, system.WINDOWS
-# how to install each system program, per system (Claude runs it only with the person's yes)
+MAC, WINDOWS, LINUX = system.MAC, system.WINDOWS, system.LINUX
+# Homebrew (macOS): the official command from https://brew.sh. The person pastes it in the Terminal app, because it asks for their password.
+HOMEBREW = '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+# on a Mac with Apple silicon, brew lives in /opt/homebrew and the terminal doesn't see it until this runs (its "Next steps")
+HOMEBREW_PATH = """echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile"""
+HAS_BREW = not MAC or bool(shutil.which("brew"))
+
+
+def node_minimum():
+    """The Node version montage/package.json asks for ("engines"), for example (22, 12)."""
+    try:
+        wants = json.loads((REPO / "montage" / "package.json").read_text(encoding="utf-8"))["engines"]["node"]
+        m = re.search(r"(\d+)\.(\d+)", wants)
+        return (int(m.group(1)), int(m.group(2)))
+    except Exception:  # noqa: BLE001
+        return (22, 12)
+
+
+NODE_MIN = node_minimum()
+NODE_TXT = f"{NODE_MIN[0]}.{NODE_MIN[1]}"
+# how to install each system program, per system (Claude runs it only with the person's yes).
+# The same commands as .claude/skills/creator-install-montage/SKILL.md.
 HOW = {
+    "git": ("xcode-select --install", "winget install --id Git.Git -e", "sudo apt install git"),
     "ffmpeg": ("brew install ffmpeg", "winget install --id Gyan.FFmpeg -e", "sudo apt install ffmpeg"),
-    "node": ("brew install node", "winget install --id OpenJS.NodeJS.LTS -e", "with nvm or the package manager (Node 22.12 or newer)"),
+    "ffmpeg7": ("brew install ffmpeg", "winget install --id Gyan.FFmpeg -e",
+                "a static ffmpeg from johnvansickle.com/ffmpeg and the FFMPEG variable with its path: the apt one on Ubuntu 22.04 and 24.04 is older"),
+    "node": ("brew install node", "winget install --id OpenJS.NodeJS.LTS -e",
+             f"nvm (https://github.com/nvm-sh/nvm) and then nvm install {NODE_MIN[0]}: the apt nodejs is older"),
     "python": ("brew install python", "winget install --id Python.Python.3.12 -e", "sudo apt install python3 python3-venv"),
     "uv": ("brew install uv", "winget install --id astral-sh.uv -e", "curl -LsSf https://astral.sh/uv/install.sh | sh"),
     "chrome": ("brew install --cask google-chrome", "winget install --id Google.Chrome -e", "the google-chrome package from google.com/chrome"),
 }
+needs_brew = []  # on macOS without Homebrew: the missing programs that get installed with it
 
 
 def how(program):
     mac, win, linux = HOW[program]
+    if MAC and not HAS_BREW and mac.startswith("brew "):
+        needs_brew.append(program)
+        return f"Homebrew first; then {mac}"
     return mac if MAC else win if WINDOWS else linux
 
 
-ok, done, permission, failed, notes = [], [], [], [], []
+ok, done, to_install, permission, failed, notes = [], [], [], [], [], []
 
 
 def run(cmd, cwd=None, quiet=True):
@@ -77,18 +109,30 @@ def version(cmd, pattern):
         out = subprocess.run(cmd, capture_output=True, text=True).stdout + subprocess.run(cmd, capture_output=True, text=True).stderr
         m = re.search(pattern, out)
         return tuple(int(x) for x in m.groups()) if m else None
-    except FileNotFoundError:
+    except OSError:
         return None
 
 
 # ---------------------------------------------------------------- 1. system programs (need permission)
+gitv = version(["git", "--version"], r"(\d+)\.(\d+)")
+(ok if gitv else permission).append(f"git {gitv[0]}.{gitv[1]}" if gitv else f"git: downloads the repo and its updates ({how('git')})")
 ff = shutil.which("ffmpeg") and shutil.which("ffprobe")
-(ok if ff else permission).append("ffmpeg and ffprobe" if ff else f"ffmpeg: cuts, mixing and videos ({how('ffmpeg')})")
-node = version(["node", "--version"], r"v(\d+)\.(\d+)")
-if node and node >= (22, 12):
-    ok.append(f"Node.js {node[0]}.{node[1]}")
+if not ff:
+    permission.append(f"ffmpeg: cuts, mixing and videos ({how('ffmpeg')})")
 else:
-    permission.append(f"Node.js 22.12 or newer: Remotion and Montage ({how('node')})")
+    # Montage uses the one in the FFMPEG variable, if set; otherwise the one on the PATH
+    ffv = version([os.environ.get("FFMPEG") or "ffmpeg", "-version"], r"ffmpeg version n?(\d+)\.(\d+)")
+    if ffv and ffv[0] < 7:
+        permission.append(f"ffmpeg {ffv[0]}.{ffv[1]}: fine for cutting and mixing, but Montage needs 7 or newer to export ({how('ffmpeg7')})")
+    else:
+        ok.append(f"ffmpeg {ffv[0]}.{ffv[1]} and ffprobe" if ffv else "ffmpeg and ffprobe")
+node = version(["node", "--version"], r"v(\d+)\.(\d+)")
+if node and node >= NODE_MIN:
+    ok.append(f"Node.js {node[0]}.{node[1]}")
+elif node:
+    permission.append(f"Node.js {node[0]}.{node[1]}: Remotion and Montage need {NODE_TXT} or newer ({how('node')})")
+else:
+    permission.append(f"Node.js {NODE_TXT} or newer: Remotion and Montage ({how('node')})")
 py = sys.version_info
 (ok if py >= (3, 10) else permission).append(f"Python {py.major}.{py.minor}" if py >= (3, 10) else f"Python 3.10 or newer ({how('python')})")
 if not system.chrome():
@@ -96,9 +140,27 @@ if not system.chrome():
                  + ("in Edge" if WINDOWS else "in your regular browser"))
 if not shutil.which("uv"):
     notes.append(f"uv is not installed: it is only needed to download reference reels (uvx yt-dlp); optional ({how('uv')})")
+if needs_brew:
+    if Path("/opt/homebrew/bin/brew").exists():
+        brew = (f"Homebrew is already there, but this terminal doesn't see it: the person pastes the line from its \"Next steps\" in the "
+                f"Terminal app ({HOMEBREW_PATH}) and closes and reopens Claude Code")
+    else:
+        brew = (f"Homebrew, the one that installs programs on macOS (free), goes before everything else. The person pastes it in the Terminal app, "
+                f"because it asks for their password ({HOMEBREW}). When it finishes, they also paste the \"Next steps\" lines it shows "
+                f"(on a Mac with Apple silicon, {HOMEBREW_PATH}) and close and reopen Claude Code: until then it doesn't see brew")
+    (permission if any(p not in ("chrome", "uv") for p in needs_brew) else notes).insert(0, brew)
 if WINDOWS and permission:
     notes.append("Windows: after installing with winget, close and reopen the terminal (and Claude Code) so the new "
                  "programs show up. If Windows asks for permission in a window, accept it yourself")
+if LINUX and not shutil.which("secret-tool"):
+    notes.append("secret-tool is not installed: it's only needed to keep the YouTube, TikTok and Instagram keys in the system's "
+                 "keyring; free (sudo apt install libsecret-tools)")
+free_gb = shutil.disk_usage(REPO).free / 1e9
+if free_gb < 6:
+    notes.append(f"{free_gb:.1f} GB free on the disk: about 6 GB is best, because Whisper takes 2.9 GB and the renders take more. "
+                 "Free up some space before going on")
+else:
+    ok.append(f"{free_gb:.0f} GB free on the disk")
 
 # ---------------------------------------------------------------- 2. the repo's Python (no permission needed)
 pyvenv = system.venv_python(create=True)  # bin/python on macOS and Linux, Scripts/python.exe on Windows
@@ -114,8 +176,10 @@ def libraries_ok():
 if libraries_ok():
     ok.append("production/.venv with faster-whisper, soundfile, numpy and scipy")
 elif CHECK:
-    failed.append("production/.venv is missing (installed without permission: run without --check)")
-elif py >= (3, 10):
+    to_install.append("production/.venv with the Python libraries (run without --check)")
+elif py < (3, 10):
+    to_install.append("production/.venv with the Python libraries: installed once Python 3.10 or newer is there")
+else:
     try:
         if shutil.which("uv"):
             if not pyvenv.exists():
@@ -134,7 +198,7 @@ rn = MODELS / "rnnoise" / "std.rnnn"
 if rn.exists():
     ok.append("voice cleanup model (rnnoise)")
 elif CHECK:
-    failed.append("the rnnoise model is missing (downloaded without permission: run without --check)")
+    to_install.append("voice cleanup model (rnnoise, 300 KB; run without --check)")
 else:
     try:
         rn.parent.mkdir(parents=True, exist_ok=True)
@@ -161,8 +225,10 @@ for d in node_projects:
     rel = d.relative_to(REPO)
     if (d / "node_modules").exists():
         ok.append(f"{rel}: Node dependencies")
-    elif CHECK or not node:
-        (failed if node else permission).append(f"{rel}: the Node dependencies are missing (npm install)")
+    elif CHECK:
+        to_install.append(f"{rel}: Node dependencies (run without --check)")
+    elif not node:
+        to_install.append(f"{rel}: Node dependencies: installed once Node.js is there")
     else:
         try:
             run([system.program("npm"), "ci" if (d / "package-lock.json").exists() else "install", "--no-audit", "--no-fund"], cwd=d)
@@ -172,14 +238,16 @@ for d in node_projects:
 dist = REPO / "montage" / "web" / "dist" / "index.html"
 if dist.exists():
     ok.append("Montage: editor built")
-elif not CHECK and (REPO / "montage" / "node_modules").exists():
+elif CHECK:
+    to_install.append("Montage: build the editor (run without --check)")
+elif (REPO / "montage" / "node_modules").exists():
     try:
         run([system.program("npm"), "run", "build"], cwd=REPO / "montage")
         done.append("Montage: editor built")
     except Exception as e:  # noqa: BLE001
         failed.append(f"Montage (build): {e}")
 else:
-    failed.append("Montage: the editor still has to be built (npm run build in montage/)")
+    to_install.append("Montage: build the editor: done once its Node dependencies are there")
 
 # ---------------------------------------------------------------- 5. user skills (no permission needed)
 for name in ("real-sfx", "openverse-audio"):
@@ -190,7 +258,7 @@ for name in ("real-sfx", "openverse-audio"):
     if (target / "SKILL.md").exists():
         ok.append(f"skill {name}")
     elif CHECK:
-        failed.append(f"the {name} skill is missing (copied without permission: run without --check)")
+        to_install.append(f"skill {name}: copied from production/skills to ~/.claude/skills (run without --check)")
     else:
         shutil.copytree(PROD / "skills" / name, target, dirs_exist_ok=True)
         done.append(f"skill {name} in ~/.claude/skills (copied from production/skills)")
@@ -202,7 +270,11 @@ if (PROD / "skills" / "real-sfx").exists() and (sfx / "SKILL.md").exists():
     has_library = cfg.exists() and normal(str(SOUND_LIBRARY)) in normal(cfg.read_text(encoding="utf-8"))
     if has_library and (sfx / "library_index.json").exists():
         ok.append("real-sfx with the repo's CC0 sound library")
-    elif not CHECK and ff:
+    elif CHECK:
+        to_install.append("real-sfx: register the repo's CC0 sound library (run without --check)")
+    elif not ff:
+        to_install.append("real-sfx: register the repo's CC0 sound library: done once ffmpeg is there")
+    else:
         try:
             if cfg.exists():
                 run([sys.executable, "scripts/setup.py", "add-library", "openverse", str(SOUND_LIBRARY), "--tier", "main", "--index"], cwd=sfx)
@@ -211,22 +283,39 @@ if (PROD / "skills" / "real-sfx").exists() and (sfx / "SKILL.md").exists():
             done.append("real-sfx: CC0 sound library registered and indexed")
         except Exception as e:  # noqa: BLE001
             failed.append(f"real-sfx (library): {e}")
-    else:
-        failed.append("real-sfx: the sound library still has to be registered (run without --check)")
 
-# ---------------------------------------------------------------- 6. plugin and MCP servers (the person approves them in Claude Code)
+# ---------------------------------------------------------------- 6. plugins and MCP servers (the person approves them in Claude Code)
+# the plugins .claude/settings.json recommends; Claude Code offers them when the folder is trusted. They're all free.
+# instagram-agent asks for permission because /creator-reel uses it for the script and the copy; the others are optional and only noted.
+PLUGINS = {
+    "instagram-agent": ("copy and scripts", "to write hooks, scripts and copy that sound like you; /creator-reel uses it for the script and the copy", True),
+    "last30days": ("ideas", "to see what your niche is sharing this month, when looking for ideas", False),
+    "marketing-skills": ("strategy", "for strategy: why people share and which format goes on each network", False),
+    "hyperframes": ("animations", "to have hundreds of ready-made animations and transitions, when animating", False),
+}
 installed = Path.home() / ".claude" / "plugins" / "installed_plugins.json"
 try:
     plug = json.loads(installed.read_text(encoding="utf-8"))
     plug = plug.get("plugins", plug)
 except Exception:  # noqa: BLE001
     plug = {}
-if "instagram-agent@instagram-agent-skill" in plug:
-    ok.append("instagram-agent plugin (copy and scripts)")
-else:
-    permission.append("instagram-agent plugin: Claude Code offers it when you trust the repo (.claude/settings.json); or /plugin install instagram-agent@instagram-agent-skill")
-notes.append("After Effects and Higgsfield MCP servers (optional): declared in .mcp.json; Claude Code asks you to approve them the first time. In After Effects: "
-             "Settings (Preferences) → Scripting & Expressions → \"Allow Scripts to Write Files and Access Network\". Higgsfield asks for its login the first time and is always quoted before spending")
+try:
+    declared = [k for k, v in json.loads((REPO / ".claude" / "settings.json").read_text(encoding="utf-8")).get("enabledPlugins", {}).items() if v]
+except Exception:  # noqa: BLE001
+    declared = ["instagram-agent@instagram-agent-skill"]
+for key in declared:
+    name = key.split("@")[0]
+    short, what_for, needed = PLUGINS.get(name, ("", "recommended by .claude/settings.json", False))
+    if key in plug:
+        ok.append(f"{name} plugin" + (f" ({short})" if short else ""))
+    else:
+        (permission if needed else notes).append(
+            f"{name} plugin: {what_for}. Free{'' if needed else ' and optional'}. Claude Code offers it when you trust the folder; "
+            f"if the answer was no: /plugin install {key}")
+notes.append("After Effects MCP server (paid: the Adobe subscription) and Higgsfield MCP server (paid, by credits): declared in .mcp.json, "
+             "and Claude Code asks whether to turn them on. If the person doesn't pay for them, they say no; they can be turned on later. "
+             "In After Effects: Settings (Preferences) → Scripting & Expressions → \"Allow Scripts to Write Files and Access Network\". "
+             "Higgsfield asks for its login the first time and is always quoted before spending")
 notes.append("ElevenLabs (optional, voice): connect the ElevenLabs connector in claude.ai → Settings → Connectors. Adobe Podcast (optional): your own session in Chrome with Claude in Chrome")
 
 # ---------------------------------------------------------------- 7. Instagram tokens (the person sets them)
@@ -265,7 +354,8 @@ def section(title, items):
 print("Reels workflow setup" + (" (check only)" if CHECK else ""))
 section("Ready:", ok)
 section("Installed now:", done)
+section("To install (installed without asking):", to_install)
 section("Needs the person's permission:", permission)
-section("Failed or missing:", failed)
+section("Failed:", failed)
 section("Good to know:", notes)
-sys.exit(1 if failed else 2 if permission else 0)
+sys.exit(1 if failed else 2 if permission or to_install else 0)

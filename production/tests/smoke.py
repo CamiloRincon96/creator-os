@@ -402,7 +402,7 @@ def _all():
                         "-i", "sine=frequency=440:duration=3", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac", "-shortest", str(video)], check=True)
         node = shutil.which("node")
         steps = [["new", "smoke", "--name", "Smoke test", "--brand", "example", "--type", "video", "--origin", "smoke.py"],
-                 ["publish", "smoke", str(video), "--note", "test version"],
+                 ["publish", "smoke", str(video), "--note", "test version", "--skip-review", "smoke test: the test video has no review"],
                  ["history", "smoke"],
                  ["view", "smoke", "--t", "1.5"]]
         rc, out = run([node, cli, "server"], env=env, cwd=REPO, timeout=120)

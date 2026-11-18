@@ -59,6 +59,7 @@ Always, when starting `/creator-reel` in a session:
    - **instagram-agent plugin:** Claude Code offers it when the repo is trusted; if not, `/plugin install instagram-agent@instagram-agent-skill`. It is needed for the script and the copy. If they install it: "Type this in the Claude Code chat and accept: `/plugin install instagram-agent@instagram-agent-skill`. When it says it's installed, type “done”."
 4. Logins and MCP servers are not requested in advance: mention them when their stage needs them, as a hands-on step.
    - After Effects (stage 6) and Higgsfield (stage 8, always with a quote) are declared in `.mcp.json`, and Claude Code asks to approve them the first time ("Claude Code will ask whether you approve “aftereffects”: choose approve"). After Effects needs "Allow Scripts to Write Files and Access Network" turned on; the step: "In After Effects, open Preferences (on a Mac, After Effects → Settings) → Scripting & Expressions, and check “Allow Scripts to Write Files and Access Network”. Type “done”."
+   - **On Windows,** Claude Code starts servers that use `npx` through `cmd /c`. If "aftereffects" doesn't connect, run this once in the folder's terminal: `claude mcp add aftereffects --scope local -- cmd /c npx -y @kumoproductions/mcp-aftereffects` (it only applies on that computer and takes priority over `.mcp.json`), then reopen Claude Code.
    - ElevenLabs (stage 4, optional) is the claude.ai connector.
    - Adobe Podcast (optional) is the creator's own session in Chrome.
 
@@ -83,6 +84,7 @@ The creator asked for it: "make it super strict about going through the steps an
 - `… close <video>`: `review.py --stage N` with the lock and the piece's options, and the steps that follow.
 - `… ready <video>`: after the reviewer, it says whether it passes and gives the Montage command; if not, what's missing and how many rounds so far.
 - `… approve N "their words"` (or `… not-applicable N "why"`): records the approval in `STATUS.md` with the person's words, the date and the log, and opens the next stage. Only run it when they said yes.
+- `… express "their words"` (express reel, when the script is approved), `… quote "what and how many credits" "their words"` (stage 8, before spending) and `… variations-plan "their words"` (stage 12): the same, for those three moments. Each one's lock requires it.
 
 **The automatic checks (`guard.py`, in `.claude/settings.json`)** are run by Claude Code on its own, even if the AI forgets them:
 - when the session starts, they tell it the open pieces and the missing lessons;
@@ -125,7 +127,8 @@ Ask (with options, not open-ended; up to 4 questions per call, so they go in two
 - **How much the person appears:** little goes first, with "(Recommended)": the hook and cameos of about 2 s, around a third; the rest, animated scenes over their voice (`LESSONS.md`).
 - **Style (identity):** first the one the brand already uses for this type of video ("Identities" in its `BRAND.md`), marked "(Recommended)". Then the others in `production/styles/` and the option to create a new one, each with one line on how it looks. A brand can have several identities, one per type of video.
 
-Gather references: "Do you have a reel you like as a reference? Paste me the link." If they send links, download them with `uvx yt-dlp` (yt-dlp, the one that downloads videos; free) to `production/references/videos/`, make a contact sheet, measure shot changes and transcribe, as in `production/references/2026-11-13-reference-reels.md`. Fill in `brief.md`.
+Gather references: "Do you have a reel you like as a reference? Paste me the link." If they send links, download them with `uvx yt-dlp` (yt-dlp, the one that downloads videos; free) to `production/references/videos/`, make a contact sheet, measure shot changes and transcribe, as in the most recent analysis in `production/references/` (if there is one). Fill in `brief.md`.
+- **The brand's video project:** `piece.py new` creates `brands/<brand>/reel/` if the brand doesn't have it (copied from the example). If it says it needs installing, ask in one line ("I'll install your brand's video project: free, about 2 minutes. OK?") and, with the yes, run `npm install` in that folder. Without it, the mockup (stage 5) and the express reel don't render.
 - **Approves:** the brief. Show it in 3 to 5 lines, with its path (`brands/<brand>/pieces/<piece>/brief.md`): "Does this work?".
 
 ## Stage 1 · Idea and script
@@ -178,7 +181,7 @@ python3 production/tools/prepare.py <piece> --names "<the brand's proper names>"
    - and, only if needed, `adjustments` (where a phrase really starts when the transcriber mixed it with another).
 
    If a phrase lasts long for its words, it was most likely said twice inside: transcribe that stretch again and use the clean version.
-3. `python3 production/tools/cut.py <piece>`. By default it edits the way that was approved on "Tres semanas" (16 Nov 2026):
+3. `python3 production/tools/cut.py <piece>`. By default it edits the way that was approved on the first "glass" reel (16 Nov 2026):
    - **Silero VAD,** the speech detector that ships with Whisper, decides what is voice. Each segment is trimmed to it, without breaths, noise or echo, and stretched over the "s" at the edges.
    - **YouTube jump cuts:** 0.12 s of air between sentences.
    - **Even pace:** what was said slowly or "sung" is sped up to 5.8 syllables per second, capped at 1.2x. The timbre doesn't change.
@@ -266,6 +269,7 @@ Say: "I'm adjusting the color and framing of your takes so they look natural, on
 Only the blocks in `image/blocks.json`, with half a second of tail on each side: `python3 production/tools/blocks.py <piece>` cuts them to `image/blocks/B01-raw.mov`… and notes which take and second each one comes from.
 
 - **Color and framing:** After Effects via MCP (`aftereffects`): one composition per block, Lumetri Color and reframing, render through the queue. The project stays in `image/<name>.aep`. Verify with `ae_render_frame` before rendering.
+- **Without After Effects (free):** for each block, `python3 production/tools/match_color.py image/blocks/B01-raw.mov image/blocks/B01-v1.mp4` (same skin, warmth and brightness from shot to shot). Framing happens later, in the animation. It's checked the same way: 100 % crops and the before and after on video.
 - **Separate the person from the background:** `node production/tools/cutout-person.mjs <piece>` (local, `@remotion/video-matting`; nothing is uploaded) leaves `B01-v1-front.webm` with transparency. With that, the kit's `Person` piece (`brands/<brand>/reel/src/kit/Person.tsx`) puts the big word behind the head. The background is not treated differently from the person: darkening or blurring it makes the cutout's errors visible (blotches on clothes, a halo in the hair). Any image effect goes on top of everything, evenly. The person's color stays natural: the epic feel comes from the word, the push-ins and the animation, not from a harsh grade.
 - **Check at full size before showing:** 100% crops of the face, the beard and the hair edge of each block, against the raw. No crushed blacks, no halo around the hair, no blotches on clothes. To check every frame: a difference map (`blend=all_mode=difference`) between the color-graded block and the result; only what was added on purpose should change.
 - **Show it as video, not as stills:** the blocks back to back with their voice, one side by side (before and after) and another with only the after (the `PersonTest` composition with `frames` in the props, joined with ffmpeg). The creator does not take a sheet of still frames as a deliverable.
@@ -334,6 +338,7 @@ If the creator wants different clothes, different light or a different angle:
 2. Upload the blocks to Higgsfield (`media_upload`) and confirm the real price of each job with `generate_video` and `get_cost: true`. Uploading means sending the video to Higgsfield: say so in the same message, before uploading ("To give you the exact price I'll upload your N blocks (X s of video) to Higgsfield. I'm not generating anything yet").
 3. Present the quote: blocks, billed seconds, draft and final at 720p and 1080p, credits and approximate dollars, and the remaining balance (`balance`). Clothes, light and retouching in a single instruction are one pass. It goes as a question ("What do we do with AI on your image?"): each option with its price in credits and approximate dollars, and last "Nothing for now: the video keeps the stage 6 color. Free".
 4. **Approves:** the option and the spend. Without that yes, nothing is generated. If the balance is not enough, say so and wait.
+5. With the yes, before generating: `python3 production/tools/stage.py <piece> quote "<option, blocks and credits>" "<what they said>"`. The stage 8 lock doesn't close without that line. If stage 8 is only a free retouch, record it anyway, with 0 credits.
 
 ### 8c · Draft and final
 
@@ -435,6 +440,8 @@ When the creator calls the video done (they say it in the chat or mark FINAL), b
 
 How to ask: "Where else shall I upload it?", multiple choice and only the connected networks, with their texts from `GUIDING.md` (publishing and measuring; all three are free). Then, for each chosen network, the time (now or scheduled) and, on YouTube, the privacy: public (anyone can see it) · unlisted (only people with the link) · private (only you). On TikTok, after uploading, the hands-on step: "On your phone, open TikTok and tap the “your video is ready” notification (or Profile → Drafts). Pick the sound, paste the text and post."
 
+**Instagram:** the person uploads the FINAL from the app (Instagram or Edits), because that's where they pick the cover, the music and the trial reel. It goes as a hands-on step: "On your phone, open Instagram → **+** → **Reel** → pick `<name>.mp4` (it's in `<final folder>`; send it to your phone with AirDrop or your cloud). Paste the text from `copy.txt`, pick the cover and post. Type “done”."
+
 If a network isn't connected, `/creator-connect`.
 
 After stage 12 (variations), the **cleanup** (the creator's rule: the computer must not fill up):
@@ -464,12 +471,13 @@ Say when starting: "Now I'll make 3 to 5 versions of your video, each with a dif
 2. **Diagnosis of the finished video** (step 1 of `PROMPT.md`):
    - if it has already been published, real metrics from the API (skip rate, average watch time, shares) compared with the account's other reels, and the screenshot of the retention curve the creator sends (hands-on step: "In the Instagram app, open the reel, go to its insights and send me a screenshot of the retention graph here");
    - the contact sheet of the first 4 s;
-   - this week's trends (`TRENDS.md`, renewed after 14 days).
+   - this week's trends: `instagram.py audios <brand>` (free) and, if it's installed, `last30days` (`/creator-ideas`).
 
    What comes out is **the earliest failure**, with its data point, said in plain words: "59% leave in the first 3 s: the topic arrives at second 2.8."
 3. Write `<piece>/variations.json`: 3 to 5 re-edits, each one a different angle that fixes that failure (`segments`, `pause`, `freeze_at`, `open_with`, `music`, an effect), with its new voice script.
 4. `python3 production/tools/variations.py <piece> <piece>/variations.json --draft`: 540p drafts in seconds, no batch. Look at the frames of each new join and the first 3 s; publish them to Montage (`<brand>-variations-<name>`) with the openings sheet.
 5. **Approves:** the drafts, by watching them. With changes, only the one that changed is redone. A plan is never approved in text alone. **Check:** the first 3 s of each one: that they fix the failure and don't look alike. They answer "approved 1, 3 and 4" or with notes in Montage.
+6. With their yes: `python3 production/tools/stage.py <piece> variations-plan "<what they said>"`. The stage 12 lock requires it for the finals (drafts pass without it, because they're how the plan gets approved).
 
 ### 12b · Production
 1. With the yes, fill in the `day` and the `time` of each one in `variations.json`.
@@ -478,7 +486,7 @@ Say when starting: "Now I'll make 3 to 5 versions of your video, each with a dif
    - the first 3 s of each one at full size;
    - no two alike in the first 2 s;
    - loudness at −14 LUFS.
-4. Publish them to Montage in a single version, and say where they are (`brands/<brand>/finals/<project>/variations/`).
+4. Each one closes like any version: `review.py <video> --stage 12`, "What I saw" and the reviewer. Then they're published to Montage in a single version, saying where they are (`brands/<brand>/finals/<project>/variations/`).
 
 ### 12c · Batch (the creator approves in the chat)
 1. `python3 production/tools/instagram.py preview <batch>` shows what goes out and at what time.
@@ -498,22 +506,24 @@ Say when starting: "Now I'll make 3 to 5 versions of your video, each with a dif
 
 ## Animated pieces
 
-No stages 2, 3, 6 or 8. The voice is the brand's ElevenLabs voice and the map comes from that voice, as in `brands/example/reel/README.md`. Generating it spends ElevenLabs credits and sends them the script: announce it first, with how many seconds of voice it is, and wait for the yes.
+No stages 2, 3, 6 or 8. The voice is chosen with options, the free one first:
+- **A voice note of yours** (Recommended): you record it on your phone reading the script, and it goes on like express A (`prepare.py`, `cut.py`, `voice.py`). Free.
+- **The brand's ElevenLabs voice:** paid (its free plan gives a few minutes a month). Generating it sends the script to ElevenLabs: announce it first, with how many seconds of voice it is, and wait for the yes. The map comes from that voice, as in the `README.md` of the brand's video project.
 
 ## Express mode: the daily reel
 
 For publishing almost every day without lowering quality. It has **two approvals**: the idea with its script, and the finished video. It is used with the ideas from `/creator-ideas` and with what `/creator-pulse` says. Big pieces, on camera and with custom animation, follow the full flow above.
 
-Say when starting: "Express reel: you approve it twice, the script now and the finished video at the end."
+Say when starting: "Express reel: you approve it twice, the script now and the finished video at the end." With their yes to the script: `python3 production/tools/stage.py <piece> express "<what they said>"`. It records that approval, marks stages 2 to 9 as n/a (they happen inside the express flow) and opens stage 10.
 
 **A · From a voice note** (no camera):
 1. The creator records a voice note on their phone following the idea's script and drops it in `<piece>/source/`. The piece is created with `piece.py new <brand> <name> --type animated`. One step per message: "Record a voice note on your phone reading this script: 2 seconds of silence at the start and at the end; if a sentence comes out wrong, repeat it right there. Type “done”." · "Move it to the computer and drop it in `brands/<brand>/pieces/<piece>/source/` (I'll open the folder). Type “done”."
 2. Cut and voice, as in stages 3 and 4, but without a separate approval: `prepare.py` (accepts audio files), `cut.py` and `voice.py`.
 3. Claude writes `<piece>/explainer.json`: the scenes with the word timings. The types are title, number, list, clip (own footage), app and outro (`production/tools/note.py`).
 4. `python3 production/tools/note.py render <piece> --draft` and then without `--draft`. It brings wipes, an opening hit, optional music (`--music … --align …`), −14 LUFS and 3 candidate covers.
-5. The fixed final checklist from stage 10, and Montage. **Approves:** the video, as in stage 10.
+5. The video goes straight into `output/` and closes like any version: `stage.py <piece> close <video>` (the stage 10 lock), "What I saw", the reviewer and `stage.py <piece> ready <video>`. Then the fixed final checklist from stage 10, and Montage. **Approves:** the video, as in stage 10.
 
-**B · With the creator's footage** (them talking, or the street): the take goes in `source/`, and stages 3 and 4 follow. The image is the person with captions, plus 1 or 2 explainer scenes or clips from the library, with no custom animation. Same as before: final checklist and Montage.
+**B · With the creator's footage** (them talking, or the street): the take goes in `source/`, and stages 3 and 4 follow. The image is the person with captions, plus 1 or 2 explainer scenes or clips from the library, with no custom animation. Same as before: `stage.py … express` when the script is approved, `close` with the stage 10 lock, final checklist and Montage.
 
 **Everything that gets recorded**, even if it is not used today, is dropped into `library/inbox/` and catalogued with `library.py add`. That is how the own-footage base grows. Tell them: "Whatever you record, even if we don't use it today, drop it in `library/inbox/`: that's how your footage library grows."
 

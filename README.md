@@ -57,10 +57,12 @@ Python and Node tools live in `production/tools/`. Among others:
 
 ## Getting started
 
+**What you need:** Claude Code, which comes with a Claude plan. Pro is US$20 a month, or US$17 billed yearly; the free plan doesn't include it ([claude.com/pricing](https://claude.com/pricing), checked Nov 17, 2026). Other AI apps can read the repo (see below), without the plugin or its automatic checks.
+
 **In Claude Code you only install one plugin, and Claude Code installs it for you.** Open Claude Code and paste this message:
 
 ```
-Install the Creator OS plugin: run claude plugin marketplace add CamiloRincon96/creator-os and then claude plugin install creator-os@creator-os
+Install the Creator OS plugin: run claude plugin marketplace add CamiloRincon96/creator-os and then claude plugin install creator-os@creator-os. If the claude command doesn't work here, tell me to type /plugin marketplace add CamiloRincon96/creator-os and /plugin install creator-os@creator-os myself
 ```
 
 Then open a **new chat** (a freshly installed plugin shows up there) and type **`/creator-os:start`**. It asks where to put the folder, clones the repo with your yes, gets your computer ready (asking before installing anything) and hands over to `/creator-start`.
@@ -105,7 +107,7 @@ Every video, image or carousel the AI makes lands in Montage as a new version (`
 - **Every stage ends in something you see or hear and approve.** Nothing is posted without your explicit approval.
 - **The AI can't hear:** sound is measured (LUFS, intelligibility) and you approve it by ear.
 - **Nothing paid without a quote.** After Effects, Higgsfield and ElevenLabs are optional and are never used without asking you.
-- **Keys and tokens never go in the repo or in the chat.** You save them yourself in your system's secure store (macOS Keychain, Windows Credential Manager, secret-tool on Linux) or in environment variables.
+- **Keys and tokens never go in the repo or in the chat.** You save them yourself in your system's secure store (macOS Keychain, Windows Credential Manager, secret-tool on Linux) or in environment variables. One exception: on Windows, and on Linux without `pass`, the ScrapeCreators key goes in an unencrypted file in your user folder (`~/.config/last30days/.env`): on those systems it's the only place last30days reads it from.
 - **Music only with a verified license:** CC0 with its credit. Commercial songs never go inside the file.
 - **A quality floor for every reel** (`production/REELS-QUALITY.md`): real material instead of invented screens, the thing itself instead of symbols, something happening every second. Your identity changes the look (colors, type, panels), never the floor.
 - What goes wrong is written down in `production/LESSONS.md` so it doesn't happen again.

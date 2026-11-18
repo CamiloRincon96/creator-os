@@ -46,7 +46,7 @@ If the clone fails: say what happened in plain words (no internet, the folder is
 
 ## 3. Open it
 
-The `/creator-…` commands, the optional MCP servers and the recommended plugins load when the agent starts inside the workspace. Claude Code asks them to trust the folder and to approve each server and plugin; all of those are optional.
+The `/creator-…` commands, the optional MCP servers and the recommended plugins load when the agent starts inside the workspace. Claude Code then asks them to trust the folder and to approve each plugin and server. Tell them beforehand, in the same message as below, which questions they'll see, whether each is free or paid, and what to answer, so they don't meet them cold.
 
 One message, only for the way they use Claude Code:
 - **Terminal on macOS or Linux:**
@@ -57,8 +57,13 @@ One message, only for the way they use Claude Code:
   > Open the folder `<folder>` and start a new session there.
 
 Then, in the same message:
-> It asks whether you trust the folder: say yes. The servers and plugins it offers are optional.
+> When it opens, Claude Code asks you a few questions. Here's what you'll see and what to answer:
+> - **Do you trust this folder?** Yes: that's how the `/creator-…` commands load.
+> - **A few plugin marketplaces and their plugins** (instagram-agent, last30days, marketingskills and HyperFrames): accept them. They're free: scripts and copy, ideas, strategy and animations.
+> - **The "aftereffects" and "higgsfield" MCP servers:** say no, unless you already pay for After Effects (the Adobe subscription) or Higgsfield credits. Both are paid and can be turned on later.
 > When you see the chat, type `/creator-start`. If you don't see the command, tell me what you see.
+
+`/creator-start` knows these were already asked and doesn't ask about them again as if they were new.
 
 If they'd rather keep going in this session, read `<folder>/.claude/skills/creator-start/SKILL.md` and follow it, running every command from `<folder>`. Tell them the `/creator-…` commands will show up the next time they open the folder.
 
@@ -73,6 +78,6 @@ Inside the workspace, `git pull` brings the new skills and tools. Their brands, 
 ## Rules that don't bend
 
 - Nothing gets installed, downloaded or paid for without their yes. The Whisper model (2.9 GB) gets its own question.
-- Never type passwords, keys or tokens. The person saves them in their own terminal (on Windows, PowerShell or Windows Terminal) in the system's secure store (macOS Keychain, Windows Credential Manager, secret-tool on Linux) or in environment variables.
+- Never type passwords, keys or tokens. The person saves them in their own terminal (on Windows, PowerShell or Windows Terminal) in the system's secure store (macOS Keychain, Windows Credential Manager, secret-tool on Linux) or in environment variables. The ScrapeCreators key is the exception on Windows, and on Linux without pass: it goes in last30days's own unencrypted file, `~/.config/last30days/.env`.
 - The paid tools (After Effects, ElevenLabs, Higgsfield) are optional and never used without a quote they approved.
 - Nothing gets published without their yes on the exact batch: videos, captions, day and time.

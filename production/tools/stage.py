@@ -8,6 +8,9 @@ review and the reviewer were chained by hand, and that's where steps got lost.
     python3 production/tools/stage.py <piece> ready <video>       # after the reviewer: does it pass? If so, the Montage command
     python3 production/tools/stage.py <piece> approve <N> "what the person said"   # records their approval and opens the next stage
     python3 production/tools/stage.py <piece> not-applicable <N> "why"              # the stage doesn't apply to this piece
+    python3 production/tools/stage.py <piece> express "what they said about the script"   # express reel: script approved, jumps to stage 10
+    python3 production/tools/stage.py <piece> quote "what and how many credits" "what they said"   # stage 8: before spending
+    python3 production/tools/stage.py <piece> variations-plan "what they said"      # stage 12: the approved plan
 
 Approvals are recorded with the person's words, never the AI's: "approve" only runs when they said yes in the chat or in
 Montage. The creative part (the script, the animation, the effects sheet) isn't here: the AI does it with the stage's
@@ -143,6 +146,69 @@ def mark(P, N, status, words):
         print("No stage left: the piece is done. If the person says so, cleanup comes next (clean.py, with their yes).")
     elif nxt != e["current"]:
         print(f"Next is stage {nxt} · {e['rows'][nxt]['stage']}: {system.PY} production/tools/stage.py {rel(P)}")
+
+
+def express(P, words):
+    """Express reel (two approvals): the script now and the finished video at stage 10. Cut, voice and scenes go without a
+    separate approval, so stages 2 to 9 are marked n/a with the reason, and the stage 10 lock closes the video."""
+    e = read_status(P)
+    if not words.strip():
+        sys.exit("The person's words about the script are missing: they go in quotes, just as they said them.")
+    if e["current"] not in (0, 1):
+        sys.exit(f"The piece is already at stage {e['current']}: express mode is chosen at the start (stage 0 or 1).")
+    lines, rows = list(e["lines"]), dict(e["rows"])
+    for n, f in sorted(rows.items()):
+        if n in (0, 1):
+            set_row(lines, f, "approved", f"{today()} · \"{words.strip()}\"")
+        elif 2 <= n <= 9:
+            set_row(lines, f, "n/a", f"{today()} · express reel")
+        else:
+            continue
+        rows[n] = {**f, "status": "approved" if n < 2 else "n/a"}
+    nxt = advance(lines, dict(e, rows=rows), 9)
+    log(lines, f"- **{today()} · express reel:** script approved (\"{words.strip()}\"). Cut, voice and scenes go without a separate "
+               "approval; the second approval is the finished video (stage 10).")
+    write(P, lines)
+    print(f"Recorded in {rel(P / 'STATUS.md')}: express reel, script approved. Next is stage {nxt}: when the video is in "
+          f"{rel(P / 'output')}/, {system.PY} production/tools/stage.py {rel(P)} close <video>")
+
+
+def quote(P, what, words):
+    """Stage 8: the approved quote goes into STATUS.md before a single credit is spent (the stage's lock requires it)."""
+    if not what.strip() or not words.strip():
+        sys.exit('Usage: stage.py <piece> quote "what, with which tool and how many credits" "what the person said"')
+    e = read_status(P)
+    lines = list(e["lines"])
+    line = f"- {today()} · {what.strip()} · approved: \"{words.strip()}\""
+    i = next((k for k, l in enumerate(lines) if l.strip() == "## Higgsfield quotes"), None)
+    if i is None:
+        lines += ["", "## Higgsfield quotes", "", line]
+    else:
+        j = i + 1
+        while j < len(lines) and not lines[j].startswith("## "):
+            j += 1
+        while j > i + 1 and not lines[j - 1].strip():
+            j -= 1
+        lines.insert(j, line)
+    write(P, lines)
+    print(f"Recorded in {rel(P / 'STATUS.md')}: {line[2:]}")
+
+
+def variations_plan(P, words):
+    """Stage 12: the variations plan approved in the person's words (the stage's lock requires it)."""
+    import json
+    v = P / "variations.json"
+    if not v.exists():
+        sys.exit(f"{rel(v)} is missing: first the variations plan (stage 12 of /creator-reel).")
+    if not words.strip():
+        sys.exit("The person's words are missing: they go in quotes, just as they said them.")
+    d = json.loads(v.read_text(encoding="utf-8"))
+    d["plan_approved"] = {"date": today(), "words": words.strip()}
+    v.write_text(json.dumps(d, indent=1, ensure_ascii=False), encoding="utf-8")
+    lines = list(read_status(P)["lines"])
+    log(lines, f"- **{today()} · stage 12, variations plan approved:** \"{words.strip()}\"")
+    write(P, lines)
+    print(f"Recorded in {rel(v)} and in the log: variations plan approved.")
 
 
 # ---------------------------------------------------------------- what's in the piece
@@ -310,5 +376,11 @@ if __name__ == "__main__":
         ready(P, a[2])
     elif command in ("approve", "not-applicable") and len(a) > 3:
         mark(P, int(a[2]), "approved" if command == "approve" else "n/a", a[3])
+    elif command == "express" and len(a) > 2:
+        express(P, a[2])
+    elif command == "quote" and len(a) > 3:
+        quote(P, a[2], a[3])
+    elif command == "variations-plan" and len(a) > 2:
+        variations_plan(P, a[2])
     else:
         sys.exit(__doc__)

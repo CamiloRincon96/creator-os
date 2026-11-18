@@ -32,6 +32,7 @@ Everything has one place. No folders are created outside this map: a new brand c
 │   ├── FACEBOOK.md             connecting the Facebook Page (Reels)
 │   ├── YOUTUBE.md              connecting the YouTube channel (Shorts)
 │   ├── TIKTOK.md               connecting TikTok (drafts from the computer)
+│   ├── MESSAGES.md             a private message to whoever comments (free, in Business Suite)
 │   ├── SOUNDS.md               which effect goes at each moment
 │   ├── DISTRIBUTION.md         what goes on each account and the plan (template)
 │   ├── variations/             variations of a video: PROMPT, MUSIC, CALENDAR, LEARNED

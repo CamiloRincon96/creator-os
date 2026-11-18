@@ -12,6 +12,7 @@ import system
 system.prepare()
 
 import json  # noqa: E402
+import os  # noqa: E402
 import sys  # noqa: E402
 import webbrowser  # noqa: E402
 
@@ -26,6 +27,7 @@ STEPS = {
     "meta-app": ("Meta for Developers: create the app", "https://developers.facebook.com/apps/creation/"),
     "meta-apps": ("Meta for Developers: your apps", "https://developers.facebook.com/apps/"),
     "meta-system-user": ("Meta Business Suite: Settings -> Users -> System users", "https://business.facebook.com/latest/settings"),
+    "meta-automations": ("Meta Business Suite: Inbox -> Automations (a message to whoever comments, production/MESSAGES.md)", "https://business.facebook.com/latest/inbox/automations"),
     "google-project": ("Google Cloud: create the project", "https://console.cloud.google.com/projectcreate"),
     "google-apis": ("Google Cloud: turn on YouTube Data API v3 and YouTube Analytics API", "https://console.cloud.google.com/apis/library?filter=category:youtube"),
     "google-branding": ("Google Auth Platform: Branding (the app's name and email)", "https://console.cloud.google.com/auth/branding"),
@@ -37,12 +39,19 @@ STEPS = {
 }
 
 NETWORKS = ("instagram", "facebook", "youtube", "tiktok")
+EXAMPLE = "example"  # the public repo's example brand: it's the shape of a brand, it doesn't get connected
+
+
+def instagram_token(brand):
+    """Is there an Instagram token? Like instagram.py: the <BRAND>_INSTAGRAM_TOKEN variable or the system's store."""
+    return bool(os.environ.get(f"{brand.upper().replace('-', '_')}_INSTAGRAM_TOKEN", "").strip()) \
+        or bool(system.read_secret(f"{brand}-instagram", "token"))
 
 
 def status_of(brand, network):
     """(connected, what comes next)."""
     if network == "instagram":
-        has_token = bool(system.read_secret(f"{brand}-instagram", "token"))
+        has_token = instagram_token(brand)
         config = networks.REPO / "production" / "instagram.json"
         account = json.loads(config.read_text(encoding="utf-8")).get("accounts", {}).get(brand) if config.exists() else None
         if account and has_token:
@@ -54,7 +63,7 @@ def status_of(brand, network):
         c = networks.account(brand, "facebook")
         if c:
             return True, f"page \"{c.get('page')}\""
-        if not system.read_secret(f"{brand}-instagram", "token"):
+        if not instagram_token(brand):
             return False, "Instagram first (it uses the same app and the same token)"
         return False, f"add the page and the permissions (FACEBOOK.md) and then {system.PY} production/tools/facebook.py connect {brand}"
     if network == "youtube":
@@ -73,10 +82,12 @@ def status_of(brand, network):
 
 
 def brands():
+    """The person's brands, without the example one: so, with no brand of their own, it says "There are no brands yet"."""
     seen = set(networks.read())
     for p in (networks.REPO / "brands").iterdir() if (networks.REPO / "brands").exists() else []:
         if p.is_dir() and (p / "PROFILE.md").exists():
             seen.add(p.name)
+    seen.discard(EXAMPLE)
     return sorted(seen)
 
 

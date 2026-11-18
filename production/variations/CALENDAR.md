@@ -9,7 +9,7 @@
 | Day | What happens |
 |---|---|
 | Monday | The creator approves the variations plan (12a) and then the batch (12c) |
-| **Tuesday** | **The day's batch:** 4 to 6 trial reels every 2 or 3 hours, from 9:00 a.m. to 7:00 p.m., Colombia time |
+| **Tuesday** | **The day's batch:** 4 to 6 trial reels every 2 or 3 hours, from 9:00 a.m. to 7:00 p.m., in the brand's time (the time zone in its `PROFILE.md`, or the computer's) |
 | Wednesday | Results at 24 hours: the computer's watcher (`instagram.py watcher`) saves them on its own, without Claude |
 | Thursday, 7:00 p.m. | The variation that did best with non-followers goes out to the followers. The creator graduates it in the app |
 | Friday | Results at 72 hours, written down in `LEARNED.md`, and the prompt is refined |

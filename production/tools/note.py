@@ -61,6 +61,9 @@ def render(draft=False):
     brand = sys.argv[sys.argv.index("--brand") + 1] if "--brand" in sys.argv else P.parent.parent.name
     brand_dir = REPO / "brands" / brand
     reel = brand_dir / "reel"
+    if not (reel / "node_modules").is_dir():
+        sys.exit(f"The brand's video project needs installing: cd {reel.relative_to(REPO)} && npm install" if (reel / "package.json").exists()
+                 else f"The brand has no video project ({reel.relative_to(REPO)}): create it with piece.py new or copy brands/example/reel")
     spec = json.loads((P / "explainer.json").read_text())
     cuts = sorted(P.glob("voice/cut-v*.json"), key=lambda p: int(re.search(r"-v(\d+)", p.name).group(1)))
     if not cuts:

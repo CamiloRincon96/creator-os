@@ -53,7 +53,7 @@ Also read:
 **If the brand has no `NICHE.md`**, `/creator-brand` goes first, option C (or A if the brand is new). Say it like this: "Your brand doesn't have written down who it talks to yet, and without that the ideas come out generic. Let's set it up first with `/creator-brand` and then come back here." As a guide, the niche is built like this:
 - with the product document from the app's repo (for example `PRODUCT.md`), its `PROFILE.md` and its metrics;
 - with the shape of Example's;
-- the real niche is not the generic category: it is not "financial education", it is "people who don't know where their money goes and live out of Nequi (a Colombian digital wallet)".
+- the real niche is not the generic category: it is not "financial education", it is "people who don't know where their money goes and pay for everything from a phone wallet".
 
 Show it to the creator and write it with their yes: it is a decision, not an iteration.
 
@@ -63,18 +63,18 @@ Before: "Now I look up what your people are sharing this week on TikTok, Instagr
 
 Three sources, in parallel, from this week and never from memory:
 
-1. **`last30days`**, the skill installed as a plugin, with 2 or 3 searches on the topics in `NICHE.md`, in the language and country of the niche. For example, for Example (a Colombian personal-finance app), the searches are in Spanish:
-   - «quincena Colombia» (payday);
-   - «gastos hormiga» (small everyday leaks);
-   - «no me alcanza la plata» (my money doesn't stretch);
-   - «Nequi gastos» (Nequi spending);
-   - «factura electrónica independientes DIAN» (e-invoicing for freelancers).
+1. **`last30days`**, the skill installed as a plugin, with 2 or 3 searches on the topics in `NICHE.md`, in the language and country of the niche. For example, for a personal-finance app, the searches use the niche's own words, in its language:
+   - «payday budget»;
+   - «small everyday leaks»;
+   - «my money doesn't stretch»;
+   - «phone wallet spending»;
+   - «e-invoicing for freelancers».
 
    It brings what people are watching and commenting on in TikTok, Instagram reels (with what they say), YouTube, Reddit and the web, ranked by real engagement. Use it with its safe configuration (`~/.config/last30days/.env`):
    - **it never reads browser cookies**;
    - it does not save reports to disk.
 
-   TikTok and Instagram need the ScrapeCreators key saved (see "Set up"). If it is not there, run with YouTube, Reddit and the web, and say so: "Without your ScrapeCreators key I can't see TikTok or Instagram; I searched YouTube, Reddit and the web. Adding it is free (10,000 queries): if you want, I'll show you how at the end."
+   TikTok and Instagram need the ScrapeCreators key saved (see "Set up"). If it is not there, run with YouTube, Reddit and the web, and say so: "Without your ScrapeCreators key I can't see TikTok or Instagram; I searched YouTube, Reddit and the web. Adding it is free: it comes with 100 credits when you sign up, no card. If you want, I'll show you how at the end."
 2. **The account:** `python3 production/tools/instagram.py reels <brand> 10` brings views, reach, % that skip in 3 s, shares and saves. What won and why; to read it, `instagram-agent:ig-audit`.
 3. **The calendar:** the dates of the coming week and month in the niche's country (bonuses, paydays, taxes, seasons).
 
@@ -111,7 +111,7 @@ Short cells, no jargon. Under the table, one line on how to choose: "Pick by num
 
 The creator answers however it comes out: "3 and 7", "more like 2", "combine 4 and 6", "another round", "wilder" or "simpler". In each round:
 - change only what was asked and show the short table;
-- say what you learned about their taste. For example, "you like the ones with a figure in pesos, not the trend ones";
+- say what you learned about their taste. For example, "you like the ones with a money figure, not the trend ones";
 - end with the same line on how to choose from step 3.
 
 **If an idea is visual**, show a cheap sketch before deciding: 3 to 5 frames in Remotion or a card, in the scratchpad. A visual idea is never approved from text alone. Say where it is and what to look at: "The sketch for 4 is at `<full path>`. Take a look and tell me whether the idea comes across."
@@ -190,7 +190,12 @@ The close, in 3 lines and with a single question. For example, for a reel:
 ## Set up (once per computer)
 
 - The `last30days` and `marketing-skills` plugins are declared in `.claude/settings.json`. Claude Code asks to approve them the first time.
-- **The ScrapeCreators key** (TikTok and Instagram in last30days, 10,000 free queries) is saved by the creator in their own terminal (on Windows, PowerShell). Claude does not write it:
+- **The ScrapeCreators key** (TikTok and Instagram in last30days). What it costs (checked 17 Nov 2026):
+  - free: 100 credits when you sign up, no card, and up to 1,200 more you can claim from its dashboard;
+  - for most endpoints, one request spends one credit. last30days doesn't say how many each search spends: it spends some, and what's left shows in the ScrapeCreators dashboard;
+  - after that, paid: from US$47 for 25,000 credits, which never expire.
+
+  The creator saves it in their own terminal (on Windows, PowerShell). Claude does not write it:
 
   ```bash
   python3 production/tools/save_token.py --scrapecreators

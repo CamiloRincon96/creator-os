@@ -31,7 +31,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/production/tools/guard.py\" start || python \"$CLAUDE_PROJECT_DIR/production/tools/guard.py\" start",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/production/tools/guard.py\" start || python \"$CLAUDE_PROJECT_DIR/production/tools/guard.py\" start || true",
             "timeout": 20
           }
         ]
@@ -42,7 +42,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/production/tools/guard.py\" message || python \"$CLAUDE_PROJECT_DIR/production/tools/guard.py\" message",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/production/tools/guard.py\" message || python \"$CLAUDE_PROJECT_DIR/production/tools/guard.py\" message || true",
             "timeout": 20
           }
         ]
@@ -54,7 +54,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/production/tools/guard.py\" after || python \"$CLAUDE_PROJECT_DIR/production/tools/guard.py\" after",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/production/tools/guard.py\" after || python \"$CLAUDE_PROJECT_DIR/production/tools/guard.py\" after || true",
             "timeout": 20
           }
         ]
@@ -65,7 +65,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/production/tools/guard.py\" end || python \"$CLAUDE_PROJECT_DIR/production/tools/guard.py\" end",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/production/tools/guard.py\" end || python \"$CLAUDE_PROJECT_DIR/production/tools/guard.py\" end || true",
             "timeout": 30,
             "statusMessage": "Checking that nothing is left pending…"
           }

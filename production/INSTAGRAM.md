@@ -120,6 +120,22 @@ It doesn't use Claude. If the computer is off, it fetches them the next time it 
 
 Installed on the creator's computer on Nov 15, 2026.
 
+## If something fails
+
+| Message | What's happening | What to do |
+|---|---|---|
+| "There is no token for <brand>" | The key isn't saved on this computer | Step 6 |
+| "<brand>'s account is not connected" | The account isn't noted in the repo yet | Step 7: `instagram.py connect <brand>` |
+| "The token does not see any professional Instagram account linked to a Facebook page" | The account isn't professional, or the Page isn't linked to Instagram | Steps 1 and 2, then `instagram.py connect <brand>` again |
+| The same message, with the Page already linked | The system user doesn't have the Page and the Instagram account assigned | Step 5, **Assign assets**; if it still happens, generate the key again (step 5) and save it (step 6) |
+| **Settings** shows no **System users**, or the app won't let you pick a portfolio | There's no business portfolio, or the Page and the account aren't in it | Step 3 |
+| It won't let you add the Instagram account to the portfolio | It's already in another portfolio: it can only be in one | Remove it from the other one, or do steps 4 and 5 in that one |
+| HTTP 403, or error 10 or 200, when posting or reading metrics | A permission is missing from the key or from the app | Step 4 (`instagram_manage_insights` in the app) and a new key with every permission (step 5); if it still happens, add `ads_read`. Save it (step 6) |
+| Error 190 ("Invalid OAuth access token" or "Error validating access token") | The key was copied wrong or was revoked | Generate a new one (step 5) and save it (step 6) |
+| Error 190 on every key at once, after months without using the app | Meta switched the app off: 90 days without calls | Open the app at developers.facebook.com and click restore; then a new key (steps 5 and 6). So it doesn't happen again: `instagram.py watcher install` |
+| What gets posted is only seen by people with a role in the app | The app is still in **Development** mode | Switch it to **Live**, as in step 5 of `FACEBOOK.md` |
+| Error 9 (2207042): "maximum number of posts" | The API posting quota for the last 24 hours ran out. It belongs to the account, not to each person | `instagram.py test` shows how much was used; move the batch's remaining times to the next day |
+
 ## Official sources (checked on Nov 16, 2026)
 
 - The Instagram API's paths: https://developers.facebook.com/documentation/instagram-platform/overview
@@ -130,3 +146,6 @@ Installed on the creator's computer on Nov 15, 2026.
 - Linking the Page to Instagram: https://www.facebook.com/help/1148909221857370
 - Professional account: https://help.instagram.com/502981923235522
 - Reels metrics: https://developers.facebook.com/documentation/instagram-platform/reference/instagram-media/insights
+- Error codes, including the quota one (9 / 2207042), checked on Nov 17, 2026: https://developers.facebook.com/docs/instagram-platform/instagram-graph-api/reference/error-codes
+- An app inactive for 90 days, its keys invalidated and how to restore it, checked on Nov 17, 2026: https://developers.facebook.com/docs/development/maintaining-data-access
+- App modes (what's in Development is only seen by roles), checked on Nov 17, 2026: https://developers.facebook.com/documentation/development/build-and-test/app-modes

@@ -40,7 +40,7 @@ Whoever writes the notes may not be technical. Everything you tell them, in the 
   6. If you version the `.aep`, save it as `-vN.aep`.
 - **Remotion** (`brands/<brand>/reel`): edit the composition, check it with `npx remotion still <id> --frame=N` and render with `npx remotion render <id>`. Example's stories are an HTML engine (`brands/example/stories`, `node render.mjs`).
 - **Higgsfield**: only after the creator approves the cost in the note. Download the result into the repo before publishing.
-- **ElevenLabs (voice)**: the Robert voice (`AQkGeuTY47dqKKfZBMOO`, `eleven_multilingual_v2`), unless the creator asks for another.
+- **ElevenLabs (voice)**: the voice the brand chose, written in its `brands/<brand>/BRAND.md`; if there is none, ask the creator which one. ElevenLabs is paid beyond its free plan (about 10 minutes a month; Starter costs US$6 a month, checked 17 Nov 2026): quote it before using it.
 - **ffmpeg / Montage editor**: for trims, audio and color. If the project has a `timeline.json`, edit it and export with `node montage/cli.mjs export <project>`.
 - **If something fails** (a render that won't come out, a change that can't be made): don't publish a broken version. Reply on the note with what happened, in simple words, and the step you propose (or ask it with `--state question`). Say it in the chat in one line too.
 

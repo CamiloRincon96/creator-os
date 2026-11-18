@@ -279,7 +279,7 @@ const COMMANDS = {
   history <project>                       versions, notes and activity of the project
   server [--stop | --restart]             starts / stops the server
   new <id> --name "…" --brand <b> --type video|image|carousel [--origin "…"]
-  publish <project> <file…> [--note "…"] [--resolves 4,5] [--origin "…"] [--markers "0:Hook,2.5:Logo"] [--author creator] [--date file|ISO]
+  publish <project> <file…> [--note "…"] [--resolves 4,5] [--origin "…"] [--markers "0:Hook,2.5:Logo"] [--author creator --their-words "…"] [--date file|ISO]
       Quality lock: an AI's video needs its review (production/tools/review.py --stage N) with "What I saw" written,
       the "Visual floor" resolved, its stage's lock and the independent reviewer's score (the reel-reviewer agent),
       every axis at 8 or more. --dry-run only says whether it passes. Only with what the person said:
@@ -409,7 +409,10 @@ Timeline (video editor): montage/projects/<id>/timeline.json. Times in seconds, 
     // Quality lock (the creator, Nov 17, 2026: "super strict… going through the steps and following the plugin… scoring
     // every version… an independent reviewer"). shared/review.js says what's missing; only the person decides to skip it.
     const byAI = !op.author || op.author === 'claude';
+    // --author is for a video the person made (their own export): without their words, the lock isn't skipped
+    if (!byAI && !op['their-words']) fail(`--author ${op.author} is for a video the person made: add --their-words "<what they said in the chat>". If the AI made it, publish it without --author (it goes through the lock).`);
     let note = op.note || '';
+    if (!byAI) note = `${note}${note ? ' · ' : ''}(made by ${op.author}: ${op['their-words']})`;
     let stage = null;
     let rating = null;
     if (byAI && op['skip-review']) note = `${note}${note ? ' · ' : ''}(published without review, the person decided: ${op['skip-review']})`;

@@ -23,12 +23,12 @@ The reference shape is `brands/example/`. A new brand copies that shape, and no 
 - **Nothing is written while you are talking it through.** The draft is shown in the chat, with the changes marked, and it is written with the creator's yes.
 - **Every change carries a date and a reason**, in the "History" section at the end of the file that changes. That way everyone knows where each rule came from.
 - **Secrets never go in the repo or in the chat:** tokens, keys and passwords. The creator saves them in their own terminal with `python3 production/tools/save_token.py` (macOS Keychain, Windows Credential Manager or secret-tool on Linux). Claude does not write them. If the person pastes one in the chat, tell them to replace it with a new one.
-- The real niche is not the generic category. You find it in the product and in the people. For example: "people who don't know where their money goes and live out of Nequi (a Colombian digital wallet)", not "financial education".
+- The real niche is not the generic category. You find it in the product and in the people. For example: "people who don't know where their money goes and pay for everything from a phone wallet", not "financial education".
 
 ## 0. What they want to do (AskUserQuestion, with options)
 
 The question: "What do you want to do with your brand?". Each option says what it gets them, in one sentence. Everything here is free. If the person has no brand yet, option 1 goes first with "(Recommended)".
-1. **New brand or project:** so the system knows what your brand talks about and who it talks to, starting from your product or your website.
+1. **New brand or project:** so the system knows what your brand talks about and who it talks to, starting from what you tell me, your product or your website.
 2. **New topic or line inside a brand**, for example a sub-topic of Example: to add a topic without changing what already works.
 3. **Change what a brand talks about:** to adjust the niche, the tone, the wheel or what is never said.
 4. **Social accounts:** to change the bio, the highlights or the series. Connecting a network to publish is `/creator-connect`, free.
@@ -43,7 +43,10 @@ Before: "I'll ask you a few questions to understand your brand. Then I read your
 
 **First round, in the chat** (they have no options):
 - **Name:** "What is your brand called? I'll use it to create its folder." The folder is `brands/<id>`, lowercase with hyphens.
-- **Where the product lives:** "Send me the folder or the GitHub link of your product. I'll read what it does today from there, so you don't have to explain it." Its local path (for example `~/projects/<repo>`) or its link. If there is no repo, its website or a document.
+- **What it's about:** "Tell me about your product in whatever way is easiest for you." Three paths, the easiest first:
+  - **Tell me in a sentence or two:** for example, "I sell specialty coffee online". That's enough to start; whatever is missing gets asked in the chat.
+  - **The folder or the GitHub link of your product:** "I'll read what it does today from there, so you don't have to explain it." Its local path (for example `~/projects/<repo>`) or its link.
+  - **Its website or a document:** the link or the file.
 
 **Second round, a single AskUserQuestion call:**
 - **What it is** (an app, a service, a person or personal brand, a business): "so I know where to look for who it talks to".
@@ -61,11 +64,19 @@ Before: "Now I read your product and look up what your people are talking about 
    - the visual identity: logos, colors and fonts.
 
    From there come who it is for, what it does today, what it does not do and how it feels.
+
+   **If they told you in the chat** (no repo, website or document), these come from what they said. Ask for whatever is missing in the chat, up to 3 short questions and one per message: who it is for, what it sells today and what makes it different. Colors and fonts are proposed in the draft.
 2. **From the niche**, with `last30days`: 2 or 3 searches on the pains and topics of those people, in their language and their country. You are looking for two things:
    - what those people talk about and share today;
    - which accounts already cover it and how.
 
-   Without the ScrapeCreators key, it searches YouTube, Reddit and the web, and you say so in one line: "Without your ScrapeCreators key I can't see TikTok or Instagram. It's free; if you want, I'll help you add it at the end." The steps are in the `creator-ideas` skill, "Set up".
+   Without the ScrapeCreators key, it searches YouTube, Reddit and the web, and you say so in one line: "Without your ScrapeCreators key I can't see TikTok or Instagram. It's free (100 credits when you sign up); if you want, I'll help you add it at the end." The steps are in the `creator-ideas` skill, "Set up".
+
+   **Without last30days** (the person didn't turn it on in `/creator-start`, or it doesn't respond), validate the niche anyway, with two things:
+   - **what the person knows**, in 2 questions in the chat: "What do your customers ask you or tell you the most?" and "Which accounts do your people follow?";
+   - **a plain web search** (WebSearch): 2 or 3 searches on those pains, in their language and their country, with the source and its date.
+
+   And say so in one line: "I don't have last30days, the one that sees what your niche is sharing this month. I validated it with what you told me and a web search: it's enough to start, though it sees less."
 3. **From the accounts**, if they are already connected: `python3 production/tools/instagram.py reels <brand> 10`.
 
 ### A3. Draft in the chat
@@ -91,6 +102,8 @@ Before: "With your yes, I create the brand's folder and add it to Montage, the e
    - the social view component in `montage/web/src/components/` (the `ACCOUNTS` map: brand → Instagram username).
 
    Then: `cd montage && npm run build && npm test`.
+
+   **If Montage isn't installed** (there is no `montage/node_modules`), change the two files anyway and don't run `npm`. Say it in one line: "Montage, the editor where you review your videos, isn't installed on this computer; your brand will show up there when you install it with `/creator-install-montage`." Its installer builds the interface with the new brand.
 4. **`MAP.md`:** add the brand to the map, in one line.
 5. **The networks** are connected with `/creator-connect`, free, which walks through each step by the hand. Offer it in the close and do not start it without their yes. For Instagram, in short:
    - The creator saves the token in their own terminal: `python3 production/tools/save_token.py <id>`;
@@ -115,7 +128,7 @@ Before: "With your yes, I create the brand's folder and add it to Montage, the e
    - its role in the wheel (shareable, useful, connection or product): "to know what it asks of whoever sees it: share it, save it, get to know you or try the product";
    - how often it comes out and whether it is a named series: "series give people a reason to follow the account";
    - its color or tag (like Example's green and black): "so it is recognized at a glance".
-2. **Does it have traction?** `last30days` with 2 searches on the topic within the niche. Say in one line whether people are sharing it or whether it is a topic only the brand cares about, with the source and its date.
+2. **Does it have traction?** `last30days` with 2 searches on the topic within the niche (without last30days, the web search and what the person knows, as in A2, and say so). Say in one line whether people are sharing it or whether it is a topic only the brand cares about, with the source and its date.
 3. **If the audience does not overlap with the brand's,** say so. The rule in Example's `PROFILE.md` applies to every brand: when a line grows with a different audience, it gets its own account.
 4. **Draft of the changes** in the chat, marked as before and after:
    - in `NICHE.md`: the topic and its place in the wheel;
@@ -132,7 +145,7 @@ Before: "With your yes, I create the brand's folder and add it to Montage, the e
    - **The tone and what is never said:** so it sounds different, or to protect what is off limits.
    - **How much of each kind of piece:** the weights of the wheel (shareable, useful, connection, product).
    - **What the product already does:** because the repo moved forward. Read its `PRODUCT.md` and its phases again.
-3. If the change is big, validate it with `last30days` before proposing it. Before: "I'll check whether people really talk about this (a few minutes)."
+3. If the change is big, validate it with `last30days` before proposing it (without last30days, the web search and what the person knows, as in A2, and say so). Before: "I'll check whether people really talk about this (a few minutes)."
 4. **The change in the chat**, marked as before and after, with "Shall I save it like this? Write 'yes' or tell me what to change." With the yes, write it with a date and a reason in the "History", and say: "Done: it is in `brands/<brand>/NICHE.md`."
 5. Point out what is affected:
    - the ideas in `ideas/` that no longer fit (list them, do not delete them);

@@ -21,11 +21,30 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
 
 
+def project_of(P):
+    """The piece's Montage project: the one its STATUS.md names, or <brand>-reel-<name> while it hasn't been created."""
+    m = re.search(r"Montage project:\s*`([^`]+)`", (P / "STATUS.md").read_text(encoding="utf-8"))
+    if m:
+        return m.group(1)
+    name = P.name.split("-", 3)[-1] if P.name[:4].isdigit() else P.name
+    return f"{P.parent.parent.name}-reel-{name}"
+
+
 def piece_of(video):
-    """The piece's folder: the first one upwards that has STATUS.md."""
-    for parent in Path(video).resolve().parents:
+    """The piece's folder: the first one upwards that has STATUS.md. Variations live in
+    brands/<brand>/finals/<project>/variations/: their piece is the one with that Montage project."""
+    v = Path(video).resolve()
+    for parent in v.parents:
         if (parent / "STATUS.md").exists():
             return parent
+    try:
+        parts = v.relative_to(REPO).parts
+    except ValueError:
+        return None
+    if len(parts) > 4 and parts[0] == "brands" and parts[2] == "finals":
+        for status in sorted((REPO / "brands" / parts[1] / "pieces").glob("*/STATUS.md")):
+            if project_of(status.parent) == parts[3]:
+                return status.parent
     return None
 
 
@@ -91,10 +110,9 @@ def faces_clear(P, video, N):
 def final_folder(P, video, N):
     parts = P.relative_to(REPO).parts
     brand = parts[1] if parts[0] == "brands" else None
-    pub = _newest(REPO / "brands" / str(brand) / "finals", "*/PUBLISH.md") if brand else None
-    if not pub:
-        return False, "the final folder is missing: brands/<brand>/finals/<project>/ with the video, copy.txt, suggested-cover.jpg and PUBLISH.md"
-    d = pub.parent
+    d = REPO / "brands" / str(brand) / "finals" / project_of(P)  # this piece's, not the brand's newest
+    if not brand or not (d / "PUBLISH.md").exists():
+        return False, f"this piece's final folder is missing: {_rel(d)}/ with the video, copy.txt, suggested-cover.jpg and PUBLISH.md"
     missing = [x for x in ("copy.txt", "suggested-cover.jpg") if not (d / x).exists()] + ([] if list(d.glob("*.mp4")) else ["the video"])
     if missing:
         return False, f"{_rel(d)}: missing {', '.join(missing)}"
@@ -105,12 +123,24 @@ def final_folder(P, video, N):
 
 
 def variations_approved(P, video, N):
+    if video and "drafts" in Path(video).parts:
+        return True, "draft: shown to get the plan approved"
     v = P / "variations.json"
     if not v.exists():
         return False, "variations.json with the plan is missing"
     if not json.loads(v.read_text(encoding="utf-8")).get("plan_approved"):
-        return False, "the variations plan isn't approved (plan_approved) by the person"
+        return False, f"the variations plan isn't approved by the person: stage.py {_rel(P)} variations-plan \"their words\""
     return True, _rel(v)
+
+
+def quote_approved(P, video, N):
+    """Stage 8: no Higgsfield (or any other paid tool) without a quote the person approved in their own words."""
+    sec = section_of((P / "STATUS.md").read_text(encoding="utf-8"), "Higgsfield quotes") or ""
+    done = [l.strip() for l in sec.split("\n") if l.strip().startswith("- ") and 'approved: "' in l]
+    if not done:
+        return False, (f"there's no approved quote in {_rel(P / 'STATUS.md')}: stage.py {_rel(P)} quote \"what, with what and how many "
+                       f"credits\" \"their words\" (if the retouch is free, say so: 0 credits)")
+    return True, done[-1][:160]
 
 
 # ---------------------------------------------------------------- the stages
@@ -133,7 +163,7 @@ STAGES = {
         "axes": ["hook (0 to 3 s)", "constant stimulus (something every 0.5 to 1 s)", "it's understood without knowing the tool", "visual before text, and the text can be read",
                  "one world: the identity from start to end", "the person: looks at the lens and nothing covers their face"]},
     8: {"name": "AI and retouching", "skills": ["Higgsfield (only with an approved quote)", "quote.py"],
-        "lock": [],
+        "lock": [("the quote approved by the person before generating", quote_approved)],
         "axes": ["it looks real, not \"made with AI\"", "consistent with the person and the place"]},
     9: {"name": "Sound", "skills": ["sound_study.py (the niche)", "effects.py (real-sfx)", "SOUNDS.md", "listen.py"],
         "lock": [("effects.py review on the final mix, with no covered words", effects_reviewed),

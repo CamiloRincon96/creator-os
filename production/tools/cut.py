@@ -1,7 +1,7 @@
 """Stage 3: builds the voice cut so the creator can hear it before anything is animated.
 Usage: python3 production/tools/cut.py <piece>
 
-By default it edits the way that was approved on "Tres semanas" (16 Nov 2026), unless cut.json or the brand say otherwise:
+By default it edits the way that was approved on the first "glass" reel (16 Nov 2026), unless cut.json or the brand say otherwise:
   - Silero VAD decides what is voice; each segment is trimmed to it and stretched over the "s" at the edges;
   - YouTube jump cuts: 0.12 s of air between sentences, no breaths or silences;
   - even pace: what was said slowly ("sung") is sped up to 5.8 syllables per second, capped at 1.2x;
@@ -121,7 +121,7 @@ def gaps_without_voice(take, a, b):
     high_floor = np.percentile(high, 10)  # the noise of that band in this segment
     sharp[:] = (high > high_floor + 12) & (cen > 2500)  # an "s", "f" or "sh": high-pitched and above the noise
     # voice is what has some pitch, what is sharp (consonants) or what is loud. Conservative on purpose: with echo, a
-    # soft vowel has little pitch (on "Tres semanas" the first attempt ate the "s" of "salió" and the "Se" of "Se llama")
+    # soft vowel has little pitch (on the first "glass" reel the first attempt ate the soft first sound of two Spanish words)
     pitched[:] = ((per > 0.3) & (lvs > noise + 8)) | sharp | (lvs > noise + 20)
 
     def flip(v, value, minimum):  # runs of `value` shorter than `minimum` frames become the opposite

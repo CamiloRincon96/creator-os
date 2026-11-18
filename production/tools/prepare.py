@@ -82,7 +82,7 @@ for n, src in enumerate(sources, 1):
 
     # a long silence (more than 0.7 s) also splits the phrase, even if the transcriber put no punctuation.
     # It is measured in the audio, not in the word times: the transcriber stretches a word over the pause.
-    # In "Tres semanas" (16 Nov 2026) one phrase carried 19 s of silence inside and the cut would have kept it.
+    # On the first "glass" reel (16 Nov 2026) one phrase carried 19 s of silence inside and the cut would have kept it.
     def longest_silence(wa, wb):
         best = run = 0.0
         frm = max(wa["start"] + 0.05, wa["end"] - 0.25)  # a stretched word's sound sits at the end of its span

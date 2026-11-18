@@ -96,21 +96,21 @@ The music levels, the sonic hook and what gets delivered are in `production/LESS
 
 | Tool | What for | Cost |
 |---|---|---|
-| Claude Code | Runs the workflow | Already paid for |
-| Remotion | Animation, captions and editing | Free for up to 3 people |
-| After Effects | Color, framing and one-off effects | Already paid for |
-| Montage | Reviewing and approving each stage | Our own |
+| Claude Code | Runs the workflow | Paid: the Pro plan costs US$20 a month (US$17 a month billed yearly); the free plan doesn't include Claude Code |
+| Remotion | Animation, captions and editing | Free for individuals and companies of up to 3 people; a bigger company needs a paid company license (from US$25 a month per seat) |
+| After Effects | Color, framing and one-off effects | Paid, optional: about US$23 a month on its own (US$22.99, annual plan paid monthly). Without it, color is done for free with ffmpeg |
+| Montage | Reviewing and approving each stage | Free, it comes in the repo |
 | ffmpeg, local Whisper, rnnoise | Cuts, transcription and voice cleanup | Free |
 | `real-sfx`, `openverse-audio` and Openverse | CC0-licensed effects and music | Free |
-| Higgsfield | Light, clothes, angles and retouch of the person (stage 8, optional) | Plus plan, by credits; always with a quote |
-| Codex (ChatGPT app) | Reference photos; driving CapCut through the screen | The creator's ChatGPT subscription |
-| ElevenLabs | Brand voice, isolating the voice from noise | Paid, by credits |
+| Higgsfield | Light, clothes, angles and retouch of the person (stage 8, optional) | Paid, by credits: according to Higgsfield, plans start at US$15 to US$19 a month (200 to 270 credits, by country); always with a quote |
+| Codex (ChatGPT app) | Reference photos; driving CapCut through the screen | Paid: it uses your ChatGPT plan. Free and Go (US$8 a month) come with limited Codex; Plus costs US$20 a month |
+| ElevenLabs | Brand voice, isolating the voice from noise | Free plan with about 10 minutes a month and no commercial license; paid from US$6 a month (Starter, about 30 minutes) |
 | Adobe Podcast (Enhance) | Improving the voice; Claude drives it from Chrome | Free for about 1 hour a day; Premium about 10 dollars a month. No programmatic access |
-| CapCut | Face retouch | The creator has the paid version |
+| CapCut | Face retouch | Paid: CapCut Pro, about US$20 a month (US$19.99, or US$179.99 a year; it varies by country) |
 | Descript | Cutting by editing the text | Very limited free tier; from about 16 dollars a month |
 | Submagic | Animated captions | Paid, with a 7-day trial |
 
-The prices come from third-party 2026 reviews and don't agree with each other: confirm on each one's page before paying. Descript and Submagic aren't needed: what they do is already covered by the workflow.
+Prices are in US dollars (checked 17 Nov 2026) and change by country and over time: confirm on each one's page before paying. Descript's and Submagic's come from third-party 2026 reviews that don't agree with each other. Descript and Submagic aren't needed: what they do is already covered by the workflow.
 
 ## Stage 8: AI and retouch, always with a quote
 
@@ -148,7 +148,7 @@ In both, the new shot is generated: check that lips and face stay the same.
 
 ## Face retouch: CapCut
 
-Decided by the creator (Nov 13, 2026): visual retouches are done in CapCut, which they have in the paid version. CapCut has no official programmatic interface; community projects only write drafts, don't touch the retouch and leave the export to be done by hand. It's driven through the screen, in one of three ways:
+Decided by the creator (Nov 13, 2026): visual retouches are done in CapCut, with CapCut Pro (paid, about US$20 a month). CapCut has no official programmatic interface; community projects only write drafts, don't touch the retouch and leave the export to be done by hand. It's driven through the screen, in one of three ways:
 
 1. **Claude with computer use** (what the creator prefers). It's done by a session of the Claude desktop app, opened on this repo in the code tab, with Computer use turned on (Settings → This computer; it's off by default). VS Code has no computer use, but the VS Code session can hand the task to the desktop app session, which shows up as another session on this computer, and check the files it leaves. What's needed only once: turn on Computer use in the app and give CapCut permission when it asks.
 2. **Codex with its computer use.** Codex is installed with the ChatGPT app and has computer use and image generation turned on. Claude hands it the task in writing with `production/tools/codex.py` and reads its reply. The first time, with the creator watching.

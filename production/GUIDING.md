@@ -40,7 +40,7 @@ For example: "Done: your voice is in [cut-v2.mp4](brands/example/pieces/2026-11-
 2. **Each option, in one or two short sentences**, always in this order:
    - **What it's for:** what the person gains, in their words ("so your voice sounds clean").
    - **Where it's used:** in which part of the work ("when preparing the reel's voice").
-   - **What it costs:** "Free", or "Paid:" with what gets paid (subscription, credits, limited free plan). Anything paid is always quoted and waits for their yes before spending.
+   - **What it costs:** "Free", or "Paid:" with what gets paid (subscription, credits, limited free plan) and roughly how much a month, in US dollars. Anything paid is always quoted and waits for their yes before spending.
 3. **If saying no takes something away, say it on the same line** ("without this, …"). If it takes nothing away, don't say it.
 4. **Up to 4 options per question and up to 4 questions at a time** (AskUserQuestion). If there are more options, group them by what they're for (posting, ideas, voice, picture): one question per group, all in a single call.
 5. **The recommended one goes first**, with "(Recommended)".
@@ -52,7 +52,9 @@ Example:
 > **What do you want to use to improve your voice?**
 > - **Only what's in the repo (Recommended):** to clean up your voice on your computer, without uploading it anywhere. Used when preparing the reel's voice. Free.
 > - **Adobe Podcast:** so your voice sounds studio-quality in one click. Used when preparing the voice. Free with an Adobe account (about 1 hour of audio a day).
-> - **ElevenLabs:** to clean up your voice or create a voice for your brand. Used when preparing the voice. Paid: it has a free plan with a few minutes a month; every use is announced first.
+> - **ElevenLabs:** to clean up your voice or create a voice for your brand. Used when preparing the voice. Paid: the free plan gives about 10 minutes a month, with no commercial license; the cheapest, Starter, costs US$6 a month (about 30 minutes). Every use is announced first.
+
+The prices below are in US dollars (checked 17 Nov 2026). They change by country and over time: confirm them on each one's page before paying.
 
 ## Post and measure (all free, with /creator-connect)
 
@@ -67,7 +69,7 @@ Example:
 
 | Option | Text |
 |---|---|
-| last30days | To see what your niche is sharing this month on TikTok, Instagram, YouTube and Reddit. Used when looking for ideas (`/creator-ideas`). Free; for TikTok and Instagram it needs a ScrapeCreators key, with 10,000 free requests. |
+| last30days | To see what your niche is sharing this month on TikTok, Instagram, YouTube and Reddit. Used when looking for ideas (`/creator-ideas`). Free. For TikTok and Instagram it needs a ScrapeCreators key: 100 free credits when you sign up, no card, and up to 1,200 more you can claim from its dashboard. Each search spends some, and what you have left shows in that dashboard. After that, paid: from US$47 for 25,000 credits, which never expire. |
 | instagram-agent | To write hooks, scripts and copy that sound like you. Used in the script and when posting. Free. |
 | marketingskills | For strategy: why people share and which format goes on each network. Used when planning the week. Free. |
 
@@ -77,19 +79,19 @@ Example:
 |---|---|
 | Only what's in the repo | To clean up your voice on your computer, without uploading it anywhere. Used when preparing the reel's voice. Free. |
 | Adobe Podcast | So your voice sounds studio-quality in one click. Used when preparing the voice. Free with an Adobe account (about 1 hour of audio a day). |
-| ElevenLabs | To clean up your voice or create a voice for your brand. Used when preparing the voice. Paid: it has a free plan with a few minutes a month; every use is announced first. |
-| CapCut (enhance voice) | To clean up the voice with CapCut's tool. You do it in CapCut. Paid: CapCut Pro plan. |
+| ElevenLabs | To clean up your voice or create a voice for your brand. Used when preparing the voice. Paid: the free plan gives about 10 minutes a month, with no commercial license; the cheapest, Starter, costs US$6 a month (about 30 minutes). Every use is announced first. |
+| CapCut (enhance voice) | To clean up the voice with CapCut's tool. You do it in CapCut. Paid: CapCut Pro, about US$20 a month (US$19.99, or US$179.99 a year; it varies by country). |
 
 ## Picture and animation
 
 | Option | Text |
 |---|---|
 | HyperFrames | To have hundreds of ready-made animations and transitions, and the sound effects placed on their frame. Used when animating the video. Free. |
-| Remotion skills | So the AI animates your videos better. Used when animating. Free. |
-| After Effects | For the color of your takes and effects that don't come out well in code (text behind you, glows). Used when fixing the picture. Paid: you need your Adobe subscription. Without it, color is done for free with ffmpeg. |
-| Higgsfield | To change your clothes, the light or the angle of the video with AI. Used only in the video you ask for. Paid, by credits: you're always shown the price and your yes is awaited before spending. |
-| Codex | To create reference photos (other clothes, other light) with your ChatGPT account. Used before Higgsfield. Paid: it uses your ChatGPT plan. |
-| CapCut (retouch) | For face retouching with your saved adjustment. Used at the end of the picture. Paid: CapCut Pro plan. |
+| Remotion skills | So the AI animates your videos better. Used when animating. Free: Remotion, the one that animates in code, is free for individuals and companies of up to 3 people. A bigger company pays for its license, from US$25 a month per seat (remotion.dev/license). |
+| After Effects | For the color of your takes and effects that don't come out well in code (text behind you, glows). Used when fixing the picture. Paid: After Effects on its own costs about US$23 a month (US$22.99, on the annual plan paid monthly). Without it, color is done for free with ffmpeg. |
+| Higgsfield | To change your clothes, the light or the angle of the video with AI. Used only in the video you ask for. Paid, by credits: according to Higgsfield, the cheapest plan costs US$15 to US$19 a month (200 to 270 credits) and it varies by country; today's price is at higgsfield.ai/pricing. You're always shown the exact price and your yes is awaited before spending. |
+| Codex | To create reference photos (other clothes, other light) with your ChatGPT account. Used before Higgsfield. Paid: it uses your ChatGPT plan. Free and Go (US$8 a month) come with limited Codex; Plus costs US$20 a month. |
+| CapCut (retouch) | For face retouching with your saved adjustment. Used at the end of the picture. Paid: CapCut Pro, about US$20 a month (US$19.99, or US$179.99 a year; it varies by country). |
 | None of these | The video is made with what comes in the repo. Free. |
 
 ## What the computer is missing
@@ -114,9 +116,9 @@ To ask permission to install, the options are:
 | Option | Text |
 |---|---|
 | No AI on the person (Recommended) | Your video as you recorded it, with color and framing. Free. |
-| Reference photo | A photo of you with other clothes or light, to decide before paying for anything. With Codex: it uses your ChatGPT plan. |
-| Light, clothes or angle with AI | Changed in the video with Higgsfield. Paid, by credits: I show you the exact price first. |
-| Face retouching | With your CapCut adjustment. Paid: CapCut Pro plan. |
+| Reference photo | A photo of you with other clothes or light, to decide before paying for anything. With Codex: it uses your ChatGPT plan (Free gives a little; Plus, US$20 a month). |
+| Light, clothes or angle with AI | Changed in the video with Higgsfield. Paid, by credits (plans from about US$15 to US$19 a month): I show you the exact price first. |
+| Face retouching | With your CapCut adjustment. Paid: CapCut Pro, about US$20 a month. |
 
 ## Ideas (creator-ideas)
 

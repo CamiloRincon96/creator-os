@@ -108,9 +108,9 @@ With the creator's yes to the drafts, they're rendered at final quality (12b, wi
 
 These are the example brand's; each brand sets its own in `brands/<brand>/BRAND.md`.
 
-- Colombian Spanish, informal «tú», warm and direct. Like a friend who knows about money would talk to you, not a bank.
+- The brand's language, the way people speak it in its country (both in its `NICHE.md` and `PROFILE.md`), warm and direct. Like a friend who knows the topic would talk to you, not a company.
 - No hype: no "incredible", "secret", "nobody tells you", "revolutionary", and no fake urgency.
-- Figures are believable examples in Colombian pesos and match the app.
+- Figures are believable examples in the currency of the brand's country (from its `NICHE.md` and `PROFILE.md`) and match the product.
 - What's promised exists, or the creator approved it for that piece (`brands/<brand>/BRAND.md`).
 - The AI the app uses is never named.
 - 2-line copy, with no hashtags and no em dashes.

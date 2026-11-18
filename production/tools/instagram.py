@@ -306,6 +306,7 @@ def main():
             except Exception as e:  # noqa: BLE001
                 p.update({"status": "error", "error": str(e)[:800]})
                 log(f"{p['id']}: ERROR {e}")
+                notify(f"{p['id']} didn't go out ({d.get('project', 'the batch')})", f"Instagram said: {str(e)[:150]}. Open it with your AI: instagram.py results")
             save(arg, d)
         d = load(arg)
         d.pop("process", None)

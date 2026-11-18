@@ -39,6 +39,7 @@ WATCHED = ["AGENTS.md", "CLAUDE.md", "WORKFLOW.md", "MAP.md", "production/*.md",
            "brands/*/BRAND.md", "brands/*/NICHE.md", "brands/*/PROFILE.md", "brands/*/OWN-STYLE.md", "brands/*/pieces/*/STATUS.md"]
 WHERE_A_TASTE_GOES = ["production/LESSONS.md", "brands/*/BRAND.md", "brands/*/OWN-STYLE.md", "montage/projects/*/context.md",
                       "production/SOUNDS.md", "production/REELS-QUALITY.md"]
+HELPERS = ("[Subagent hand-back]", "<agent-message", "<task-notification>")  # messages that aren't from the person
 REJECTION = re.compile(
     # English
     r"\b(i (dont|do not|didnt) like|dont like (it|this|that)|(cant|cannot|can not) (hear|read|understand|see)|cant be heard|"
@@ -137,6 +138,8 @@ def start(data, st):
 # ---------------------------------------------------------------- when the person writes
 def message(data, st):
     text = data.get("prompt") or ""
+    if any(m in text for m in HELPERS):  # a subagent's report or a system notice: the person didn't write it
+        return
     t = normal(text)
     if REJECTION.search(t):
         kind = "rejects or corrects something"

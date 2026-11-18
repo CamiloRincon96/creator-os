@@ -17,6 +17,12 @@ Then type `/creator-os:start`. It asks where to put the folder, clones the repo 
 
 It suggests `~/creator-os`: on Windows that's `C:\Users\<you>\creator-os`, outside OneDrive. To open Claude Code there later on Windows, in PowerShell or Windows Terminal: `cd "C:\Users\<you>\creator-os"`, then `claude`. On macOS and Linux: `cd ~/creator-os && claude`.
 
+## 0. Your AI app
+
+Creator OS runs inside an AI app that can run commands on your computer.
+- **Claude Code (recommended)** needs a paid Claude plan: Pro is US$20 a month, or US$17 a month billed yearly. The free Claude plan doesn't include Claude Code. Plans: https://claude.com/pricing (checked on 17 Nov 2026).
+- **Other AI apps** (Codex CLI, Gemini CLI…) read the same instructions (`AGENTS.md`, `GEMINI.md`) and the skills. They work without the Creator OS plugin, without the automatic checks (the ones that won't let a turn end with a video left unreviewed) and without the independent reviewer that scores each version.
+
 ## 1. What's required
 
 It works the same on **macOS, Windows 10/11 and Linux**. Every change to the repo is tested on all three automatically (see "Tests" below).
@@ -25,9 +31,10 @@ It works the same on **macOS, Windows 10/11 and Linux**. Every change to the rep
 |---|---|---|---|---|
 | An agent that runs commands | So the AI can work on your files | Claude Code (recommended), Codex CLI, Gemini CLI, Grok CLI… | Claude Code (it brings what it needs: Git for Windows) | same as macOS |
 | **git** | To download the repo and its updates | `xcode-select --install` | `winget install --id Git.Git -e` | `sudo apt install git` |
-| **Node.js 22.12+** | So Montage (the editor where you review the videos) and the animations (Remotion) run | `brew install node` | `winget install --id OpenJS.NodeJS.LTS -e` | nvm or `sudo apt install nodejs` |
+| **Homebrew** (macOS only) | To install the programs below on a Mac | `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`, in the Terminal app (it asks for your password). Then paste the "Next steps" lines it shows (on Apple silicon, the one that adds `eval "$(/opt/homebrew/bin/brew shellenv)"` to `~/.zprofile`) and close and reopen Claude Code | winget comes with Windows | your package manager (`apt`) |
+| **Node.js 22.12+** | So Montage (the editor where you review the videos) and the animations (Remotion) run | `brew install node` | `winget install --id OpenJS.NodeJS.LTS -e` | nvm (https://github.com/nvm-sh/nvm), then `nvm install 22`: the apt `nodejs` is too old |
 | **Python 3.10+** | For the tools that cut, clean up and measure your voice, plus the variations and metrics ones | `brew install python` | `winget install --id Python.Python.3.12 -e` | `sudo apt install python3 python3-venv` |
-| **ffmpeg** | To read, cut, mix and measure the videos and the audio | `brew install ffmpeg` | `winget install --id Gyan.FFmpeg -e` | `sudo apt install ffmpeg` |
+| **ffmpeg 7+** | To read, cut, mix and measure the videos and the audio | `brew install ffmpeg` | `winget install --id Gyan.FFmpeg -e` | `sudo apt install ffmpeg`; exporting from Montage needs 7 or newer and the apt one on Ubuntu 22.04 and 24.04 is older: a static ffmpeg (johnvansickle.com/ffmpeg) and the `FFMPEG` variable with its path |
 | Google Chrome (optional) | To open Montage as an app with its own window; Remotion uses it if it's there (if not, it downloads its own browser) | `brew install --cask google-chrome` | `winget install --id Google.Chrome -e` (without Chrome, Montage opens in Edge) | google.com/chrome |
 | ~6 GB free | Whisper, the one that turns your voice into text on your computer (2.9 GB), and the renders | | | |
 
@@ -38,7 +45,7 @@ Then: **`python3 production/install.py`** (on Windows, `python production/instal
 - **`python` instead of `python3`.** Wherever the docs say `python3`, type `python` (or `py`). On Windows, `python3` often opens the Microsoft Store.
 - **After installing with winget, close and reopen the terminal and Claude Code.** The window that was already open doesn't see the new programs. If Windows asks for permission in a pop-up, you accept it.
 - **Keep the repo out of OneDrive.** Your user folder (`C:\Users\<you>\creator-os`) is better than the Desktop or Documents if those are synced: OneDrive locks files while it syncs and would upload gigabytes of dependencies.
-- **Save tokens and keys in PowerShell or Windows Terminal,** not in Git Bash (it can't take a hidden paste). They go in the Windows Credential Manager.
+- **Save tokens and keys in PowerShell or Windows Terminal,** not in Git Bash (it can't take a hidden paste). They go in the Windows Credential Manager. The exception is the ScrapeCreators key: it goes in an unencrypted file in your user folder (`~/.config/last30days/.env`), because last30days doesn't read the Credential Manager.
 - **Montage** is a shortcut on the Desktop and in the Start menu. The metrics watcher is a Task Scheduler task.
 
 ### What changes from one system to another (the repo already handles it)
@@ -57,13 +64,16 @@ All of that lives in one file, `production/tools/system.py`.
 
 ## 3. What's optional (turn it on when you need it)
 
+It comes after your brand: every network and every key belongs to a brand. The plugins and MCP servers in this table are offered by Claude Code when you open the folder; accept the free plugins and say no to After Effects and Higgsfield unless you already pay for them.
+
 | What | What for | Cost | How |
 |---|---|---|---|
 | **Instagram via API** | To post your reels and trial reels at the time you choose, and see what worked. Used when each video is finished and every Monday in `/creator-pulse` | Free | `/creator-connect` walks you through it step by step: `production/INSTAGRAM.md` |
 | **Facebook (Page)** | To post the same reels on your Page; Facebook posts them on its own at the time you schedule. Used when each video is finished. Brings its metrics | Free | `/creator-connect`, after Instagram (it's the same app): `production/FACEBOOK.md` |
 | **YouTube** | To upload your videos as Shorts, public or scheduled, and see how much they're watched. Used when each video is finished | Free (up to 100 videos a day) | `/creator-connect`: `production/YOUTUBE.md` |
 | **TikTok** | To send the video to your TikTok drafts; you post it from your phone with the sound you want. Used when each video is finished. Brings its metrics | Free | `/creator-connect`: `production/TIKTOK.md` |
-| **last30days** (plugin) | To see what your niche is sharing this month on TikTok, Instagram, YouTube and Reddit. Used when looking for ideas (`/creator-ideas`) | Free; for TikTok and Instagram it needs a ScrapeCreators key, with 10,000 free requests | Declared in `.claude/settings.json`. You save the key yourself with `python3 production/tools/save_token.py --scrapecreators`; see the `creator-ideas` skill |
+| **A message to whoever comments** | Someone comments a word you choose ("link", "want") and gets your link in a private message, plus a public reply to their comment. Used to hand out a guide or a gift from any post | Free (Meta Business Suite; about 10 minutes). Paid tools such as ManyChat do more, on a monthly plan | `/creator-connect`, after Instagram: `production/MESSAGES.md` |
+| **last30days** (plugin) | To see what your niche is sharing this month on TikTok, Instagram, YouTube and Reddit. Used when looking for ideas (`/creator-ideas`) | Free. For TikTok and Instagram it needs a ScrapeCreators key: 100 free credits when you sign up, no card, and up to 1,200 more you can claim from its dashboard (one credit is one request for almost everything). After that, paid: from US$47 for 25,000 credits, which never expire | Declared in `.claude/settings.json`. You save the key yourself with `python3 production/tools/save_token.py --scrapecreators`; see the `creator-ideas` skill |
 | **marketingskills** (plugin) | For strategy: why people share and which format goes on each network. Used when planning the week | Free | Declared in `.claude/settings.json` |
 | **instagram-agent** (plugin) | To write hooks, scripts and copy that sound like you, plus your profile, stories and carousels. Used in the script and when posting | Free | Declared in `.claude/settings.json` |
 | **HyperFrames** (official plugin) | To have hundreds of ready-made animations and transitions (about 450 blocks), and the sound effects and music placed on their frame, with the mix (`media-use`). Used when animating the video | Free | `claude plugin install hyperframes@claude-plugins-official` |

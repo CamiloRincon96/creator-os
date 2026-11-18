@@ -47,6 +47,7 @@ import system
 system.prepare(args=2)
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -65,6 +66,25 @@ piece_name = P.name.split("-", 3)[-1] if P.name[:4].isdigit() else P.name
 project = f"{brand}-reel-{piece_name}"
 BRAND_DIR = P.parent.parent  # brands/<brand>
 FINAL = BRAND_DIR / "finals" / project
+
+
+def brand_timezone():
+    """The time zone of the approved times: "Time zone:" in the brand's PROFILE.md, or the computer's. Never a fixed one."""
+    profile = BRAND_DIR / "PROFILE.md"
+    if profile.exists():
+        m = re.search(r"Time zone:\**\s*`?([A-Za-z_]+(?:/[A-Za-z0-9_+-]+)+)", profile.read_text(encoding="utf-8"))
+        if m:
+            return m.group(1)
+    if "/" in os.environ.get("TZ", ""):
+        return os.environ["TZ"].lstrip(":")
+    real = os.path.realpath("/etc/localtime")
+    if "zoneinfo/" in real:
+        return real.split("zoneinfo/", 1)[1]
+    sys.exit(f"I don't know the brand's time zone: write it in {profile.relative_to(REPO)}, like this: \"**Time zone:** America/New_York\" "
+             "(the list: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)")
+
+
+ZONE = brand_timezone()
 base = FINAL / f"{piece_name}-no-music.mp4"
 if not base.exists():
     sys.exit(f"{base.relative_to(REPO)} is missing: the final version without music (picture, voice and effects) is the base of the variations")
@@ -139,7 +159,7 @@ if previous.exists() and not DRAFT:
     previous.replace(output / "batch.previous.json")
 tmp = target_dir / "_tmp"
 tmp.mkdir(exist_ok=True)
-batch = {"brand": brand, "project": project, "day": spec.get("day"), "timezone": "America/Bogota", "trial": spec.get("trial", True),
+batch = {"brand": brand, "project": project, "day": spec.get("day"), "timezone": ZONE, "trial": spec.get("trial", True),
          "graduation": spec.get("graduation", "MANUAL"), "approved": None, "posts": []}
 
 
@@ -331,4 +351,4 @@ if DRAFT:
     print(f"\ndrafts in {target_dir.relative_to(REPO)} (540p, no batch): to approve the plan")
 else:
     (output / "batch.json").write_text(json.dumps(batch, indent=1, ensure_ascii=False))
-    print(f"\nbatch: {(output / 'batch.json').relative_to(REPO)} (not approved: the creator approves it in the chat)")
+    print(f"\nbatch: {(output / 'batch.json').relative_to(REPO)} (not approved: the creator approves it in the chat). Times are in {ZONE}.")

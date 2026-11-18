@@ -153,6 +153,29 @@ YouTube doesn't use `save_token.py`: its `client_secret_….json` file is import
 3. **TikTok:** propose a first test with a short video. On the phone, the person checks whether, when posting the draft, they can choose "Everyone". If it only allows "Only me", write it down in `production/LESSONS.md`: it's the point TikTok's documentation doesn't confirm.
 4. If a page or a button was different from the guide, fix the guide (`production/<NETWORK>.md`) and the step's page in `connect.py` (its list of steps), with the date.
 
+## 6. Optional: a message to whoever comments
+
+With Instagram connected, offer it once, with AskUserQuestion: **"Do you want people who comment a word to get your link in a private message?"**
+
+| Option | `description` |
+|---|---|
+| Yes, in Business Suite (Recommended) | Someone comments "want" on any post and gets your link in a private message, plus a public reply to their comment. Free. About 10 minutes. |
+| Not now | It can be done later with `/creator-connect`. |
+| With a paid tool | The same, with multi-question flows and one per reel (ManyChat and similar). Paid, on a monthly plan: look up today's price and say it before they decide. |
+
+If they say yes, follow `production/MESSAGES.md`, one step per message, as in section 2:
+- **Before step 3, propose the texts and wait for their yes:**
+  - the private message: 2 or 3 lines, with their name and the full link;
+  - the public reply: one line;
+  - the words that trigger it, with variants.
+
+  Follow the brand's copy rules (`brands/<brand>/BRAND.md`).
+- **Step 7 (turning it on) happens with their yes in the chat:** it's a rule that keeps running on its own in their account.
+- **The browser:** if you have Claude in Chrome and they'd rather you click, do steps 2 to 6 in their Chrome, with their session open. They log in to their account, and you never type passwords. Step 1 is always theirs, on the phone.
+- **At the end:** run the step 8 test from another account. Write down in `brands/<brand>/PROFILE.md` what the automation hands out and with which words. Remind them it applies to every post, and that when the gift changes it has to be edited or turned off.
+
+**Replying to comments and messages:** Claude doesn't send them on its own. With the `instagram-agent:ig-reply`, `ig-comment` and `ig-dm` skills it writes drafts, and the person pastes and sends them.
+
 ## If something fails
 
 Each guide has its "If something fails" table with the common errors. If the error isn't there:
