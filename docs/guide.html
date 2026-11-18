@@ -201,7 +201,7 @@ p { margin: 0; text-wrap: pretty; }
 .cmd > span { white-space: nowrap; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .cmd > span::-webkit-scrollbar { display: none; }
 .cmd > span::before { content: "› "; color: var(--ice); }
-.cmd.msg > span { white-space: normal; font-family: var(--display); font-weight: 700; font-size: 15px; line-height: 1.45; overflow: visible; }
+.cmd.msg > span { white-space: normal; overflow-wrap: anywhere; font-family: var(--display); font-weight: 700; font-size: 15px; line-height: 1.45; overflow: visible; }
 .cmd.msg > span::before { content: none; }
 .cmd .lab { flex: none; font: 700 11px var(--display); color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 .cmd .lab::before { content: none; }
@@ -232,6 +232,47 @@ p { margin: 0; text-wrap: pretty; }
   .ph-head { grid-template-columns: 1fr; }
   .ph-num { grid-row: auto; font-size: 96px; }
 }
+
+/* ---------- the editor (Montage) ---------- */
+.mv { display: grid; grid-template-columns: 0.42fr 1fr; gap: 24px; align-items: center; }
+.mv-tabs { display: grid; gap: 12px; }
+.mv-tab { appearance: none; text-align: left; cursor: pointer; color: inherit; font: inherit; padding: 20px 22px; display: grid; gap: 6px; transition: border-color .3s, background .3s; }
+.mv-tab .t { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 18px; letter-spacing: -0.01em; }
+.mv-tab .t i { font: 800 13px var(--mono); font-style: normal; color: var(--muted); }
+.mv-tab p { color: var(--muted); font-size: 15px; }
+.mv-tab[aria-selected="true"] { border-color: rgb(var(--ice-rgb) / 0.45); background: radial-gradient(420px 200px at 0% 0%, rgb(var(--ice-rgb) / 0.1), transparent 70%), var(--glass); }
+.mv-tab[aria-selected="true"] .t i { color: var(--ice); }
+.mv-tab[aria-selected="true"] p { color: var(--soft); }
+.mv-tab .prog { height: 3px; border-radius: 3px; background: rgb(255 255 255 / 0.07); overflow: hidden; margin-top: 6px; }
+.mv-tab .prog i { display: block; height: 100%; background: var(--ice); transform-origin: left; transform: scaleX(0); }
+.mv-tab[aria-selected="true"] .prog i { animation: prog 7s linear forwards; }
+.mv.paused .mv-tab .prog i { animation: none; transform: scaleX(0); }
+@keyframes prog { to { transform: scaleX(1); } }
+.mv-frame { position: relative; border-radius: 20px; padding: 10px; background: linear-gradient(160deg, rgb(255 255 255 / 0.09), rgb(255 255 255 / 0.02)); border: 1px solid var(--line-2); box-shadow: var(--shadow), 0 60px 120px -50px rgb(0 0 0 / 0.9); }
+.mv-frame .vp { position: relative; aspect-ratio: 1600 / 1000; border-radius: 12px; overflow: hidden; background: #0b0d10; }
+.mv-frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.02); transition: opacity .6s ease, transform 1s cubic-bezier(.2,.8,.2,1); }
+.mv-frame img.on { opacity: 1; transform: none; }
+.mv-note { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--muted); font-size: 14px; }
+.mv-note b { color: var(--soft); }
+@media (max-width: 900px) { .mv { grid-template-columns: 1fr; } .mv-frame { order: -1; } }
+
+/* ---------- tools and costs ---------- */
+.tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.tcol { padding: 22px; display: grid; gap: 14px; align-content: start; }
+.tcol .tt { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; letter-spacing: -0.01em; }
+.tcol .tt::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--ice); flex: none; }
+.tcol.free .tt::before { background: var(--free); }
+.tcol.paid .tt::before { background: #ffb547; }
+.tcol .sub { color: var(--muted); font-size: 14px; margin-top: -8px; }
+.tool { display: grid; gap: 2px; padding: 12px 14px; border-radius: 14px; background: rgb(0 0 0 / 0.22); border: 1px solid var(--line-2); }
+.tool b { font-size: 15px; font-weight: 800; }
+.tool > span { color: var(--soft); font-size: 14px; line-height: 1.45; }
+.tool small { color: var(--muted); font-size: 12.5px; }
+.ears { margin-top: 18px; display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; padding: 22px 24px; }
+.ears p { color: var(--soft); }
+.ears b { color: #fff; }
+@media (max-width: 960px) { .tools { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .ears { grid-template-columns: 1fr; } }
 
 /* ---------- summary ---------- */
 .recap { padding: 26px; display: grid; gap: 18px; }
@@ -321,6 +362,8 @@ footer a { color: var(--soft); text-decoration: none; } footer a:hover { color: 
     <a class="logo" href="#top" aria-label="Creator OS by Dirac Core"><img src="logo-dark.png" alt="Dirac Core" width="1200" height="253"></a>
     <nav class="links" aria-label="Sections">
       <a href="#phases"><span class="en">Step by step</span><span class="es">Paso a paso</span></a>
+      <a href="#editor"><span class="en">The editor</span><span class="es">El editor</span></a>
+      <a href="#tools"><span class="en">Tools and costs</span><span class="es">Herramientas</span></a>
       <a href="#trust"><span class="en">Why trust it</span><span class="es">Por qué confiar</span></a>
       <a href="#faq"><span class="en">Questions</span><span class="es">Preguntas</span></a>
     </nav>
@@ -388,6 +431,66 @@ footer a { color: var(--soft); text-decoration: none; } footer a:hover { color: 
 </section>
 
 <div id="phase-wrap"></div>
+
+<!-- ============ THE EDITOR ============ -->
+<section class="sec" id="editor" aria-labelledby="m-h" style="padding-top:clamp(80px,10vw,120px)">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <h2 id="m-h"><span class="en">Your editor: <span class="hl">Montage</span></span><span class="es">Tu editor: <span class="hl">Montaje</span></span></h2>
+      <p class="lead"><span class="en">Every video the AI makes lands here as a new version. It runs on your computer, so nothing gets uploaded anywhere. You open it with <code>/creator-montage</code>. Free, it comes with Creator OS.</span><span class="es">Cada video que hace la IA llega aquí como una versión nueva. Corre en tu computador: no se sube nada a ningún lado. Lo abres con <code>/creator-montage</code>. Gratis, viene con Creator OS.</span></p>
+    </div>
+    <div class="mv rv" id="mv">
+      <div class="mv-tabs" role="tablist" aria-label="Montage">
+        <button type="button" class="glass mv-tab" role="tab" aria-selected="true" data-i="0"><span class="t"><i>01</i><span class="en">Point at the exact frame</span><span class="es">Señala el cuadro exacto</span></span><p><span class="en">Pause, draw a box or a circle over what you want changed and write your note. “Send to Claude” sends all your notes at once.</span><span class="es">Pausas, dibujas un recuadro o un círculo sobre lo que quieres cambiar y escribes la nota. «Enviar a Claude» manda todas tus notas de una vez.</span></p><span class="prog"><i></i></span></button>
+        <button type="button" class="glass mv-tab" role="tab" aria-selected="false" data-i="1"><span class="t"><i>02</i><span class="en">Get a new version</span><span class="es">Recibe otra versión</span></span><p><span class="en">The AI answers each note with its plan and brings the new version with the reviewer's score. You approve it or reopen it, and give it your stars.</span><span class="es">La IA responde cada nota con su plan y trae la versión nueva con la nota del revisor. Tú la apruebas o la reabres, y le pones tus estrellas.</span></p><span class="prog"><i></i></span></button>
+        <button type="button" class="glass mv-tab" role="tab" aria-selected="false" data-i="2"><span class="t"><i>03</i><span class="en">See it on every network</span><span class="es">Míralo en cada red</span></span><p><span class="en">Reels, TikTok, Shorts, Stories, the feed and your profile side by side, so you see what gets covered or cropped before posting.</span><span class="es">Reels, TikTok, Shorts, Historias, el feed y tu perfil lado a lado, para ver qué queda tapado o recortado antes de publicar.</span></p><span class="prog"><i></i></span></button>
+      </div>
+      <div class="mv-frame"><div class="vp">
+        <img class="on" data-k="0" src="montaje-es-1-nota.webp" data-en="montage-1-note.webp" data-es="montaje-es-1-nota.webp" alt="Montaje: una nota dibujada sobre el cuadro exacto del video" width="1600" height="1000" loading="lazy" decoding="async">
+        <img data-k="1" src="montaje-es-2-version.webp" data-en="montage-2-versions.webp" data-es="montaje-es-2-version.webp" alt="Montaje: la versión 2 con la nota del revisor, las estrellas y la respuesta de la IA" width="1600" height="1000" loading="lazy" decoding="async">
+        <img data-k="2" src="montaje-es-3-redes.webp" data-en="montage-3-social.webp" data-es="montaje-es-3-redes.webp" alt="Montaje: el reel dentro de Instagram, TikTok, YouTube y Facebook" width="1600" height="1000" loading="lazy" decoding="async">
+      </div></div>
+    </div>
+    <p class="mv-note rv"><span><b><span class="en">Works with the whole team:</span><span class="es">Sirve para todo el equipo:</span></b> <span class="en">every person signs their notes.</span><span class="es">cada persona firma sus notas.</span></span><span><b><span class="en">The final version:</span><span class="es">La versión final:</span></b> <span class="en">only you mark it.</span><span class="es">solo tú la marcas.</span></span></p>
+  </div>
+</section>
+
+<!-- ============ TOOLS AND COSTS ============ -->
+<section class="sec" id="tools" aria-labelledby="t-h" style="padding-top:clamp(80px,10vw,120px)">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <h2 id="t-h"><span class="en">What it uses, and <span class="hl">what it costs</span></span><span class="es">Qué usa, y <span class="hl">qué cuesta</span></span></h2>
+      <p class="lead"><span class="en">Creator OS is free. What's paid is optional, and it's never used without telling you the price and waiting for your yes.</span><span class="es">Creator OS es gratis. Lo que es de pago es opcional, y nunca se usa sin decirte el precio y esperar tu sí.</span></p>
+    </div>
+    <div class="tools">
+      <div class="glass tcol rv"><span class="tt"><span class="en">Included and free</span><span class="es">Incluido y gratis</span></span><span class="sub"><span class="en">It comes with Creator OS.</span><span class="es">Viene con Creator OS.</span></span>
+        <div class="tool"><b>Montaje</b><span><span class="en">Your review editor, on your computer.</span><span class="es">Tu editor de revisión, en tu computador.</span></span></div>
+        <div class="tool"><b>Whisper</b><span><span class="en">Turns your voice into text, word by word, without uploading it.</span><span class="es">Pasa tu voz a texto, palabra por palabra, sin subirla a ningún lado.</span></span></div>
+        <div class="tool"><b>Openverse</b><span><span class="en">Free sounds and music (CC0), each with its credit.</span><span class="es">Sonidos y música libres (CC0), cada uno con su crédito.</span></span></div>
+        <div class="tool"><b><span class="en">Real sound effects</span><span class="es">Efectos de sonido reales</span></b><span><span class="en">Each one on its exact frame, as loud as your voice.</span><span class="es">Cada uno en su cuadro exacto, al nivel de tu voz.</span></span></div>
+        <div class="tool"><b><span class="en">Animation in code (Remotion)</span><span class="es">Animación en código (Remotion)</span></b><span><span class="en">Motion graphics in your brand's style.</span><span class="es">Motion graphics con el estilo de tu marca.</span></span><small><span class="en">Free for individuals and teams of up to 3.</span><span class="es">Gratis para personas y equipos de hasta 3.</span></small></div>
+        <div class="tool"><b><span class="en">Publishing</span><span class="es">Publicar</span></b><span><span class="en">Through the official connections of Instagram, Facebook, YouTube and TikTok.</span><span class="es">Por las conexiones oficiales de Instagram, Facebook, YouTube y TikTok.</span></span></div>
+      </div>
+      <div class="glass tcol free rv"><span class="tt"><span class="en">Optional and free</span><span class="es">Opcional y gratis</span></span><span class="sub"><span class="en">Turn them on when you need them.</span><span class="es">Los activas cuando los necesites.</span></span>
+        <div class="tool"><b>HyperFrames</b><span><span class="en">Hundreds of ready-made animations and transitions.</span><span class="es">Cientos de animaciones y transiciones listas.</span></span></div>
+        <div class="tool"><b>last30days</b><span><span class="en">What your niche is sharing this month.</span><span class="es">Lo que está compartiendo tu nicho este mes.</span></span><small><span class="en">For TikTok and Instagram it uses ScrapeCreators: 10,000 free requests.</span><span class="es">Para TikTok e Instagram usa ScrapeCreators: 10.000 consultas gratis.</span></small></div>
+        <div class="tool"><b>instagram-agent</b><span><span class="en">Hooks, scripts and captions in your voice.</span><span class="es">Ganchos, guiones y textos con tu voz.</span></span></div>
+        <div class="tool"><b>Marketing skills</b><span><span class="en">Strategy that sells without sounding like an ad.</span><span class="es">Estrategia para vender sin sonar a anuncio.</span></span></div>
+        <div class="tool"><b>Adobe Podcast</b><span><span class="en">Studio-quality voice in one click.</span><span class="es">Tu voz con calidad de estudio en un clic.</span></span><small><span class="en">Free with an Adobe account.</span><span class="es">Gratis con una cuenta de Adobe.</span></small></div>
+      </div>
+      <div class="glass tcol paid rv"><span class="tt"><span class="en">Optional and paid</span><span class="es">Opcional y de pago</span></span><span class="sub"><span class="en">Always quoted first.</span><span class="es">Siempre te cotiza antes.</span></span>
+        <div class="tool"><b>After Effects</b><span><span class="en">Color and effects that are hard in code.</span><span class="es">Color y efectos difíciles en código.</span></span><small><span class="en">Your Adobe subscription.</span><span class="es">Con tu suscripción de Adobe.</span></small></div>
+        <div class="tool"><b>ElevenLabs</b><span><span class="en">Clean up your voice or create one for your brand.</span><span class="es">Limpia tu voz o crea una para tu marca.</span></span><small><span class="en">Has a free plan with a few minutes a month.</span><span class="es">Tiene un plan gratis con pocos minutos al mes.</span></small></div>
+        <div class="tool"><b>Higgsfield</b><span><span class="en">Change your clothes, the light or the angle with AI.</span><span class="es">Cambia tu ropa, la luz o el ángulo con IA.</span></span><small><span class="en">By credits, always quoted.</span><span class="es">Por créditos, siempre cotizado.</span></small></div>
+        <div class="tool"><b>Codex</b><span><span class="en">Reference photos before using AI on video.</span><span class="es">Fotos de referencia antes de usar IA en el video.</span></span><small><span class="en">Uses your ChatGPT plan.</span><span class="es">Usa tu plan de ChatGPT.</span></small></div>
+      </div>
+    </div>
+    <div class="glass ears rv">
+      <div class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h2l2-6 3 12 3-9 2 5 2-2h4"/></svg></div>
+      <p><b><span class="en">The AI can't hear, so it measures.</span><span class="es">La IA no oye, así que mide.</span></b> <span class="en">It studies how your niche sounds, measures every effect against your voice in the final mix and checks word by word (with Whisper) that no sound covers what you say. You approve it by ear.</span><span class="es">Estudia cómo suena tu nicho, mide cada efecto contra tu voz en la mezcla final y revisa palabra por palabra (con Whisper) que ningún sonido tape lo que dices. Tú lo apruebas de oído.</span></p>
+    </div>
+  </div>
+</section>
 
 <!-- ============ RECAP ============ -->
 <section class="sec" id="recap" aria-labelledby="r-h" style="padding-top:clamp(80px,10vw,120px)">
@@ -518,7 +621,7 @@ const PHASES = [
         what: ["It writes the script in your voice and tells you exactly what to record. Rather not appear? It makes it animated.", "Escribe el guion con tu voz y te dice exactamente qué grabar. ¿Prefieres no salir? Lo hace animado."] },
       { t: ["The edit", "La edición"], tell: ["Here's my recording", "Aquí está mi grabación"], img: "ill-edit.webp",
         what: ["It keeps your best takes without cutting a word, animates the scenes and adds real sound. You approve as it goes, watching and listening.", "Deja tus mejores tomas sin cortar una palabra, anima las escenas y pone sonido real. Tú apruebas en el camino, viendo y oyendo."] },
-      { t: ["Review it", "Revísalo"], cmd: "/creator-montage", tell: ["Make this text bigger, it covers my face", "Sube este texto, me tapa la cara"], img: "montage-1-note.webp", shot: true,
+      { t: ["Review it", "Revísalo"], cmd: "/creator-montage", tell: ["Make this text bigger, it covers my face", "Sube este texto, me tapa la cara"], img: ["montage-2-versions.webp", "montaje-es-2-version.webp"], shot: true,
         what: ["It opens Montage, your review screen. You pause, draw over what to change and send your notes. Then /creator-notes brings the new version.", "Abre Montage, tu pantalla de revisión. Pausas, dibujas sobre lo que quieres cambiar y mandas tus notas. Luego /creator-notes trae la versión nueva."] },
       { t: ["Publish it", "Publícalo"], tell: ["Post it Thursday at 7 pm", "Publícalo el jueves a las 7 p. m."], img: "ill-publish.webp",
         what: ["It writes the caption, suggests the cover and publishes only what you approved, on the day and time you chose.", "Escribe el texto, sugiere la portada y publica solo lo que aprobaste, el día y la hora que elegiste."] },
@@ -544,11 +647,11 @@ PHASES.forEach((ph) => {
   if (ph.visual === "term") visual = `<div class="ph-visual rv"><div class="screen"><div class="chat"><div class="chat-bar"><i></i><i></i><i></i><b>Claude Code</b><span class="new">${B("New chat", "Chat nuevo")}</span></div><div class="chat-body" id="chat-body"></div><div class="chat-in"><span class="t ph" id="chat-in"></span><span class="send"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span></div></div></div></div>`;
   if (ph.visual === "img") visual = `<div class="ph-visual rv"><div class="screen"><img src="${ph.img}" alt="" width="1100" height="829" loading="lazy" decoding="async"></div></div>`;
   if (ph.visual === "seq") visual = `<div class="ph-visual seq"><div class="screen" id="seq">${ph.steps.map((s, i) => s.shot
-      ? `<figure class="scene shot${i ? "" : " on"}"><img src="${s.img}" alt="" width="1400" height="875" loading="lazy" decoding="async"></figure>`
+      ? `<figure class="scene shot${i ? "" : " on"}"><img class="en" src="${s.img[0]}" alt="" width="1400" height="875" loading="lazy" decoding="async"><img class="es" src="${s.img[1]}" alt="" width="1600" height="1000" loading="lazy" decoding="async"></figure>`
       : `<figure class="scene${i ? "" : " on"}"><img src="${s.img}" alt="" width="1100" height="829" loading="lazy" decoding="async"></figure>`).join("")}
       <div class="say"><span class="who">${B("you", "tú")}</span><span class="txt" id="say"></span></div></div></div>`;
   const steps = ph.steps.map((s, i) => `<article class="glass st" data-i="${i}">
-      ${s.img ? `<div class="pic-m"><img src="${s.img}" alt="" loading="lazy" decoding="async"></div>` : ""}
+      ${s.img ? `<div class="pic-m">${Array.isArray(s.img) ? `<img class="en" src="${s.img[0]}" alt="" loading="lazy" decoding="async"><img class="es" src="${s.img[1]}" alt="" loading="lazy" decoding="async">` : `<img src="${s.img}" alt="" loading="lazy" decoding="async">`}</div>` : ""}
       <div class="top"><span class="k">${ph.id}.${i + 1}</span><h3>${B(...s.t)}</h3>${s.opt ? `<span class="opt">${B(...s.opt)}</span>` : ""}</div>
       ${s.tell ? `<div class="tell"><small>${B("tell your AI", "dile a tu IA")}</small>«${B(...s.tell)}»</div>` : ""}
       ${s.cmd ? cmdBox(s.cmd) : ""}
@@ -687,6 +790,16 @@ const stIO = new IntersectionObserver((es) => es.forEach((e) => {
 }), { rootMargin: "-42% 0px -42% 0px" });
 $$(".st").forEach((s) => stIO.observe(s));
 
+/* ---------- the editor viewer (advances on its own until you pick one) ---------- */
+const mv = $("#mv"), mvTabs = $$(".mv-tab"), mvImgs = $$(".mv-frame img");
+let mvI = 0, mvTimer = null;
+const mvShow = (i) => { mvI = i; mvTabs.forEach((t, k) => t.setAttribute("aria-selected", String(k === i))); mvImgs.forEach((im, k) => im.classList.toggle("on", k === i)); };
+const mvAuto = () => { clearInterval(mvTimer); if (!reduce) mvTimer = setInterval(() => mvShow((mvI + 1) % mvTabs.length), 7000); };
+mvTabs.forEach((t) => t.addEventListener("click", () => { mvShow(+t.dataset.i); clearInterval(mvTimer); mv.classList.add("paused"); }));
+new IntersectionObserver((es) => { if (es[0].isIntersecting && !mv.classList.contains("paused")) mvAuto(); else clearInterval(mvTimer); }, { threshold: 0.4 }).observe(mv);
+if (reduce) mv.classList.add("paused");
+onLang.push(() => mvImgs.forEach((im) => { const s = im.dataset[lang]; if (s && im.getAttribute("src") !== s) im.setAttribute("src", s); }));
+
 /* ---------- phase bar + helper ---------- */
 const nav = $("#nav"), bar = $("#phasebar"), barLinks = $$("a", bar);
 const phIO = new IntersectionObserver((es) => es.forEach((e) => {
@@ -697,7 +810,7 @@ const phIO = new IntersectionObserver((es) => es.forEach((e) => {
 $$(".phase").forEach((p) => phIO.observe(p));
 const onScroll = () => {
   nav.classList.toggle("solid", scrollY > 30);
-  const first = $("#phase-1").getBoundingClientRect().top, recap = $("#recap").getBoundingClientRect().top;
+  const first = $("#phase-1").getBoundingClientRect().top, recap = $("#editor").getBoundingClientRect().top;
   bar.classList.toggle("show", first < innerHeight * 0.5 && recap > innerHeight * 0.5);
   helper.classList.toggle("show", scrollY > innerHeight * 0.9);
 };

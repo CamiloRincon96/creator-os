@@ -1188,6 +1188,8 @@ h3 {
   color: var(--ice);
   font: 700 10px var(--mono);
   line-height: 18px;
+  white-space: nowrap;
+  flex: none;
   cursor: help;
 }
 .reviewer-score.low {
