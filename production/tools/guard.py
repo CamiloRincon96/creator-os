@@ -169,7 +169,8 @@ def after(data, st):
         if mt < st["start"] - 2:
             continue
         P = v.parent.parent
-        if v.name in text or (P.name in text and mt >= st["last"] - 2):
+        # the piece has to be named: another piece's "reel-v1.mp4" (from another chat) isn't this session's
+        if P.name in text and (v.name in text or mt >= st["last"] - 2):
             st["videos"][rel(v)] = mt
     # the pieces whose STATUS.md this step touched
     for P in pieces():
