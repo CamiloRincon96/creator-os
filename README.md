@@ -20,9 +20,20 @@ It works with agents that read and edit files and run commands on your computer:
 **Use it in your language.** The repo is in English, but the AI talks to you, asks you things and walks you through every setup step (logins, connections, approvals) in whatever language you write to it in.
 
 
-![Creator OS as a metro map: set up, brand, ideas, produce, review, publish and learn, looping back to ideas every week, with what plugs into each stop (bundled, required, optional free, optional paid)](docs/how-it-works.png)
+![Creator OS: a glass phone playing a reel, surrounded by its team: the cut, the sound, the reviewer's check and your stars](docs/ill-hero.webp)
 
-**Interactive map** (English / Español): open **[diraccore.com/creator-os](https://diraccore.com/creator-os)**, or download [`docs/guide.html`](docs/guide.html) and open it in your browser. It plays a short tour on its own: each stop, what it uses and what you approve. Tap any stop to see it up close.
+**The step-by-step guide, illustrated** (Español / English): **[diraccore.com/creator-os](https://diraccore.com/creator-os)**. It walks you through the four phases, with the exact thing to paste at every step.
+
+## Four phases, one step at a time
+
+1. **Install it** (once). Paste one message to Claude Code and it installs the plugin for you (below).
+2. **Set up your brand** (once). `/creator-start` gets your computer ready, `/creator-brand` finds what you really talk about and to whom, `/creator-connect` links your networks when you want to publish.
+3. **Make your reel** (every reel). `/creator-ideas` brings ideas with their hook, `/creator-reel` writes the script, cuts, animates and adds sound, you review in Montage (`/creator-montage`, `/creator-notes`) and it publishes only what you approved.
+4. **Grow** (every week). `/creator-pulse` reads how each post did and writes down your own style; next week's ideas start from there.
+
+Lost at any point? Ask your AI "what's next?": it knows where you are and tells you the next step.
+
+**Nothing reaches you half done.** Every version passes a quality lock: the stage's tools are checked by what they leave in the piece, the whole video is reviewed frame by frame, and an independent reviewer (a second AI that didn't make it) scores it from 1 to 10. Nothing under 8 reaches you; you add your stars, and every hour it compares the reviewer and you with how the audience actually watched. **Automatic checks** (Claude Code hooks in `.claude/settings.json`) make sure no step gets skipped: a turn can't end with a video left unreviewed, a stage without your approval recorded or a correction without its lesson.
 
 ## What's inside
 
@@ -46,14 +57,20 @@ Python and Node tools live in `production/tools/`. Among others:
 
 ## Getting started
 
-**In Claude Code, the plugin is the fastest way.** Paste this into Claude Code:
+**In Claude Code you only install one plugin, and Claude Code installs it for you.** Open Claude Code and paste this message:
+
+```
+Install the Creator OS plugin: run claude plugin marketplace add CamiloRincon96/creator-os and then claude plugin install creator-os@creator-os
+```
+
+Then open a **new chat** (a freshly installed plugin shows up there) and type **`/creator-os:start`**. It asks where to put the folder, clones the repo with your yes, gets your computer ready (asking before installing anything) and hands over to `/creator-start`.
+
+Already know how to install plugins? Paste these yourself, one at a time, and then `/creator-os:start`:
 
 ```
 /plugin marketplace add CamiloRincon96/creator-os
 /plugin install creator-os@creator-os
 ```
-
-Then type **`/creator-os:start`**. It asks where to put the folder, clones the repo with your yes and opens the way to `/creator-start`.
 
 **With any other agent (or if you'd rather do it by hand):**
 
