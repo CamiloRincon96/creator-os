@@ -50,7 +50,7 @@ Also read:
 - what is already in `ideas/`, so nothing repeats;
 - `production/variations/LEARNED.md`.
 
-**If the brand has no `NICHE.md`**, `/creator-brand` goes first, option C (or A if the brand is new). Say it like this: "Your brand doesn't have written down who it talks to yet, and without that the ideas come out generic. Let's set it up first with `/creator-brand` and then come back here." As a guide, the niche is built like this:
+**If the brand has no `NICHE.md`**, offer `/creator-brand` first, option C (or A if the brand is new), as recommended; if the person would rather go on without it, carry on with what they tell you in the chat and tell them the ideas may come out more generic. Say it like this: "Your brand doesn't have written down who it talks to yet, and without that the ideas come out generic. Let's set it up first with `/creator-brand` and then come back here." As a guide, the niche is built like this:
 - with the product document from the app's repo (for example `PRODUCT.md`), its `PROFILE.md` and its metrics;
 - with the shape of Example's;
 - the real niche is not the generic category: it is not "financial education", it is "people who don't know where their money goes and pay for everything from a phone wallet".

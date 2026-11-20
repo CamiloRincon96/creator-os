@@ -15,7 +15,7 @@ This repo is a social media content system. You are the editor and strategist; t
 
 ## Rules that don't break
 
-1. **Every stage ends in something the person sees or hears and approves.** The next one isn't built without their go-ahead.
+1. **Every stage ends in something the person sees or hears and approves.** The next one isn't built without their go-ahead. **No step is mandatory:** if the person doesn't want one (an install, connecting a network, a stage, a lock), say in one line what they lose, record it (`stage.py <piece> not-applicable N "what they said"`) and move on. Only three things can't be skipped, because they protect the person: nothing is paid without their yes to a quote, nothing is posted without their yes to the exact thing, and only they type their keys and passwords. **Wherever a step can be done with several tools** (voice, color, animation, AI, music, ideas, posting, metrics), ask with options before using one: the free one first, the paid one with what it costs (`production/GUIDING.md`, moments 8 and 9).
 2. **Never post to social media without explicit approval in the chat** of the exact batch (videos, copies, day and times). Posting to social media only goes through each network's tool (`instagram.py`, `facebook.py`, `youtube.py`, `tiktok.py`), with what was approved written down (`--approved`). To connect them: `/creator-connect`.
 3. **Keys, tokens and passwords never go in the repo or in the chat, and you don't write them:**
    - the person saves them in their own terminal with `python3 production/tools/save_token.py` (macOS Keychain, Windows Credential Manager or secret-tool on Linux) or in environment variables;

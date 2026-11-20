@@ -13,7 +13,7 @@ The why and the overview are in `production/REELS-WORKFLOW.md`. This is the proc
 
 ## Rules that are never skipped
 
-1. **Every stage ends in something the creator sees or hears and approves.** The next one does not start without their go-ahead, unless they say for that piece "keep going without asking me until stage N"; that is noted in `STATUS.md`.
+1. **Every stage ends in something the creator sees or hears and approves.** The next one does not start without their go-ahead, unless they say for that piece "keep going without asking me until stage N"; that is noted in `STATUS.md`. **Any stage can be skipped** if the person asks or doesn't want to do it (recording, the external voice, the retouch, the sound, the variations…): say in one line what they lose, run `stage.py <piece> not-applicable N "<what they said>"` and move on (`production/GUIDING.md`, moment 8).
 2. **Claude cannot hear.** Sound is measured with `listen.py` and approved by the creator by ear. Never write "sounds good".
 3. **A cut never lands on the voice.** Cuts are placed by `cut.py`, not by the transcriber's timings.
 4. **Nothing paid and no uploading material without telling them.** Higgsfield is never used without a quote the creator approved for that piece (stage 8). ElevenLabs, Adobe and Codex are announced before sending them any material.
@@ -256,7 +256,7 @@ Say: "I'm building a mockup: your voice with gray cards where each animation wil
   - change the scene;
   - or look at the sheet and write in `gaze_ok` why it stays ("squints while talking, but looks at the lens").
 
-  Don't move on with unresolved warnings.
+  Don't move on with unresolved warnings, unless the person decides to leave it as is: show them the warning in one line and, if they say go on, write it in `gaze_ok` with their words.
 - Check the counts against the brief: percentage of person on screen and a visual change every two to three seconds. Also check that each scene lasts as long as what it shows takes to be seen (stage 7 block of `LESSONS.md`): mark the ones too short for their text or shot right away.
 - Write `image/blocks.json`: one block for each `CAMERA` or `CAMEO` row (`id`, `start`, `end` in piece seconds, `what`). From here on you know how many seconds the person appears; run `python3 production/tools/quote.py <piece>` and note the result in `STATUS.md`, for information only. If the brief asked for something from stage 8, tell them in one line: "You're on screen for 9 s. With AI, that would cost about N credits; it's just so you know, nothing is spent now."
 - Make the **mockup**: `python3 production/tools/mockup.py <piece>` (the `Mockup` composition in the brand's Remotion project: the voice, the real take in the blocks, gray cards in the scenes, push-ins and captions; at half resolution). Review it in full with `review.py <mockup> --cut <piece>` (all its images and "What I saw") and publish it with one marker per scene.
@@ -499,7 +499,7 @@ Say when starting: "Now I'll make 3 to 5 versions of your video, each with a dif
 
 ### 12d · Publishing
 1. `instagram.py approve <batch> --message "<what the creator said>"` and `instagram.py schedule <batch>`. The computer stays on and connected until the last time slot, and only one computer schedules each batch. Say: "Leave this computer on and online until <last time>; if it shuts down, the remaining ones won't go out on time."
-2. They go out as **trial reels**, for non-followers only, with manual graduation. Before scheduling, confirm the account has them (see `CALENDAR.md`). The creator checks it, as a hands-on step: "In the Instagram app, start sharing a reel (without posting it) and see whether the “Trial reel” toggle shows up. Tell me “yes” or “no”." **If it doesn't have them, they are not posted** (the creator, Nov 15, 2026: "I need the trial one or nothing"): the variations stay ready in `finals/<project>/variations/` with the batch unapproved, and you tell them so.
+2. They go out as **trial reels**, for non-followers only, with manual graduation. Before scheduling, confirm the account has them (see `CALENDAR.md`). The creator checks it, as a hands-on step: "In the Instagram app, start sharing a reel (without posting it) and see whether the “Trial reel” toggle shows up. Tell me “yes” or “no”." **If it doesn't have them,** ask with options: "Wait until I have them" (Recommended: the variations stay ready in `finals/<project>/variations/` with the batch unapproved), "Post them as normal reels, spread over several days" (followers see them too) or "Skip the variations" (`stage.py <piece> not-applicable 12 "…"`).
 3. The ones marked `manual` (trending song) are uploaded by the creator from the app at their time: remind them with the file and the copy ("At <time>, upload `<video path>` from the Instagram app with this text: …, and add the song there").
 
 ### 12e · Results and learning

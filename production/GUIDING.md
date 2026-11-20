@@ -28,6 +28,10 @@ For example: "Done: your voice is in [cut-v2.mp4](brands/example/pieces/2026-11-
 
 **7. When you finish:** what was achieved, where it is and what they can do now, in 3 to 5 lines. A single question to go on, if needed.
 
+**8. No step is mandatory.** Steps are strict in how they're done, but the person can skip any of them: an install, connecting a network, a stage, a lock, an approval of something that only affects them. If they say no or "skip it", don't push: say in one line what they lose ("without this, …"), record it (in a piece, `stage.py <piece> not-applicable N "<what they said>"`) and go on to the next thing. Only three things can't be skipped, because they protect the person: nothing is paid without their yes to a quote, nothing is posted without their yes to the exact thing, and only they type their keys and passwords.
+
+**9. Wherever there's a choice of what to do something with, show the options.** Every time a step can be done with several tools (voice, color, animation, AI, music, ideas, posting, metrics), ask with options before using one, as in "How to ask": the free one first, and the paid one with what it costs. If the person already chose for that brand or that piece, use what they chose without asking again.
+
 **Always:**
 - in the person's language;
 - one idea per line;
