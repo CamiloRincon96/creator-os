@@ -62,6 +62,13 @@ With this, Claude uploads the reels and their copies at the batch's times. `prod
 
 **So it doesn't switch off:** Meta deactivates an app that goes 90 days without calls, and all its keys with it. The metrics watcher (below) keeps it active.
 
+## Stories
+
+`instagram.py stories <brand> <file…> --approved "<what the creator said>"` posts right away, in order, images or videos as stories. Each image goes out as a 6 s video and is uploaded from the computer, because the API wants images hosted on a public server. It leaves a log (`posted.json`) next to the files, with what the creator approved.
+
+- Tested on Nov 17, 2026 with a 6-story highlight on a creator account: Meta accepted all 6.
+- **Highlights can't be built through the API or the web.** The web only lets you pick stories from the archive, and the ones posted through the API didn't show up there. They're built on the phone: on each active story, **Highlight** → the highlight. The cover is changed in **Edit highlight** → **Edit cover**.
+
 ## How it's used (stage 12 of /creator-reel)
 
 1. `variations.py <piece> <variations.json>` builds 4 to 6 variations and the `batch.json`, with each one's copy, time and cover.

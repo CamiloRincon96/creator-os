@@ -1,9 +1,12 @@
 """The automatic checks: what gets done even if the AI forgets. Claude Code runs them on its own (hooks in
 .claude/settings.json), not the AI. They were born from a creator's reel: "I think you skip a lot of the plugin's steps".
 
-    start     (when the session starts)    tells the AI which pieces are open, what stage they're at and which lessons are missing
+    start     (when the session starts)    tells the AI which pieces are open, what stage they're at and which lessons are missing,
+                                           and checks for a new version of Creator OS: applies it if it touches nothing of the person's
     message   (when the person writes)     if they reject or correct something, or confirm a taste, reminds it to leave the lesson
     after     (after each step)            records the output/ videos this session made and warns if a key file shrank
+    (message and after, too)               check in the background every 3 hours for a new version and tell the AI to apply it at
+                                           the next safe pause (update.py)
     end       (when each turn ends)        won't let the turn end if a video from this session is left without its full review,
                                            if a stage was left behind without the approval recorded, or if a rejection has no
                                            lesson. It stops once; if nothing changes, it tells the person and doesn't insist.
@@ -30,6 +33,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import lessons  # noqa: E402
+import update  # noqa: E402
 import locks  # noqa: E402
 import stage  # noqa: E402
 
@@ -132,23 +136,41 @@ def start(data, st):
         line = next((l for l in cal.read_text(encoding="utf-8").split("\n") if l.startswith("**In short:**")), None)
         if line:
             L.append(f"Calibration of {cal.parts[-3]} (the reviewer and the person against the audience): {line.replace('**In short:**', '').strip()}")
+    try:
+        version = update.at_start()
+    except Exception:  # noqa: BLE001  checking for a new version never holds up the start
+        version = None
+    if version:
+        L.append(version)
     answer({"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "\n".join(L)}})
 
 
 # ---------------------------------------------------------------- when the person writes
+def new_version(st):
+    try:
+        return update.in_background(st)
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def message(data, st):
     text = data.get("prompt") or ""
-    if any(m in text for m in HELPERS):  # a subagent's report or a system notice: the person didn't write it
-        return
+    version = new_version(st)
     t = normal(text)
-    if REJECTION.search(t):
+    if any(m in text for m in HELPERS):  # a subagent's report or a system notice: the person didn't write it
+        kind = None
+    elif REJECTION.search(t):
         kind = "rejects or corrects something"
     elif TASTE.search(t):
         kind = "confirms something they liked"
     else:
+        kind = None
+    if not kind:
+        if version:
+            answer({"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": version}})
         return
     st["rejection"] = {"ts": time.time(), "text": re.sub(r"\s+", " ", text).strip()[:140], "kind": kind}
-    answer({"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext":
+    answer({"hookSpecificOutput": {"hookEventName": "UserPromptSubmit", "additionalContext": (version + "\n" if version else "") +
             f"Automatic check: it looks like the person {kind}. Before this turn ends, leave the lesson in one line, with their "
             f"words: {system.PY} production/tools/lessons.py add <stage|always> \"what happened and how it's avoided (or what worked, "
             f"with its numbers)\" --said \"their words\" [--from \"<project> vN\"]. If it's only about this piece, it goes in Montage's "
@@ -193,7 +215,12 @@ def after(data, st):
                 st["warned"][k] = 1
                 warnings.append(f"{r} had {before} lines in the last commit and now has {now_n}")
     st["last"] = now
+    version = new_version(st)
+    if version and not warnings:
+        answer({"hookSpecificOutput": {"hookEventName": "PostToolUse", "additionalContext": version}})
     if warnings:
+        if version:
+            st.pop("version_noticed", None)  # it's mentioned at the next step, so it doesn't mix with this stop
         answer({"decision": "block", "reason": "Automatic check: a key file shrank a lot — " + "; ".join(warnings) +
                 ". If it wasn't on purpose, recover what's missing (git diff and git show HEAD:<file>; the lessons also have a copy "
                 "in lessons.py's cache) before going on. If it was on purpose, go on."})

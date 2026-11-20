@@ -442,7 +442,7 @@ How to ask: "Where else shall I upload it?", multiple choice and only the connec
 
 **Instagram:** the person uploads the FINAL from the app (Instagram or Edits), because that's where they pick the cover, the music and the trial reel. It goes as a hands-on step: "On your phone, open Instagram → **+** → **Reel** → pick `<name>.mp4` (it's in `<final folder>`; send it to your phone with AirDrop or your cloud). Paste the text from `copy.txt`, pick the cover and post. Type “done”."
 
-If a network isn't connected, `/creator-connect`.
+If a network isn't connected, offer `/creator-connect` once, as an option, not a requirement. Without connecting anything the piece carries on the same: it's posted from the phone app and moves on to stage 12.
 
 After stage 12 (variations), the **cleanup** (the creator's rule: the computer must not fill up):
 1. `python3 production/tools/clean.py <piece>` shows what it would delete and what stays: the piece's text and code, the final voice, the raw takes and the FINAL.
@@ -463,6 +463,11 @@ It comes after the FINAL and **before the cleanup**: the cleanup deletes what is
 - `LEARNED.md`: the results of each batch; the new rules come from there.
 
 The account is connected once: `production/INSTAGRAM.md`.
+
+**Without Meta's API you still carry on.** Connecting Instagram through Meta's API is optional. If `connect.py status <brand>` says Instagram isn't connected, or the person doesn't want to connect it now, don't stop and don't push. Ask once, with options:
+- **"Make them and I'll post them from the app"** (Recommended): 12a and 12b as usual. The diagnosis uses the retention-curve screenshot the person sends instead of the API metrics. In 12c and 12d nothing is scheduled: each variation stays in `finals/<project>/variations/` with its caption and its time in `PUBLISH.md`, and the person posts it from the app as a trial reel, if their account has them. The 12e results come from a screenshot of each one's insights.
+- **"Skip the variations":** `python3 production/tools/stage.py <piece> not-applicable 12 "<what they said>"`, and go on to the cleanup.
+- **"Connect Instagram now":** `/creator-connect` (about 25 minutes, free), then come back here.
 
 Say when starting: "Now I'll make 3 to 5 versions of your video, each with a different opening, to test them with people who don't follow you. You see them as drafts first; nothing is posted without your yes."
 

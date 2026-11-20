@@ -5,6 +5,9 @@
     python3 production/tools/instagram.py reels <brand> [n]      # the last n reels with their metrics (for /creator-ideas)
     python3 production/tools/instagram.py audios <brand> [--type music|original_sound] [--search "…"] [--n 20] [--download <folder>] [--raw]
                                                                  # trending Instagram audio (Audio API, read-only)
+    python3 production/tools/instagram.py stories <brand> <file…> --approved "<what the creator said>"
+                                                                # posts now, in order, images or videos as stories
+                                                                # (an image goes out as a 6 s video: uploaded from the computer)
     python3 production/tools/instagram.py preview <batch.json>   # what would be posted and when (does not post)
     python3 production/tools/instagram.py approve <batch.json> --message "<what the creator said>"
     python3 production/tools/instagram.py schedule <batch.json>  # leaves the day's posting running
@@ -40,6 +43,7 @@ import datetime as dt
 import json
 import os
 import sys
+import subprocess
 import time
 import urllib.error
 import urllib.parse
@@ -153,6 +157,47 @@ def upload_and_publish(brand, d, p, log):
     return media, link
 
 
+def story_as_video(file, seconds=6):
+    """An image is posted as an N-second video: that way it uploads from the computer (the API wants images hosted)."""
+    if file.suffix.lower() in (".mp4", ".mov"):
+        return file
+    out = file.with_suffix(".story.mp4")
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-loop", "1", "-framerate", "30", "-t", str(seconds), "-i", str(file),
+                    "-f", "lavfi", "-t", str(seconds), "-i", "anullsrc=r=48000:cl=stereo",
+                    "-vf", "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,format=yuv420p",
+                    "-c:v", "libx264", "-preset", "slow", "-crf", "16", "-tune", "stillimage", "-c:a", "aac", "-b:a", "128k",
+                    "-shortest", "-movflags", "+faststart", str(out)], check=True)
+    return out
+
+
+def post_story(brand, video, log=print):
+    """Uploads a video from the computer as a story (media_type STORIES, resumable upload) and publishes it."""
+    tok, c = token(brand), account(brand)
+    r = api("POST", f"{c['ig_id']}/media", tok, {"media_type": "STORIES", "upload_type": "resumable"})
+    cont = r["id"]
+    target = r.get("uri") or f"{RUPLOAD}/{version()}/{cont}"
+    req = urllib.request.Request(target, data=video.read_bytes(), method="POST",
+                                 headers={"Authorization": f"OAuth {tok}", "offset": "0", "file_size": str(video.stat().st_size)})
+    with urllib.request.urlopen(req, timeout=600) as resp:
+        up = json.load(resp)
+    if not up.get("success", True):
+        raise RuntimeError(f"the upload failed: {up}")
+    for _ in range(40):
+        st = api("GET", cont, tok, {"fields": "status_code,status"})
+        if st.get("status_code") == "FINISHED":
+            break
+        if st.get("status_code") in ("ERROR", "EXPIRED"):
+            raise RuntimeError(f"Instagram didn't process the story: {st}")
+        time.sleep(5)
+    else:
+        raise RuntimeError("Instagram took more than 3 minutes to process the story")
+    return api("POST", f"{c['ig_id']}/media_publish", tok, {"creation_id": cont})["id"]
+
+
+def option_value(option):
+    return sys.argv[sys.argv.index(option) + 1] if option in sys.argv and sys.argv.index(option) + 1 < len(sys.argv) else None
+
+
 METRICS = ["views", "reach", "saved", "shares", "comments", "likes", "total_interactions", "ig_reels_avg_watch_time"]
 
 
@@ -182,6 +227,24 @@ def main():
     if len(sys.argv) < 2 or (len(sys.argv) < 3 and sys.argv[1] not in ("watch", "watcher")):
         sys.exit(__doc__)
     command, arg = sys.argv[1], (sys.argv[2] if len(sys.argv) > 2 else "")
+
+    if command == "stories":
+        msg = option_value("--approved")
+        if not msg:
+            sys.exit("Missing --approved \"<what the creator said in the chat>\": stories are only posted with their go-ahead.")
+        files = [Path(x) for x in sys.argv[3:] if not x.startswith("--") and x != msg]
+        account(arg)
+        log_file = files[0].resolve().parent / "posted.json"
+        done = json.loads(log_file.read_text(encoding="utf-8")) if log_file.exists() else []
+        for f in files:
+            f = f.resolve()
+            media = post_story(arg, story_as_video(f))
+            done.append({"file": f.name, "media_id": media, "account": account(arg).get("username"),
+                         "date": dt.datetime.now().isoformat(timespec="seconds"), "approved": msg})
+            log_file.write_text(json.dumps(done, indent=1, ensure_ascii=False), encoding="utf-8")
+            print(f"  ✓ {f.name} posted as a story (id {media})")
+        print(f"Log: {log_file}")
+        return
 
     if command == "connect":
         tok = token(arg)

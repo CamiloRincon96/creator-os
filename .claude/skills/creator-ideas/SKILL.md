@@ -75,7 +75,7 @@ Three sources, in parallel, from this week and never from memory:
    - it does not save reports to disk.
 
    TikTok and Instagram need the ScrapeCreators key saved (see "Set up"). If it is not there, run with YouTube, Reddit and the web, and say so: "Without your ScrapeCreators key I can't see TikTok or Instagram; I searched YouTube, Reddit and the web. Adding it is free: it comes with 100 credits when you sign up, no card. If you want, I'll show you how at the end."
-2. **The account:** `python3 production/tools/instagram.py reels <brand> 10` brings views, reach, % that skip in 3 s, shares and saves. What won and why; to read it, `instagram-agent:ig-audit`.
+2. **The account:** `python3 production/tools/instagram.py reels <brand> 10` brings views, reach, % that skip in 3 s, shares and saves. What won and why; to read it, `instagram-agent:ig-audit`. If Instagram isn't connected through the API, don't stop: carry on with the research alone, or with the Insights screenshots the person wants to send, and tell them in one line that connecting it (`/creator-connect`) is optional.
 3. **The calendar:** the dates of the coming week and month in the niche's country (bonuses, paydays, taxes, seasons).
 
 Summarize in 5 to 8 lines, in plain words: the topic, which format is moving it, and the source with its date. **What matters most is what the niche's people are sharing**, not what is trending in general.

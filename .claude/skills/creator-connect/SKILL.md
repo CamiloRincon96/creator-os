@@ -29,7 +29,7 @@ Whoever is connecting may not be technical. Every message follows `production/GU
 | YouTube | To upload your videos as Shorts, public or scheduled, and see how much they're watched. Used when each video is finished. Free (up to 100 videos a day). About 15 minutes. |
 | TikTok | To send the video to your TikTok drafts; you post it from your phone with the sound you want. Used when each video is finished. Free. About 20 minutes. |
 
-Put first, with "(Recommended)", the network they use most; if you don't know, Instagram. If they pick Facebook without Instagram, tell them in one line that Facebook uses the same app and the same key, and start with Instagram.
+Put first, with "(Recommended)", the network they use most; if you don't know, Instagram. Always add a "None for now" option: connecting is optional and the whole repo works without the API (posting from the app and reading the numbers from screenshots). If the person gets tired or doesn't want to go on halfway through a network, stop there without pushing: what's done stays, and they can pick it up any time with `/creator-connect`. Facebook is always optional, even with Instagram connected. If they pick Facebook without Instagram, tell them in one line that Facebook uses the same app and the same key, and start with Instagram.
 
 ## 1. Before each network
 

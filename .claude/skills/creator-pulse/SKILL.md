@@ -22,7 +22,7 @@ Lead the person by the hand (`production/GUIDING.md`): every number says what it
 
 - The computer's watcher (`instagram.py watcher`, every hour: launchd on macOS, Task Scheduler on Windows, cron on Linux) runs `pulse.py collect` for each connected account. It saves a snapshot of the metrics in each age bucket, **stories every hour while they are live** (their metrics disappear after 24 h) and the day's followers.
 - Before: "I'm bringing in the latest from your account and measuring each new reel. It takes longer if there are many new reels."
-- At the start: `python3 production/tools/pulse.py collect <brand>`, to bring in the latest. If the account is not connected: "I can't read your numbers yet: your Instagram isn't connected. You can connect it for free with `/creator-connect`."
+- At the start: `python3 production/tools/pulse.py collect <brand>`, to bring in the latest. If the account is not connected, don't stop: "Your Instagram isn't connected, so I'll read your numbers from screenshots. In the app, open Insights (or each reel → View insights) and send me screenshots of this week here. If you ever want me to read them on my own, it connects for free with `/creator-connect`." The pulse carries on with those screenshots (views, reach, % that skip, shares and saves), the same as with the API data.
 - Then: `python3 production/tools/pulse.py cards <brand>`. It downloads each new reel and measures:
   - duration;
   - cuts per minute;

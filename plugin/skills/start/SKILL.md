@@ -73,7 +73,9 @@ Hand over to `/creator-start` the first time, or to the command they asked for, 
 
 ## Updates
 
-Inside the workspace, `git pull` brings the new skills and tools. Their brands, ideas and pieces are their own files. Ask before pulling, in one line: "Should I update Creator OS? It brings the new skills and tools; your brands, ideas and pieces stay as they are. Free." If git reports a conflict, stop and explain it in plain words, and never discard their changes.
+Creator OS keeps itself up to date; the person doesn't have to remember anything:
+- **The workspace:** `production/tools/update.py` runs on its own from the automatic checks (`guard.py`). When a session starts it looks for a new version and applies it if it doesn't touch anything of theirs (it only moves forward, `git merge --ff-only`). While they work, it checks every 3 hours in the background and asks you to apply it at the next safe pause. Their brands, ideas and pieces are their own files. If the new version changes a file they also changed, nothing moves: explain it in plain words and merge it with their yes, never discarding their changes. If they'd rather only be told: `update.py auto no`.
+- **This plugin:** once the workspace is ready, offer one hands-on step so the plugin updates itself too: "In Claude Code, type `/plugin`, go to **Marketplaces**, pick **creator-os** and choose **Enable auto-update**. Type “done”." Free, and optional.
 
 ## Rules that don't bend
 
